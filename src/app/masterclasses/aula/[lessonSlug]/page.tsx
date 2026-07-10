@@ -21,10 +21,15 @@ import {
   FileVideo,
   FileQuestion,
   CornerDownRight,
-  Info
+  Info,
+  ThumbsUp,
+  Bookmark,
+  Star,
+  Check
 } from 'lucide-react';
 import { LessonDetailSkeleton } from '@/components/SkeletonLoaders';
 import { Lesson, Resource, LessonComment, Course, Module } from '@/lib/db';
+import MuxPlayer from '@mux/mux-player-react';
 
 export default function LessonDetailPage() {
   const { user } = useAuth();
@@ -40,7 +45,7 @@ export default function LessonDetailPage() {
   const [activeTab, setActiveTab] = useState<'sobre' | 'recursos' | 'comentarios'>('sobre');
 
   // Video progress refs/states
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const videoRef = useRef<any>(null);
   const lastUpdatedProgress = useRef<number>(0);
   const [isWatched, setIsWatched] = useState(false);
 
@@ -53,6 +58,13 @@ export default function LessonDetailPage() {
 
   // JSZip download status
   const [zipLoading, setZipLoading] = useState(false);
+
+  // Lesson interactions states (Case style)
+  const [rating, setRating] = useState<number>(0);
+  const [isSaved, setIsSaved] = useState<boolean>(false);
+  const [isUseful, setIsUseful] = useState<boolean>(false);
+  const [usefulCount, setUsefulCount] = useState<number>(12); // mock start count
+  const [moduleLessons, setModuleLessons] = useState<Lesson[]>([]);
 
   useEffect(() => {
     const fetchLessonData = async () => {
@@ -119,6 +131,23 @@ export default function LessonDetailPage() {
         );
         if (progress && progress.completed) {
           setIsWatched(true);
+        }
+
+        // 6. Load all lessons of this module
+        if (foundModule) {
+          let list = db.lessons.filter((l: Lesson) => l.module_id === foundModule.id);
+          // Apply time filter if not admin
+          if (user?.member_type !== 'admin') {
+            list = list.filter((l: Lesson) => {
+              if (l.status === 'published') return true;
+              if (l.status === 'agendado') {
+                return l.scheduled_at && new Date(l.scheduled_at) <= now;
+              }
+              return false;
+            });
+          }
+          list.sort((a: Lesson, b: Lesson) => (a.sequence_order ?? 0) - (b.sequence_order ?? 0));
+          setModuleLessons(list);
         }
 
       } catch (error) {
@@ -342,6 +371,60 @@ export default function LessonDetailPage() {
     }
   };
 
+  const handleToggleWatched = async () => {
+    if (!user || !lesson) return;
+    const nextWatched = !isWatched;
+    setIsWatched(nextWatched);
+
+    try {
+      const response = await fetch('/api/db');
+      if (response.ok) {
+        const db = await response.json();
+        const existingIndex = db.user_lesson_progress.findIndex(
+          (p: any) => p.user_id === user.id && p.lesson_id === lesson.id
+        );
+
+        const video = videoRef.current;
+        const currentSeconds = video ? Math.floor(video.currentTime) : 0;
+        const totalSeconds = video && !isNaN(video.duration) ? Math.floor(video.duration) : 100;
+        
+        const newProgress = {
+          id: existingIndex > -1 ? db.user_lesson_progress[existingIndex].id : `progress-${Date.now()}`,
+          user_id: user.id,
+          lesson_id: lesson.id,
+          watched_seconds: nextWatched ? totalSeconds : currentSeconds,
+          total_seconds: totalSeconds,
+          percent_complete: nextWatched ? 100 : 0,
+          completed: nextWatched,
+          last_watched_at: new Date().toISOString()
+        };
+
+        if (existingIndex > -1) {
+          db.user_lesson_progress[existingIndex] = newProgress;
+        } else {
+          db.user_lesson_progress.push(newProgress);
+        }
+
+        await fetch('/api/db', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(db)
+        });
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleToggleUseful = () => {
+    if (isUseful) {
+      setUsefulCount(prev => prev - 1);
+    } else {
+      setUsefulCount(prev => prev + 1);
+    }
+    setIsUseful(!isUseful);
+  };
+
   const startEditing = (commentId: string, currentContent: string) => {
     setEditingCommentId(commentId);
     setEditingText(currentContent);
@@ -357,356 +440,239 @@ export default function LessonDetailPage() {
 
   const getResourceIcon = (category: string) => {
     switch (category) {
-      case 'spreadsheet': return <FileSpreadsheet className="text-green-400" size={20} />;
-      case 'document': return <FileText className="text-blue-400" size={20} />;
-      case 'presentation': return <FileVideo className="text-orange-400" size={20} />;
-      default: return <FileQuestion className="text-gray-400" size={20} />;
+      case 'spreadsheet': return <FileSpreadsheet className="text-green-400" size={18} />;
+      case 'document': return <FileText className="text-blue-400" size={18} />;
+      case 'presentation': return <FileVideo className="text-orange-400" size={18} />;
+      default: return <FileQuestion className="text-gray-400" size={18} />;
     }
   };
 
+  // Find index of current lesson within module
+  const currentLessonIndex = moduleLessons.findIndex(l => l.id === lesson.id);
+  const lessonNumber = currentLessonIndex > -1 ? currentLessonIndex + 1 : 1;
+
   return (
-    <div>
-      {/* Back button and title */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <Link href={course ? `/masterclasses/curso/${course.slug}` : '/masterclasses'} className="outline-btn text-xs" style={{ padding: '6px 12px', textDecoration: 'none' }}>
+    <div className="flex flex-col gap-6">
+      
+      {/* ── BREADCRUMBS ── */}
+      <div className="flex items-center gap-2 text-xs font-semibold tracking-wider uppercase font-outfit text-white/40">
+        <Link href={course ? `/masterclasses/curso/${course.slug}` : '/masterclasses'} className="hover:text-white transition duration-150 no-underline flex items-center gap-1">
           <ArrowLeft size={12} />
-          <span>Voltar para as Aulas</span>
+          <span>Voltar</span>
         </Link>
-        {isWatched && (
-          <span className="badge badge-green" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <CheckCircle size={12} /> Concluída (Assistida)
-          </span>
-        )}
+        <span>/</span>
+        <span className="text-white/70">{course?.title || 'Aulas'}</span>
       </div>
 
-      <h1 style={{ fontSize: '1.8rem', color: '#fff', marginBottom: '6px', fontFamily: 'var(--font-outfit)' }}>
-        {lesson.title}
-      </h1>
-      <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '20px' }}>
-        {course?.title} • {module?.title}
-      </p>
+      {/* ── TWO-COLUMN GRID ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
-      {/* HTML5 Video Player */}
-      <section className="glass-panel" style={{ overflow: 'hidden', borderRadius: '16px', border: '1px solid rgba(193, 255, 7, 0.1)', marginBottom: '30px', background: '#000' }}>
-        {lesson.video_url ? (
-          <video 
-            ref={videoRef}
-            src={lesson.video_url}
-            controls
-            onTimeUpdate={handleTimeUpdate}
-            style={{ width: '100%', maxHeight: '480px', display: 'block', margin: '0 auto' }}
-            poster={lesson.cover_image_url || lesson.thumbnail_url}
-          />
-        ) : (
-          <div style={{ height: '300px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: 'var(--text-secondary)' }}>
-            Nenhum arquivo de vídeo associado a esta aula.
-          </div>
-        )}
-      </section>
+        {/* ── LEFT COLUMN (Video & Info) ── */}
+        <div className="lg:col-span-8 flex flex-col gap-6">
 
-      {/* Tabs Menu */}
-      <div style={{ display: 'flex', borderBottom: '1px solid rgba(193, 255, 7, 0.1)', marginBottom: '24px', gap: '20px' }}>
-        <button 
-          onClick={() => setActiveTab('sobre')} 
-          style={{
-            background: 'transparent',
-            border: 'none',
-            borderBottom: activeTab === 'sobre' ? '2px solid #C1FF07' : 'none',
-            color: activeTab === 'sobre' ? '#C1FF07' : 'var(--text-secondary)',
-            padding: '10px 5px',
-            cursor: 'pointer',
-            fontWeight: 600,
-            fontSize: '0.9rem',
-            fontFamily: 'var(--font-outfit)'
-          }}
-        >
-          Sobre a Aula
-        </button>
-        <button 
-          onClick={() => setActiveTab('recursos')} 
-          style={{
-            background: 'transparent',
-            border: 'none',
-            borderBottom: activeTab === 'recursos' ? '2px solid #C1FF07' : 'none',
-            color: activeTab === 'recursos' ? '#C1FF07' : 'var(--text-secondary)',
-            padding: '10px 5px',
-            cursor: 'pointer',
-            fontWeight: 600,
-            fontSize: '0.9rem',
-            fontFamily: 'var(--font-outfit)'
-          }}
-        >
-          Recursos Anexos ({resources.length})
-        </button>
-        <button 
-          onClick={() => setActiveTab('comentarios')} 
-          style={{
-            background: 'transparent',
-            border: 'none',
-            borderBottom: activeTab === 'comentarios' ? '2px solid #C1FF07' : 'none',
-            color: activeTab === 'comentarios' ? '#C1FF07' : 'var(--text-secondary)',
-            padding: '10px 5px',
-            cursor: 'pointer',
-            fontWeight: 600,
-            fontSize: '0.9rem',
-            fontFamily: 'var(--font-outfit)'
-          }}
-        >
-          Discussão ({comments.length})
-        </button>
-      </div>
-
-      {/* Tab Panels */}
-      <div>
-        
-        {/* Tab 1: Sobre */}
-        {activeTab === 'sobre' && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '30px' }}>
-            <div className="glass-panel" style={{ padding: '24px' }}>
-              <h3 style={{ color: '#fff', fontSize: '1.1rem', marginBottom: '12px' }}>Descrição da Aula</h3>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.6, marginBottom: '20px' }}>
-                {lesson.long_description || lesson.description}
-              </p>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                <Clock size={14} />
-                <span>Duração: {lesson.duration}</span>
+          {/* Mux Video Player */}
+          <section className="glass-panel overflow-hidden bg-black aspect-video flex items-center justify-center relative">
+            {lesson.video_url ? (
+              <MuxPlayer 
+                ref={videoRef}
+                src={lesson.video_url}
+                onTimeUpdate={handleTimeUpdate}
+                style={{ width: '100%', height: '100%', display: 'block' }}
+                poster={lesson.cover_image_url || lesson.thumbnail_url}
+                accentColor="#C1FF07"
+                metadata={{
+                  video_id: lesson.id,
+                  video_title: lesson.title,
+                }}
+              />
+            ) : (
+              <div className="flex flex-col justify-center items-center text-white/40 text-sm gap-2">
+                <FileVideo size={32} />
+                <span>Nenhum arquivo de vídeo associado a esta aula.</span>
               </div>
-            </div>
+            )}
+          </section>
 
-            {/* Instructor Profile Card */}
-            {lesson.instructor_name && (
-              <div className="glass-panel" style={{ padding: '24px' }}>
-                <h3 style={{ color: '#fff', fontSize: '1.1rem', marginBottom: '16px' }}>Instrutor</h3>
-                <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+          {/* Lesson Metadata Banner */}
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center gap-3">
+              <span className="text-[10px] font-extrabold px-2.5 py-1 rounded bg-[#C1FF07]/10 text-[#C1FF07] border border-[#C1FF07]/10 uppercase tracking-widest font-outfit">
+                Aula {lessonNumber} • {lesson.duration || '1h 00m'}
+              </span>
+            </div>
+            <h1 className="text-3xl font-extrabold text-white font-outfit tracking-tight">
+              {lesson.title}
+            </h1>
+          </div>
+
+          {/* Description & Instructor Section */}
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-6 pt-4 border-t border-white/5">
+            
+            {/* Instructor / Description Card */}
+            <div className="md:col-span-8 flex flex-col gap-5">
+              
+              {lesson.instructor_name && (
+                <div className="flex items-center gap-4">
                   {lesson.instructor_avatar ? (
                     <img 
                       src={lesson.instructor_avatar} 
                       alt={lesson.instructor_name} 
-                      style={{ width: '60px', height: '60px', borderRadius: '50%', border: '1px solid var(--color-primary-lemon)' }}
+                      className="w-12 h-12 rounded-full object-cover border border-white/10"
                     />
                   ) : (
-                    <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: 'rgba(193,255,7,0.1)', border: '1px solid var(--color-primary-lemon)', color: 'var(--color-primary-lemon)' }} className="flex-center font-bold text-lg">
+                    <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 text-white flex items-center justify-center font-bold text-sm">
                       {lesson.instructor_name.substring(0, 2).toUpperCase()}
                     </div>
                   )}
                   <div>
-                    <h4 style={{ color: '#fff', fontSize: '1.05rem', fontWeight: 600 }}>{lesson.instructor_name}</h4>
-                    <p style={{ color: 'var(--color-primary-lemon)', fontSize: '0.8rem' }}>{lesson.instructor_role}</p>
+                    <h4 className="text-sm font-bold text-white leading-tight">{lesson.instructor_name}</h4>
+                    <p className="text-xs text-text-secondary mt-0.5">{lesson.instructor_role || 'Mentor Principal'}</p>
                   </div>
                 </div>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: '16px', lineHeight: 1.5 }}>
-                  Mentor do Grupo BBM, especializado no tema proposto. Acompanha o desenvolvimento prático dos mentorados.
-                </p>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Tab 2: Recursos */}
-        {activeTab === 'recursos' && (
-          <div className="glass-panel" style={{ padding: '24px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
-              <div>
-                <h3 style={{ color: '#fff', fontSize: '1.1rem' }}>Material de Apoio</h3>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', marginTop: '2px' }}>
-                  Baixe os arquivos e modelos utilizados durante a exposição teórica.
-                </p>
-              </div>
-              
-              {resources.length > 0 && (
-                <button 
-                  onClick={handleDownloadResources} 
-                  className="gold-glow-btn text-xs" 
-                  disabled={zipLoading}
-                  style={{ padding: '10px 16px' }}
-                >
-                  <Download size={14} />
-                  <span>
-                    {zipLoading ? 'Compactando...' : resources.length === 1 ? 'Baixar Arquivo' : 'Baixar Recursos (.ZIP)'}
-                  </span>
-                </button>
               )}
+
+              <p className="text-white/60 text-sm font-inter leading-relaxed">
+                {lesson.long_description || lesson.description}
+              </p>
             </div>
 
-            {resources.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '30px 0', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-                Nenhum recurso anexado a esta aula.
-              </div>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {resources.map(res => (
-                  <div 
-                    key={res.id}
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      padding: '16px',
-                      background: 'rgba(255,255,255,0.01)',
-                      border: '1px solid rgba(255,255,255,0.02)',
-                      borderRadius: '8px'
-                    }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
-                      {getResourceIcon(res.category)}
-                      <div style={{ minWidth: 0 }}>
-                        <h4 style={{ color: '#fff', fontSize: '0.9rem', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{res.title}</h4>
-                        <p style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', marginTop: '2px' }}>{res.description}</p>
+            {/* Resources / Attachments */}
+            <div className="md:col-span-4 flex flex-col gap-4">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-white/50 font-outfit">
+                Materiais Complementares
+              </h3>
+
+              {resources.length === 0 ? (
+                <p className="text-xs text-text-muted italic">
+                  Sem materiais complementares para esta aula.
+                </p>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  {resources.map(res => (
+                    <a 
+                      key={res.id}
+                      href={res.file_url} 
+                      target="_blank" 
+                      rel="noreferrer"
+                      className="glass-panel p-3 flex items-center justify-between no-underline text-white transition-all duration-150 hover:bg-white/[0.04]"
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        {getResourceIcon(res.category)}
+                        <div className="min-w-0">
+                          <h4 className="text-xs font-bold text-white overflow-hidden text-ellipsis whitespace-nowrap">{res.title}</h4>
+                          <span className="text-[10px] text-text-muted">{res.size}</span>
+                        </div>
                       </div>
-                    </div>
-                    
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexShrink: 0 }}>
-                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{res.size}</span>
-                      <a 
-                        href={res.file_url} 
-                        target="_blank" 
-                        rel="noreferrer"
-                        className="outline-btn text-xs p-2"
-                        style={{ minWidth: 'auto' }}
-                        title="Fazer download"
-                      >
-                        <Download size={14} />
-                      </a>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+                      <Download size={12} className="text-text-muted hover:text-white" />
+                    </a>
+                  ))}
+                  
+                  {resources.length > 1 && (
+                    <button 
+                      onClick={handleDownloadResources} 
+                      disabled={zipLoading}
+                      className="w-full py-2 bg-white/[0.03] border border-white/[0.08] hover:bg-white/[0.06] text-white text-xs font-semibold rounded cursor-pointer transition duration-150 flex items-center justify-center gap-2"
+                    >
+                      <Download size={12} />
+                      <span>{zipLoading ? 'Compactando...' : 'Baixar todos (.ZIP)'}</span>
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
-        )}
 
-        {/* Tab 3: Comentários */}
-        {activeTab === 'comentarios' && (
-          <div className="glass-panel" style={{ padding: '24px' }}>
-            <h3 style={{ color: '#fff', fontSize: '1.1rem', marginBottom: '20px' }}>Quadro de Dúvidas & Discussão</h3>
+          {/* Discussion / Comments Section */}
+          <div className="pt-6 border-t border-white/5 flex flex-col gap-6">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-white/50 font-outfit">
+              Dúvidas & Discussão ({comments.length})
+            </h3>
 
-            {/* Post comment form */}
-            <form onSubmit={(e) => handleAddComment(e)} style={{ marginBottom: '30px', display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-              <div 
-                style={{ 
-                  width: '36px', 
-                  height: '36px', 
-                  borderRadius: '50%', 
-                  background: 'rgba(193,255,7,0.1)', 
-                  border: '1px solid var(--color-primary-lemon)',
-                  color: 'var(--color-primary-lemon)',
-                  fontWeight: 600,
-                  fontSize: '0.8rem',
-                  flexShrink: 0
-                }}
-                className="flex-center"
-              >
+            {/* Comment Form */}
+            <form onSubmit={(e) => handleAddComment(e)} className="flex gap-3.5 items-start">
+              <div className="w-9 h-9 rounded-full bg-white/5 border border-white/10 text-white flex items-center justify-center font-bold text-xs flex-shrink-0">
                 {user?.initials}
               </div>
-              <div style={{ flexGrow: 1, display: 'flex', gap: '10px' }}>
+              <div className="flex-grow flex gap-2">
                 <input 
                   type="text" 
-                  className="form-input" 
-                  placeholder="Escreva sua dúvida ou comentário..."
+                  className="form-input text-sm flex-grow" 
+                  placeholder="Tem alguma dúvida? Escreva aqui..."
                   value={newCommentText}
                   onChange={(e) => setNewCommentText(e.target.value)}
-                  style={{ borderRadius: '8px' }}
                 />
-                <button type="submit" className="gold-glow-btn" style={{ padding: '12px', minWidth: 'auto' }}>
-                  <Send size={16} />
+                <button type="submit" className="btn-primary" style={{ padding: '9px 15px' }}>
+                  <Send size={14} />
                 </button>
               </div>
             </form>
 
-            {/* Editing Box Overlay modal if active */}
-            {editingCommentId && (
-              <div style={{ background: 'rgba(193,255,7,0.03)', border: '1px solid rgba(193, 255, 7, 0.1)', borderRadius: '8px', padding: '16px', marginBottom: '20px' }}>
-                <h4 style={{ fontSize: '0.85rem', color: '#C1FF07', marginBottom: '8px' }}>Editar Comentário</h4>
-                <form onSubmit={handleEditComment} style={{ display: 'flex', gap: '10px' }}>
-                  <input 
-                    type="text" 
-                    className="form-input" 
-                    value={editingText}
-                    onChange={(e) => setEditingText(e.target.value)}
-                  />
-                  <button type="submit" className="gold-glow-btn text-xs" style={{ padding: '8px 16px' }}>Salvar</button>
-                  <button type="button" onClick={() => setEditingCommentId(null)} className="outline-btn text-xs" style={{ padding: '8px 16px' }}>Cancelar</button>
-                </form>
-              </div>
-            )}
-
-            {/* List of comments */}
+            {/* Comment List */}
             {rootComments.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '30px 0', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-                Seja o primeiro a deixar um comentário!
-              </div>
+              <p className="text-xs text-text-muted italic text-center py-4">
+                Nenhum comentário enviado ainda. Seja o primeiro a perguntar!
+              </p>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              <div className="flex flex-col gap-5">
                 {rootComments.map(c => {
                   const replies = getRepliesFor(c.id);
                   const isAuthor = user?.id === c.user_id;
                   const isAdmin = user?.member_type === 'admin';
 
                   return (
-                    <div key={c.id} style={{ display: 'flex', flexDirection: 'column', gap: '12px', borderBottom: '1px solid rgba(255,255,255,0.02)', paddingBottom: '20px' }}>
-                      
-                      {/* Main Comment */}
-                      <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                    <div key={c.id} className="flex flex-col gap-3 pb-4 border-b border-white/[0.02]">
+                      <div className="flex gap-3.5 items-start">
                         {c.user_avatar ? (
-                          <img src={c.user_avatar} alt={c.user_name} style={{ width: '36px', height: '36px', borderRadius: '50%' }} />
+                          <img src={c.user_avatar} alt={c.user_name} className="w-9 h-9 rounded-full object-cover" />
                         ) : (
-                          <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontSize: '0.85rem' }} className="flex-center font-bold">
+                          <div className="w-9 h-9 rounded-full bg-white/5 border border-white/10 text-white flex items-center justify-center font-bold text-xs">
                             {c.user_name.substring(0, 2).toUpperCase()}
                           </div>
                         )}
-                        <div style={{ flexGrow: 1 }}>
-                          <div style={{ display: 'flex', justifySelf: 'stretch', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                              <span style={{ color: '#fff', fontSize: '0.85rem', fontWeight: 600 }}>{c.user_name}</span>
-                              <span style={{ color: 'var(--text-muted)', fontSize: '0.7rem' }}>
-                                {new Date(c.created_at).toLocaleDateString('pt-BR')} às {new Date(c.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                        <div className="flex-grow">
+                          <div className="flex justify-between items-center">
+                            <div className="flex gap-2 items-center text-xs">
+                              <span className="font-bold text-white">{c.user_name}</span>
+                              <span className="text-[10px] text-text-muted">
+                                {new Date(c.created_at).toLocaleDateString('pt-BR')}
                               </span>
                             </div>
                             
-                            {/* Actions (Edit/Delete) */}
-                            <div style={{ display: 'flex', gap: '6px' }}>
-                              {(isAuthor || isAdmin) && (
-                                <>
-                                  <button onClick={() => startEditing(c.id, c.content)} className="outline-btn border-0 p-1 text-gray-500 hover:text-white" style={{ minWidth: 'auto' }}>
-                                    <Edit2 size={12} />
-                                  </button>
-                                  <button onClick={() => handleDeleteComment(c.id)} className="outline-btn border-0 p-1 text-red-500 hover:text-red-400" style={{ minWidth: 'auto' }}>
-                                    <Trash2 size={12} />
-                                  </button>
-                                </>
-                              )}
-                            </div>
+                            {(isAuthor || isAdmin) && (
+                              <div className="flex gap-1">
+                                <button onClick={() => startEditing(c.id, c.content)} className="p-1 text-white/40 hover:text-white bg-transparent border-0 cursor-pointer">
+                                  <Edit2 size={12} />
+                                </button>
+                                <button onClick={() => handleDeleteComment(c.id)} className="p-1 text-red-500/50 hover:text-red-400 bg-transparent border-0 cursor-pointer">
+                                  <Trash2 size={12} />
+                                </button>
+                              </div>
+                            )}
                           </div>
-
-                          <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: '4px', lineHeight: 1.5 }}>
-                            {c.content}
-                          </p>
-
-                          <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
+                          <p className="text-white/70 text-xs font-inter mt-1 leading-relaxed">{c.content}</p>
+                          
+                          <div className="flex gap-3.5 mt-2">
                             <button 
                               onClick={() => {
                                 setActiveReplyBox(activeReplyBox === c.id ? null : c.id);
                                 setReplyTexts(prev => ({ ...prev, [c.id]: '' }));
                               }}
-                              className="outline-btn border-0 text-xs text-gray-400 p-0 hover:text-white"
-                              style={{ minWidth: 'auto' }}
+                              className="text-[10px] text-white/40 hover:text-white bg-transparent border-0 cursor-pointer p-0"
                             >
                               Responder
                             </button>
                           </div>
 
-                          {/* Reply submission form */}
                           {activeReplyBox === c.id && (
-                            <form onSubmit={(e) => handleAddComment(e, c.id)} style={{ display: 'flex', gap: '10px', marginTop: '12px' }}>
+                            <form onSubmit={(e) => handleAddComment(e, c.id)} className="flex gap-2 mt-3">
                               <input 
                                 type="text"
                                 className="form-input text-xs"
                                 placeholder="Digite sua resposta..."
                                 value={replyTexts[c.id] || ''}
                                 onChange={(e) => setReplyTexts(prev => ({ ...prev, [c.id]: e.target.value }))}
-                                style={{ padding: '8px 12px' }}
                               />
-                              <button type="submit" className="gold-glow-btn text-xs" style={{ padding: '8px 12px', minWidth: 'auto' }}>
+                              <button type="submit" className="btn-primary" style={{ padding: '8px 12px' }}>
                                 <Send size={12} />
                               </button>
                             </form>
@@ -716,40 +682,35 @@ export default function LessonDetailPage() {
 
                       {/* Nested Replies */}
                       {replies.length > 0 && (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginLeft: '30px', borderLeft: '1px solid rgba(237, 192, 102, 0.1)', paddingLeft: '16px' }}>
+                        <div className="flex flex-col gap-3 pl-8 ml-4 border-l border-white/[0.04] mt-2">
                           {replies.map(reply => {
                             const isReplyAuthor = user?.id === reply.user_id;
 
                             return (
-                              <div key={reply.id} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
-                                <div style={{ color: 'rgba(237, 192, 102, 0.3)', flexShrink: 0, marginTop: '2px' }}>
-                                  <CornerDownRight size={14} />
-                                </div>
+                              <div key={reply.id} className="flex gap-2.5 items-start">
+                                <div className="text-white/20 mt-1"><CornerDownRight size={12} /></div>
                                 {reply.user_avatar ? (
-                                  <img src={reply.user_avatar} alt={reply.user_name} style={{ width: '28px', height: '28px', borderRadius: '50%' }} />
+                                  <img src={reply.user_avatar} alt={reply.user_name} className="w-7 h-7 rounded-full object-cover" />
                                 ) : (
-                                  <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontSize: '0.75rem' }} className="flex-center font-bold">
+                                  <div className="w-7 h-7 rounded-full bg-white/5 border border-white/10 text-white flex items-center justify-center font-bold text-[10px]">
                                     {reply.user_name.substring(0, 2).toUpperCase()}
                                   </div>
                                 )}
-                                <div style={{ flexGrow: 1 }}>
-                                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-                                      <span style={{ color: '#fff', fontSize: '0.8rem', fontWeight: 600 }}>{reply.user_name}</span>
-                                      <span style={{ color: 'var(--text-muted)', fontSize: '0.65rem' }}>
+                                <div className="flex-grow">
+                                  <div className="flex justify-between items-center">
+                                    <div className="flex gap-2 items-center text-xs">
+                                      <span className="font-bold text-white">{reply.user_name}</span>
+                                      <span className="text-[10px] text-text-muted">
                                         {new Date(reply.created_at).toLocaleDateString('pt-BR')}
                                       </span>
                                     </div>
-                                    
                                     {(isReplyAuthor || isAdmin) && (
-                                      <button onClick={() => handleDeleteComment(reply.id)} className="outline-btn border-0 p-1 text-red-500 hover:text-red-400" style={{ minWidth: 'auto' }}>
+                                      <button onClick={() => handleDeleteComment(reply.id)} className="p-1 text-red-500/50 hover:text-red-400 bg-transparent border-0 cursor-pointer">
                                         <Trash2 size={10} />
                                       </button>
                                     )}
                                   </div>
-                                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', marginTop: '2px', lineHeight: 1.4 }}>
-                                    {reply.content}
-                                  </p>
+                                  <p className="text-white/60 text-xs font-inter mt-1 leading-relaxed">{reply.content}</p>
                                 </div>
                               </div>
                             );
@@ -762,9 +723,123 @@ export default function LessonDetailPage() {
               </div>
             )}
           </div>
-        )}
+
+        </div>
+
+        {/* ── RIGHT COLUMN (Sidebar) ── */}
+        <div className="lg:col-span-4 flex flex-col gap-6">
+
+          {/* Interações da Aula */}
+          <section className="glass-panel p-5 flex flex-col gap-5">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-white/50 font-outfit">
+              Interações da Aula
+            </h3>
+
+            {/* Checkbox Concluída */}
+            <button 
+              onClick={handleToggleWatched}
+              className={`w-full py-3 px-4 bg-transparent border text-xs font-bold font-outfit uppercase tracking-wider cursor-pointer transition-all duration-200 flex items-center justify-center gap-3 ${
+                isWatched 
+                  ? 'border-[#C1FF07]/30 text-[#C1FF07] bg-[#C1FF07]/5' 
+                  : 'border-white/[0.08] text-white/60 hover:text-white hover:border-white/20'
+              }`}
+              style={{ borderRadius: '2px' }}
+            >
+              <span className={`w-4 h-4 rounded-full border flex items-center justify-center ${isWatched ? 'border-[#C1FF07]' : 'border-white/30'}`}>
+                {isWatched && <Check size={10} />}
+              </span>
+              <span>{isWatched ? 'Aula Concluída' : 'Marcar como Concluída'}</span>
+            </button>
+
+            {/* Rating Section */}
+            <div className="flex flex-col gap-2 pt-2 border-t border-white/[0.05]">
+              <span className="text-[10px] font-bold text-text-secondary uppercase tracking-wider">Avaliar</span>
+              <div className="flex gap-1">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button 
+                    key={star}
+                    onClick={() => setRating(star)}
+                    className="p-1 bg-transparent border-0 cursor-pointer text-white/20 hover:text-[#C1FF07] transition duration-150"
+                    style={{ minWidth: 'auto' }}
+                  >
+                    <Star 
+                      size={18} 
+                      className={star <= rating ? 'fill-[#C1FF07] text-[#C1FF07]' : ''} 
+                    />
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Mark as Useful */}
+            <button 
+              onClick={handleToggleUseful}
+              className={`w-full py-2.5 px-4 bg-transparent border text-xs font-bold font-outfit tracking-wide cursor-pointer transition-all duration-200 flex items-center justify-center gap-2 ${
+                isUseful 
+                  ? 'border-[#C1FF07]/30 text-[#C1FF07] bg-[#C1FF07]/5'
+                  : 'border-white/[0.08] text-white/60 hover:text-white hover:border-white/20'
+              }`}
+              style={{ borderRadius: '2px' }}
+            >
+              <ThumbsUp size={14} />
+              <span>Marcar como Útil ({usefulCount})</span>
+            </button>
+
+            {/* Save Lesson */}
+            <button 
+              onClick={() => setIsSaved(!isSaved)}
+              className={`w-full py-2.5 px-4 bg-transparent border text-xs font-bold font-outfit tracking-wide cursor-pointer transition-all duration-200 flex items-center justify-center gap-2 ${
+                isSaved 
+                  ? 'border-[#C1FF07]/30 text-[#C1FF07] bg-[#C1FF07]/5'
+                  : 'border-white/[0.08] text-white/60 hover:text-white hover:border-white/20'
+              }`}
+              style={{ borderRadius: '2px' }}
+            >
+              <Bookmark size={14} />
+              <span>{isSaved ? 'Aula Salva' : 'Salvar Aula'}</span>
+            </button>
+          </section>
+
+          {/* Aulas deste Módulo */}
+          <section className="glass-panel p-5 flex flex-col gap-4">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-white/50 font-outfit">
+              Aulas deste Módulo
+            </h3>
+            
+            <div className="flex flex-col gap-2.5">
+              {moduleLessons.map((item, idx) => {
+                const isCurrent = item.id === lesson.id;
+                
+                return (
+                  <Link 
+                    key={item.id}
+                    href={`/masterclasses/aula/${item.slug}`}
+                    className={`p-3.5 border transition-all duration-200 flex items-start gap-3 no-underline ${
+                      isCurrent 
+                        ? 'border-[#C1FF07]/30 bg-[#C1FF07]/5 text-white' 
+                        : 'border-white/[0.04] bg-white/[0.01] text-white/50 hover:text-white hover:border-white/10'
+                    }`}
+                    style={{ borderRadius: '2px' }}
+                  >
+                    <div className={`w-6 h-6 rounded-full flex items-center justify-center mt-0.5 flex-shrink-0 ${
+                      isCurrent ? 'bg-[#C1FF07]/10 text-[#C1FF07]' : 'bg-white/5 text-white/40'
+                    }`}>
+                      <Play size={10} className={isCurrent ? 'fill-[#C1FF07]' : ''} />
+                    </div>
+                    <div className="flex flex-col gap-0.5">
+                      <span className="text-[9px] font-extrabold uppercase tracking-wider text-text-muted">Aula {idx + 1}</span>
+                      <span className="text-xs font-bold leading-tight">{item.title}</span>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </section>
+
+        </div>
 
       </div>
+
     </div>
   );
 }

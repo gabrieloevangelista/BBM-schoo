@@ -4,7 +4,7 @@
 @theme {
   --color-primary-lemon: #C1FF07;
   --color-primary-lemon-hover: #aee600;
-  --color-bg-deep: #010103;
+  --color-bg-deep: #12131a;
   --color-bg-card: rgba(255, 255, 255, 0.02);
   --color-bg-card-hover: rgba(255, 255, 255, 0.04);
   --color-text-secondary: #9aa0a6;
@@ -17,23 +17,27 @@
 }
 
 :root {
-  --color-bg-base: #010103;
+  --color-primary-lemon: #C1FF07;
+  --color-switch-active-text: #010103;
+  --color-bg-base: #12131a;
   --color-text-base: #f1f3f4;
   
-  --color-glass-bg: rgba(255, 255, 255, 0.015);
-  --color-glass-border: rgba(193, 255, 7, 0.08);
-  --color-glass-shadow-inset: rgba(193, 255, 7, 0.03);
+  --color-glass-bg: rgba(255, 255, 255, 0.02);
+  --color-glass-border: rgba(255, 255, 255, 0.08);
+  --color-glass-shadow-inset: rgba(255, 255, 255, 0.02);
   
-  --color-glass-hover-bg: rgba(255, 255, 255, 0.035);
-  --color-glass-hover-border: rgba(193, 255, 7, 0.2);
+  --color-glass-hover-bg: rgba(255, 255, 255, 0.04);
+  --color-glass-hover-border: rgba(255, 255, 255, 0.14);
   
-  --color-modal-bg: #08080c;
-  --color-input-bg: rgba(1, 1, 5, 0.95);
+  --color-modal-bg: #171821;
+  --color-input-bg: rgba(23, 24, 33, 0.95);
   --color-input-border: rgba(255, 255, 255, 0.1);
   --color-input-border-focus: rgba(193, 255, 7, 0.4);
 }
 
 [data-theme='light'] {
+  --color-primary-lemon: #5a9200;
+  --color-switch-active-text: #ffffff;
   --color-bg-base: #f4f5f7;
   --color-text-base: #1a1a1a;
   --color-text-secondary: #5f6368;
@@ -49,7 +53,12 @@
   --color-modal-bg: #ffffff;
   --color-input-bg: #ffffff;
   --color-input-border: rgba(0, 0, 0, 0.15);
-  --color-input-border-focus: #C1FF07;
+  --color-input-border-focus: #5a9200;
+}
+
+/* Force pointer cursor on switch controls */
+button[role="switch"], button[role="switch"] * {
+  cursor: pointer !important;
 }
 
 /* Base resets and background */
@@ -72,7 +81,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 ::-webkit-scrollbar-track {
-  background: #010103;
+  background: #12131a;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -91,9 +100,9 @@ h1, h2, h3, h4, h5, h6 {
 .glass-panel {
   background-color: var(--color-glass-bg);
   border: 1px solid var(--color-glass-border) !important;
-  border-radius: 8px !important;
+  border-radius: 4px !important;
   box-shadow:
-    0 4px 20px rgba(0, 0, 0, 0.1),
+    0 4px 20px rgba(0, 0, 0, 0.12),
     inset 0 0 0 1px var(--color-glass-shadow-inset);
   transition: all 0.2s ease-in-out;
 }
@@ -103,19 +112,17 @@ h1, h2, h3, h4, h5, h6 {
   border-color: var(--color-glass-hover-border) !important;
   transform: translateY(-2px);
   box-shadow:
-    0 10px 25px rgba(0, 0, 0, 0.5),
-    0 0 15px rgba(193, 255, 7, 0.06),
-    inset 0 0 0 1px rgba(193, 255, 7, 0.06);
+    0 10px 25px rgba(0, 0, 0, 0.4),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04);
 }
 
 /* SOLID OPAQUE MODAL CARDS — SCI-FI HUD Style */
 .modal-card {
   background-color: var(--color-modal-bg) !important;
   border: 1px solid var(--color-glass-border) !important;
-  border-radius: 8px !important;
+  border-radius: 4px !important;
   box-shadow:
-    0 20px 40px rgba(0, 0, 0, 0.9),
-    0 0 20px rgba(193, 255, 7, 0.04) !important;
+    0 20px 40px rgba(0, 0, 0, 0.9) !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
 }
@@ -124,6 +131,19 @@ h1, h2, h3, h4, h5, h6 {
    Standardized Button Design System — PRIMARY = LEMON (#C1FF07)
    ========================================================================== */
 
+/* ==========================================================================
+   Global Button Reset — always inline row, never stacked
+   ========================================================================== */
+
+button, a.btn-primary, a.btn-secondary, a.outline-btn, a.gold-glow-btn, .btn-primary, .btn-secondary, .outline-btn, .gold-glow-btn {
+  display: inline-flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  white-space: nowrap !important;
+}
+
 .btn-primary {
   background-color: #C1FF07 !important;
   color: #010103 !important;
@@ -131,8 +151,9 @@ h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-outfit) !important;
   font-weight: 700 !important;
   font-size: 0.8rem !important;
-  padding: 8px 16px !important;
-  border-radius: 8px !important;
+  padding: 9px 20px !important;
+  line-height: 1.2 !important;
+  border-radius: 2px !important;
   transition: all 0.2s ease-in-out !important;
   cursor: pointer !important;
   display: inline-flex !important;
@@ -140,13 +161,13 @@ h1, h2, h3, h4, h5, h6 {
   align-items: center !important;
   justify-content: center !important;
   gap: 8px !important;
-  box-shadow: 0 0 8px rgba(193, 255, 7, 0.1) !important;
+  box-shadow: none !important;
 }
 
 .btn-primary:hover {
   background-color: #aee600 !important;
   border-color: #aee600 !important;
-  box-shadow: 0 0 16px rgba(193, 255, 7, 0.3) !important;
+  box-shadow: none !important;
 }
 
 .btn-primary:disabled {
@@ -162,8 +183,9 @@ h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-outfit) !important;
   font-weight: 700 !important;
   font-size: 0.8rem !important;
-  padding: 8px 16px !important;
-  border-radius: 8px !important;
+  padding: 9px 20px !important;
+  line-height: 1.2 !important;
+  border-radius: 2px !important;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
   cursor: pointer !important;
   display: inline-flex !important;
@@ -171,13 +193,13 @@ h1, h2, h3, h4, h5, h6 {
   align-items: center !important;
   justify-content: center !important;
   gap: 8px !important;
-  box-shadow: 0 0 10px rgba(193, 255, 7, 0.12) !important;
+  box-shadow: none !important;
 }
 
 .gold-glow-btn:hover {
   background-color: #aee600 !important;
   border-color: #aee600 !important;
-  box-shadow: 0 0 20px rgba(193, 255, 7, 0.3) !important;
+  box-shadow: none !important;
   transform: translateY(-1px);
 }
 
@@ -193,15 +215,16 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* SECONDARY BUTTON — Transparent with lemon hover */
-.btn-sec.outline-btn {
+.btn-secondary, .btn-sec.outline-btn {
   background: transparent !important;
   color: var(--color-text-base) !important;
   border: 1px solid var(--color-glass-border) !important;
   font-family: var(--font-outfit) !important;
   font-weight: 600 !important;
   font-size: 0.8rem !important;
-  padding: 8px 16px !important;
-  border-radius: 8px !important;
+  padding: 9px 20px !important;
+  line-height: 1.2 !important;
+  border-radius: 2px !important;
   transition: all 0.2s ease-in-out !important;
   cursor: pointer !important;
   display: inline-flex !important;
@@ -213,10 +236,10 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .btn-secondary:hover {
-  border-color: #C1FF07 !important;
-  color: #C1FF07 !important;
-  background-color: rgba(193, 255, 7, 0.04) !important;
-  box-shadow: 0 0 10px rgba(193, 255, 7, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.22) !important;
+  color: var(--color-text-base) !important;
+  background-color: rgba(255, 255, 255, 0.04) !important;
+  box-shadow: none !important;
 }
 
 .btn-secondary:disabled {
@@ -232,8 +255,9 @@ h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-outfit) !important;
   font-weight: 600 !important;
   font-size: 0.8rem !important;
-  padding: 8px 16px !important;
-  border-radius: 8px !important;
+  padding: 9px 20px !important;
+  line-height: 1.2 !important;
+  border-radius: 2px !important;
   transition: all 0.2s ease-in-out !important;
   cursor: pointer !important;
   display: inline-flex !important;
@@ -245,10 +269,10 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .outline-btn:hover {
-  border-color: #C1FF07 !important;
-  color: #C1FF07 !important;
-  background-color: rgba(193, 255, 7, 0.04) !important;
-  box-shadow: 0 0 8px rgba(193, 255, 7, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
+  color: var(--color-text-base) !important;
+  background-color: rgba(255, 255, 255, 0.04) !important;
+  box-shadow: none !important;
 }
 
 .outline-btn:disabled {
@@ -314,7 +338,57 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ==========================================================================
-   Form Elements — LEMON primary, HUD borders
+   Custom Checkbox Styles — borderless and green theme
+   ========================================================================== */
+
+input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  width: 16px !important;
+  height: 16px !important;
+  border-radius: 2px !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: relative !important;
+  transition: all 0.2s ease-in-out !important;
+  box-sizing: border-box !important;
+}
+
+input[type="checkbox"]:checked {
+  background-color: #C1FF07 !important;
+  border: none !important; /* Sem contorno */
+}
+
+[data-theme="light"] input[type="checkbox"]:checked {
+  background-color: #5a9200 !important;
+  border: none !important;
+}
+
+input[type="checkbox"]:checked::after {
+  content: "" !important;
+  display: block !important;
+  width: 4px !important;
+  height: 8px !important;
+  border: solid #010103 !important;
+  border-width: 0 2px 2px 0 !important;
+  transform: rotate(45deg) !important;
+  margin-top: -2px !important;
+}
+
+[data-theme="light"] input[type="checkbox"]:checked::after {
+  border-color: #ffffff !important;
+}
+
+input[type="checkbox"]:focus {
+  outline: none !important;
+}
+
+/* ==========================================================================
+   Form Controls Override
    ========================================================================== */
 
 .form-group {
@@ -335,44 +409,135 @@ h1, h2, h3, h4, h5, h6 {
   margin-bottom: 0.5rem;
 }
 
+/* ── Base input ── */
 .form-input {
   width: 100%;
   padding: 0.65rem 0.85rem;
   font-size: 0.875rem;
   font-family: var(--font-inter);
-  background-color: rgba(8, 8, 12, 0.8) !important;
-  border: 1px solid rgba(193, 255, 7, 0.1) !important;
-  border-radius: 6px !important;
-  color: #ffffff !important;
+  background-color: rgba(8, 8, 12, 0.85) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 2px !important;
+  color: #f1f3f4 !important;
   outline: none !important;
-  transition: all 0.2s ease-in-out;
+  transition: border-color 0.2s ease-in-out, background-color 0.2s ease-in-out;
+  -webkit-appearance: none;
+  appearance: none;
+  color-scheme: dark;
 }
 
 .form-input::placeholder {
-  color: var(--color-text-muted);
-  opacity: 0.8;
+  color: rgba(255, 255, 255, 0.28);
 }
 
 .form-input:focus {
-  border-color: #C1FF07 !important;
-  box-shadow: 0 0 12px rgba(193, 255, 7, 0.12) !important;
+  border-color: rgba(255, 255, 255, 0.28) !important;
   background-color: rgba(255, 255, 255, 0.04) !important;
+  box-shadow: none !important;
 }
 
-/* Custom styled dropdown select arrow — LEMON */
+.form-input:disabled {
+  opacity: 0.4 !important;
+  cursor: not-allowed !important;
+}
+
+/* ── SELECT — custom chevron white ── */
 select.form-input {
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23C1FF07' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19.5 8.25l-7.5 7.5-7.5-7.5'/%3E%3C/svg%3E") !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%23ffffff' stroke-opacity='0.45' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' d='M6 8l4 4 4-4'/%3E%3C/svg%3E") !important;
   background-repeat: no-repeat !important;
-  background-position: right 0.75rem center !important;
-  background-size: 1rem !important;
-  padding-right: 2.25rem !important;
+  background-position: right 0.7rem center !important;
+  background-size: 1.1rem !important;
+  padding-right: 2.4rem !important;
+  cursor: pointer !important;
 }
 
-/* DateTime & Date input clean calendar icon styling */
+select.form-input:focus {
+  border-color: rgba(255, 255, 255, 0.28) !important;
+}
+
+/* Option elements inside select — dark bg */
+select.form-input option {
+  background-color: #0d0d14 !important;
+  color: #f1f3f4 !important;
+  padding: 8px 12px !important;
+  font-family: var(--font-inter) !important;
+  font-size: 0.875rem !important;
+}
+
+select.form-input option:checked,
+select.form-input option:hover {
+  background-color: #1a1a2e !important;
+  color: #ffffff !important;
+}
+
+/* ── DATE / TIME / DATETIME-LOCAL ── */
+input[type="date"].form-input,
+input[type="datetime-local"].form-input,
+input[type="time"].form-input,
+input[type="month"].form-input {
+  color-scheme: dark;
+  cursor: pointer !important;
+}
+
+/* Calendar / Clock icon — white tinted */
 .form-input::-webkit-calendar-picker-indicator {
-  filter: invert(0.85) sepia(80%) saturate(400%) hue-rotate(40deg) brightness(110%);
+  background-color: transparent;
+  filter: brightness(0) invert(0.55);
   cursor: pointer;
+  padding: 2px;
+  border-radius: 2px;
+  transition: filter 0.2s;
+}
+
+.form-input::-webkit-calendar-picker-indicator:hover {
+  filter: brightness(0) invert(0.85);
+}
+
+/* Inner date parts text */
+input[type="date"].form-input::-webkit-datetime-edit,
+input[type="datetime-local"].form-input::-webkit-datetime-edit,
+input[type="time"].form-input::-webkit-datetime-edit,
+input[type="month"].form-input::-webkit-datetime-edit {
+  color: #f1f3f4;
+}
+
+input[type="date"].form-input::-webkit-datetime-edit-fields-wrapper,
+input[type="datetime-local"].form-input::-webkit-datetime-edit-fields-wrapper {
+  padding: 0;
+}
+
+input[type="date"].form-input::-webkit-datetime-edit-text {
+  color: rgba(255, 255, 255, 0.35);
+  padding: 0 2px;
+}
+
+input[type="date"].form-input::-webkit-datetime-edit-month-field,
+input[type="date"].form-input::-webkit-datetime-edit-day-field,
+input[type="date"].form-input::-webkit-datetime-edit-year-field,
+input[type="datetime-local"].form-input::-webkit-datetime-edit-month-field,
+input[type="datetime-local"].form-input::-webkit-datetime-edit-day-field,
+input[type="datetime-local"].form-input::-webkit-datetime-edit-year-field,
+input[type="datetime-local"].form-input::-webkit-datetime-edit-hour-field,
+input[type="datetime-local"].form-input::-webkit-datetime-edit-minute-field {
+  color: #f1f3f4;
+  background-color: transparent;
+  padding: 1px 2px;
+  border-radius: 2px;
+}
+
+input[type="date"].form-input::-webkit-datetime-edit-month-field:focus,
+input[type="date"].form-input::-webkit-datetime-edit-day-field:focus,
+input[type="date"].form-input::-webkit-datetime-edit-year-field:focus,
+input[type="datetime-local"].form-input::-webkit-datetime-edit-month-field:focus,
+input[type="datetime-local"].form-input::-webkit-datetime-edit-day-field:focus,
+input[type="datetime-local"].form-input::-webkit-datetime-edit-year-field:focus,
+input[type="datetime-local"].form-input::-webkit-datetime-edit-hour-field:focus,
+input[type="datetime-local"].form-input::-webkit-datetime-edit-minute-field:focus {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  outline: none;
 }
 
 /* ==========================================================================
@@ -411,17 +576,26 @@ select.form-input {
 
 .skeleton-card {
   background-color: rgba(255, 255, 255, 0.015);
-  border: 1px solid rgba(193, 255, 7, 0.06);
-  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 4px;
   padding: 20px;
 }
 
 /* ==========================================================================
+/* ==========================================================================
    Light Theme Override — COMPREHENSIVE
+   Accent color in light mode: #5a9200 (dark olive green, legible on white)
    ========================================================================== */
 
+/* CSS custom property override for light mode accent */
 [data-theme="light"] {
   color-scheme: light;
+  --color-primary-lemon: #5a9200;
+  --color-primary-lemon-hover: #4a7a00;
+  --color-glass-border: rgba(0, 0, 0, 0.08);
+  --color-glass-bg: #ffffff;
+  --color-text-secondary: #6b7280;
+  --color-text-muted: #9ca3af;
 }
 
 [data-theme="light"] body {
@@ -457,7 +631,30 @@ select.form-input {
   color: #6b7280 !important;
 }
 
-/* Buttons */
+/* Primary Button — dark green on light */
+[data-theme="light"] .btn-primary {
+  background-color: #5a9200 !important;
+  border-color: #5a9200 !important;
+  color: #ffffff !important;
+}
+
+[data-theme="light"] .btn-primary:hover {
+  background-color: #4a7a00 !important;
+  border-color: #4a7a00 !important;
+}
+
+[data-theme="light"] .gold-glow-btn {
+  background-color: #5a9200 !important;
+  border-color: #5a9200 !important;
+  color: #ffffff !important;
+}
+
+[data-theme="light"] .gold-glow-btn:hover {
+  background-color: #4a7a00 !important;
+  border-color: #4a7a00 !important;
+}
+
+/* Outline / Secondary Buttons */
 [data-theme="light"] .outline-btn {
   color: #374151 !important;
   border-color: rgba(0, 0, 0, 0.1) !important;
@@ -465,30 +662,104 @@ select.form-input {
 }
 
 [data-theme="light"] .outline-btn:hover {
-  color: #6aaa00 !important;
-  border-color: #C1FF07 !important;
-  background-color: rgba(193, 255, 7, 0.06) !important;
+  color: #1a1a1a !important;
+  border-color: rgba(0, 0, 0, 0.22) !important;
+  background-color: rgba(0, 0, 0, 0.04) !important;
+}
+
+[data-theme="light"] .btn-secondary {
+  color: #374151 !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+[data-theme="light"] .btn-secondary:hover {
+  color: #1a1a1a !important;
+  border-color: rgba(0, 0, 0, 0.22) !important;
+  background-color: rgba(0, 0, 0, 0.04) !important;
 }
 
 /* Form Inputs */
 [data-theme="light"] .form-input {
-  background-color: #f8f9fa !important;
+  background-color: #ffffff !important;
   border-color: rgba(0, 0, 0, 0.12) !important;
   color: #1a1a1a !important;
+  color-scheme: light;
 }
 
 [data-theme="light"] .form-input:focus {
   background-color: #ffffff !important;
-  border-color: #C1FF07 !important;
-  box-shadow: 0 0 0 3px rgba(193, 255, 7, 0.12) !important;
+  border-color: #5a9200 !important;
+  box-shadow: 0 0 0 2px rgba(90, 146, 0, 0.15) !important;
 }
 
 [data-theme="light"] .form-input::placeholder {
   color: #9ca3af;
 }
 
+[data-theme="light"] .form-input:disabled {
+  background-color: #f3f4f6 !important;
+  color: #9ca3af !important;
+}
+
+/* SELECT — light theme: white bg, dark chevron */
 [data-theme="light"] select.form-input {
-  background-color: #f8f9fa !important;
+  background-color: #ffffff !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' d='M6 8l4 4 4-4'/%3E%3C/svg%3E") !important;
+  color: #1a1a1a !important;
+}
+
+[data-theme="light"] select.form-input option {
+  background-color: #ffffff !important;
+  color: #1a1a1a !important;
+}
+
+[data-theme="light"] select.form-input option:checked {
+  background-color: #f0f5e8 !important;
+  color: #5a9200 !important;
+}
+
+/* DATE / TIME — light theme */
+[data-theme="light"] input[type="date"].form-input,
+[data-theme="light"] input[type="datetime-local"].form-input,
+[data-theme="light"] input[type="time"].form-input,
+[data-theme="light"] input[type="month"].form-input {
+  color-scheme: light;
+}
+
+[data-theme="light"] .form-input::-webkit-calendar-picker-indicator {
+  filter: brightness(0) invert(0.45);
+}
+
+[data-theme="light"] .form-input::-webkit-calendar-picker-indicator:hover {
+  filter: brightness(0) invert(0.2);
+}
+
+[data-theme="light"] input[type="date"].form-input::-webkit-datetime-edit,
+[data-theme="light"] input[type="datetime-local"].form-input::-webkit-datetime-edit,
+[data-theme="light"] input[type="time"].form-input::-webkit-datetime-edit {
+  color: #1a1a1a;
+}
+
+[data-theme="light"] input[type="date"].form-input::-webkit-datetime-edit-text {
+  color: #9ca3af;
+}
+
+[data-theme="light"] input[type="date"].form-input::-webkit-datetime-edit-month-field,
+[data-theme="light"] input[type="date"].form-input::-webkit-datetime-edit-day-field,
+[data-theme="light"] input[type="date"].form-input::-webkit-datetime-edit-year-field,
+[data-theme="light"] input[type="datetime-local"].form-input::-webkit-datetime-edit-month-field,
+[data-theme="light"] input[type="datetime-local"].form-input::-webkit-datetime-edit-day-field,
+[data-theme="light"] input[type="datetime-local"].form-input::-webkit-datetime-edit-year-field,
+[data-theme="light"] input[type="datetime-local"].form-input::-webkit-datetime-edit-hour-field,
+[data-theme="light"] input[type="datetime-local"].form-input::-webkit-datetime-edit-minute-field {
+  color: #1a1a1a;
+}
+
+[data-theme="light"] input[type="date"].form-input::-webkit-datetime-edit-month-field:focus,
+[data-theme="light"] input[type="date"].form-input::-webkit-datetime-edit-day-field:focus,
+[data-theme="light"] input[type="date"].form-input::-webkit-datetime-edit-year-field:focus {
+  background-color: rgba(90, 146, 0, 0.1);
+  color: #5a9200;
 }
 
 [data-theme="light"] .form-label {
@@ -505,10 +776,16 @@ select.form-input {
 }
 
 [data-theme="light"] ::-webkit-scrollbar-thumb:hover {
-  background: rgba(193, 255, 7, 0.4);
+  background: rgba(90, 146, 0, 0.4);
 }
 
 /* Badges */
+[data-theme="light"] .badge-lemon {
+  background: rgba(90, 146, 0, 0.08) !important;
+  color: #5a9200 !important;
+  border-color: rgba(90, 146, 0, 0.2) !important;
+}
+
 [data-theme="light"] .badge-gray {
   background: rgba(0, 0, 0, 0.04);
   color: #6b7280;
@@ -537,6 +814,34 @@ select.form-input {
 [data-theme="light"] [style*="color: white"],
 [data-theme="light"] [style*="color: #f1f3f4"] {
   color: #1a1a1a !important;
+}
+
+/* Override Tailwind text-[#C1FF07] and text-primary-lemon in light mode */
+[data-theme="light"] .text-\[\#C1FF07\],
+[data-theme="light"] .text-primary-lemon {
+  color: #5a9200 !important;
+}
+
+/* Override inline hardcoded lemon color from JS components */
+[data-theme="light"] [style*="color: #C1FF07"],
+[data-theme="light"] [style*="color: rgb(193, 255, 7)"],
+[data-theme="light"] [style*="color: var(--color-primary-lemon)"] {
+  color: #5a9200 !important;
+}
+
+/* Override bg-[#C1FF07] Tailwind class backgrounds */
+[data-theme="light"] .bg-\[\#C1FF07\] {
+  background-color: #5a9200 !important;
+}
+
+/* Lemon/10 background tint — lighter in light mode */
+[data-theme="light"] .bg-\[\#C1FF07\]\/10 {
+  background-color: rgba(90, 146, 0, 0.08) !important;
+}
+
+/* Active sidebar item */
+[data-theme="light"] .text-\[\#C1FF07\].font-bold {
+  color: #5a9200 !important;
 }
 
 /* Table rows */

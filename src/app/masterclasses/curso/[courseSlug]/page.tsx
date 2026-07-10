@@ -18,6 +18,7 @@ export default function CourseModulesPage() {
   const [lessonsByModule, setLessonsByModule] = useState<Record<string, Lesson[]>>({});
   const [completedLessonIds, setCompletedLessonIds] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
+  const [hoveredLessonId, setHoveredLessonId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchCourseData = async () => {
@@ -128,109 +129,137 @@ export default function CourseModulesPage() {
       </section>
 
       {/* Modules List */}
-      <h2 style={{ fontSize: '1.4rem', color: '#fff', marginBottom: '24px', fontFamily: 'var(--font-outfit)' }}>
-        Grade Curricular
-      </h2>
-
       {modules.length === 0 ? (
         <div className="glass-panel" style={{ padding: '30px', textAlign: 'center', color: 'var(--text-secondary)' }}>
           Nenhum módulo liberado para esta masterclass ainda.
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
+        <div className="flex flex-col gap-10">
           {modules.map((m, idx) => {
             const moduleLessons = lessonsByModule[m.id] || [];
             
             return (
-              <div 
-                key={m.id} 
-                className="glass-panel" 
-                style={{ 
-                  padding: '24px',
-                  background: m.status === 'agendado' ? 'rgba(255,255,255,0.01)' : 'var(--bg-card)',
-                  borderColor: m.status === 'agendado' ? 'rgba(255,255,255,0.05)' : 'rgba(193, 255, 7, 0.1)'
-                }}
-              >
-                {/* Module Header */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '15px', marginBottom: '20px', paddingBottom: '16px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+              <div key={m.id} className="flex flex-col gap-6">
+                
+                {/* Module Header (e.g. Aulas Semanais) */}
+                <div className="flex justify-between items-end border-b border-white/5 pb-3">
                   <div>
-                    <span style={{ fontSize: '0.8rem', color: 'var(--color-primary-lemon)', fontWeight: 600, display: 'block', marginBottom: '4px' }}>
+                    <span className="text-[10px] font-extrabold text-[#C1FF07] uppercase tracking-wider font-outfit">
                       Módulo {idx + 1}
                     </span>
-                    <h3 style={{ fontSize: '1.25rem', color: '#fff', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <h3 className="text-xl font-extrabold text-white font-outfit tracking-tight mt-1 flex items-center gap-2">
                       {m.title}
                       {m.status === 'agendado' && (
-                        <span className="badge badge-red" style={{ fontSize: '0.65rem', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                          <Lock size={10} /> Agendado
+                        <span className="badge badge-red flex items-center gap-1 text-[9px] py-0.5 px-1.5 uppercase font-bold tracking-wider">
+                          <Lock size={8} /> Agendado
                         </span>
                       )}
                     </h3>
-                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: '4px' }}>{m.description}</p>
+                    <p className="text-xs text-text-secondary mt-1 max-w-xl leading-relaxed">{m.description}</p>
                   </div>
-                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                  <span className="text-[11px] font-bold text-white/30 uppercase font-outfit tracking-wider">
                     {moduleLessons.length} {moduleLessons.length === 1 ? 'aula' : 'aulas'}
-                  </div>
+                  </span>
                 </div>
 
-                {/* Lessons list under Module */}
+                {/* Grid of Lesson Cards */}
                 {moduleLessons.length === 0 ? (
-                  <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', fontStyle: 'italic' }}>
+                  <p className="text-xs text-text-muted italic">
                     Nenhuma aula cadastrada neste módulo.
                   </p>
                 ) : (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {moduleLessons.map(lesson => {
                       const isCompleted = completedLessonIds.has(lesson.id);
+                      const isHovered = hoveredLessonId === lesson.id;
                       
+                      // Fallback premium cover images
+                      const defaultCover = 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=400';
+                      const coverSrc = lesson.cover_image_url || lesson.thumbnail_url || defaultCover;
+                      
+                      // Mux Animated GIF playback (use a fallback test ID if no custom playback ID in video_url)
+                      const testPlaybackId = 'q4v4v3J6ZgZ7J9gO0200gZ02q7e9V4z00a300';
+                      const muxGifUrl = `https://image.mux.com/${testPlaybackId}/animated.gif?width=320`;
+
                       return (
                         <div 
-                          key={lesson.id} 
-                          style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            padding: '12px 16px',
-                            background: 'rgba(255, 255, 255, 0.01)',
-                            border: '1px solid rgba(255,255,255,0.02)',
-                            borderRadius: '8px',
-                            transition: 'var(--transition-smooth)'
-                          }}
-                          className="glass-panel-hover"
+                          key={lesson.id}
+                          className="glass-panel glass-panel-hover flex flex-col justify-between overflow-hidden group"
+                          style={{ borderRadius: '4px' }}
+                          onMouseEnter={() => setHoveredLessonId(lesson.id)}
+                          onMouseLeave={() => setHoveredLessonId(null)}
                         >
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexGrow: 1, minWidth: 0 }}>
-                            <div style={{ color: isCompleted ? 'var(--accent-green)' : 'var(--text-muted)', flexShrink: 0 }}>
-                              {isCompleted ? <CheckCircle size={20} /> : <BookOpen size={20} />}
+                          {/* Image Thumbnail Container */}
+                          <div className="relative aspect-video w-full bg-black/40 overflow-hidden border-b border-white/[0.04]">
+                            <img 
+                              src={isHovered ? muxGifUrl : coverSrc} 
+                              alt={lesson.title} 
+                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-102"
+                            />
+                            
+                            {/* Overlay Badges */}
+                            <div className="absolute top-3 left-3 z-10 flex gap-2">
+                              {isCompleted ? (
+                                <span className="bg-emerald-500 text-bg-deep px-1.5 py-0.5 rounded-sm text-[8px] font-extrabold uppercase tracking-wider flex items-center gap-1 shadow-md">
+                                  <CheckCircle size={8} className="fill-bg-deep" />
+                                  Concluída
+                                </span>
+                              ) : (
+                                <span className="bg-[#12131a]/85 border border-white/10 text-white/70 px-1.5 py-0.5 rounded-sm text-[8px] font-extrabold uppercase tracking-wider flex items-center gap-1 shadow-md">
+                                  <BookOpen size={8} />
+                                  Disponível
+                                </span>
+                              )}
                             </div>
-                            <div style={{ minWidth: 0 }}>
-                              <h4 style={{ color: '#fff', fontSize: '0.9rem', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+
+                            <div className="absolute bottom-3 right-3 z-10">
+                              <span className="bg-black/70 backdrop-blur-sm px-1.5 py-0.5 rounded-sm text-[9px] text-white/80 font-mono font-bold">
+                                {lesson.duration || '00:00'}
+                              </span>
+                            </div>
+
+                            {/* Hover Play Button Overlay */}
+                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
+                              <div className="w-10 h-10 rounded-full bg-[#C1FF07] text-[#010103] flex items-center justify-center shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform duration-200">
+                                <Play size={16} className="fill-[#010103] ml-0.5" />
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Info & Content */}
+                          <div className="p-4 flex flex-col justify-between flex-grow gap-4">
+                            <div className="flex flex-col gap-1.5">
+                              <h4 className="text-sm font-extrabold text-white tracking-tight leading-snug group-hover:text-[#C1FF07] transition duration-150">
                                 {lesson.title}
                               </h4>
-                              <p style={{ color: 'var(--text-muted)', fontSize: '0.75rem', marginTop: '2px' }}>
-                                Instrutor: {lesson.instructor_name}
-                              </p>
+                              {lesson.description && (
+                                <p className="text-[11px] text-white/50 line-clamp-2 leading-relaxed">
+                                  {lesson.description}
+                                </p>
+                              )}
+                            </div>
+
+                            <div className="flex items-center justify-between pt-3 border-t border-white/[0.03]">
+                              <span className="text-[10px] text-text-secondary font-medium">
+                                Instrutor: {lesson.instructor_name || 'Mentor CLS'}
+                              </span>
+                              
+                              <Link 
+                                href={`/masterclasses/aula/${lesson.slug}`}
+                                className="outline-btn text-[10px] tracking-wider uppercase font-bold"
+                                style={{ padding: '6px 12px', minWidth: 'auto', textDecoration: 'none' }}
+                              >
+                                <span>Ver Aula</span>
+                              </Link>
                             </div>
                           </div>
 
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flexShrink: 0 }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                              <Clock size={12} />
-                              <span>{lesson.duration}</span>
-                            </div>
-
-                            <Link 
-                              href={`/masterclasses/aula/${lesson.slug}`}
-                              className="outline-btn text-xs"
-                              style={{ padding: '6px 12px', minWidth: 'auto', textDecoration: 'none' }}
-                            >
-                              <Play size={10} />
-                              <span>Assistir</span>
-                            </Link>
-                          </div>
                         </div>
                       );
                     })}
                   </div>
                 )}
+
               </div>
             );
           })}

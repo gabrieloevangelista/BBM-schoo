@@ -19,6 +19,7 @@ import {
   CheckSquare,
   Square
 } from 'lucide-react';
+import { customConfirm } from '@/components/CustomConfirm';
 import { Resource, Lesson } from '@/lib/db';
 
 export default function RecursosPage() {
@@ -163,7 +164,11 @@ export default function RecursosPage() {
   // Bulk deletion
   const handleBulkDelete = async () => {
     if (selectedIds.size === 0) return;
-    if (!confirm(`Deseja excluir permanentemente os ${selectedIds.size} recursos selecionados?`)) return;
+    const confirmed = await customConfirm(
+      `Deseja excluir permanentemente os ${selectedIds.size} recursos selecionados?`,
+      'Excluir Materiais de Apoio'
+    );
+    if (!confirmed) return;
 
     try {
       const response = await fetch('/api/db');
@@ -423,13 +428,12 @@ export default function RecursosPage() {
               <tr style={{ borderBottom: '1px solid rgba(193, 255, 7, 0.1)', color: 'var(--text-secondary)', fontSize: '0.75rem' }}>
                 {isAdmin && (
                   <th style={{ padding: '15px 12px', width: '45px' }}>
-                    <button 
-                      onClick={toggleSelectAll} 
-                      className="outline-btn border-0 p-0 text-[#C1FF07] hover:text-white"
-                      style={{ minWidth: 'auto' }}
-                    >
-                      {selectedIds.size === filteredResources.length ? <CheckSquare size={18} /> : <Square size={18} />}
-                    </button>
+                    <input 
+                      type="checkbox" 
+                      checked={selectedIds.size === filteredResources.length && filteredResources.length > 0} 
+                      onChange={toggleSelectAll}
+                      style={{ cursor: 'pointer' }}
+                    />
                   </th>
                 )}
                 <th style={{ padding: '15px 12px' }}>Nome do Material</th>
@@ -455,13 +459,12 @@ export default function RecursosPage() {
                   >
                     {isAdmin && (
                       <td style={{ padding: '15px 12px' }}>
-                        <button 
-                          onClick={() => toggleSelectRow(res.id)} 
-                          className="outline-btn border-0 p-0 text-gray-500 hover:text-white"
-                          style={{ minWidth: 'auto', color: isSelected ? '#C1FF07' : 'var(--text-muted)' }}
-                        >
-                          {isSelected ? <CheckSquare size={18} /> : <Square size={18} />}
-                        </button>
+                        <input 
+                          type="checkbox" 
+                          checked={isSelected} 
+                          onChange={() => toggleSelectRow(res.id)}
+                          style={{ cursor: 'pointer' }}
+                        />
                       </td>
                     )}
                     <td style={{ padding: '15px 12px' }}>

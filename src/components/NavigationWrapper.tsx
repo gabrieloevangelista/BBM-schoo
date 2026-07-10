@@ -132,7 +132,7 @@ export default function NavigationWrapper({ children }: { children: React.ReactN
   }
 
   if (!user) {
-    return <div className="min-h-screen bg-[#010105] flex-center"><div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-lemon" /></div>;
+    return <div className="min-h-screen bg-[#12131a] flex-center"><div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-lemon" /></div>;
   }
 
   // Navigation Links definition
@@ -164,13 +164,13 @@ export default function NavigationWrapper({ children }: { children: React.ReactN
   const unreadCount = notifications.filter(n => !n.is_read).length;
 
   return (
-    <div className={`flex min-h-screen relative ${theme === 'light' ? 'bg-[#f0f2f5] text-[#1a1a1a]' : 'bg-[#010103] text-white'}`}>
+    <div className={`flex min-h-screen relative ${theme === 'light' ? 'bg-[#f0f2f5] text-[#1a1a1a]' : 'bg-[#12131a] text-white'}`}>
       
       {/* Sidebar (Desktop & Tablet) */}
       <aside 
         className={`fixed top-0 left-0 h-screen backdrop-blur-2xl flex flex-col z-50 transition-all duration-300 ${
           sidebarExpanded ? 'w-[260px]' : 'w-[85px]'
-        } max-md:hidden ${theme === 'light' ? 'bg-white border-r border-black/8 shadow-[2px_0_20px_rgba(0,0,0,0.06)]' : 'bg-[#040409]/90 border-r border-white/10'}`}
+        } max-md:hidden ${theme === 'light' ? 'bg-white border-r border-black/8 shadow-[2px_0_20px_rgba(0,0,0,0.06)]' : 'bg-[#171821]/90 border-r border-white/10'}`}
       >
         {/* Sidebar Header Logo */}
         <div className={`h-[70px] flex items-center justify-between px-5 border-b ${theme === 'light' ? 'border-black/8' : 'border-white/10'}`}>
@@ -223,9 +223,11 @@ export default function NavigationWrapper({ children }: { children: React.ReactN
                 <Link 
                   key={item.path} 
                   href={item.path} 
-                  className={`flex items-center p-3 rounded-lg no-underline font-outfit font-medium text-sm transition-all duration-200 gap-3 cursor-pointer ${
+                  className={`flex items-center p-3 rounded no-underline font-outfit font-medium text-sm transition-all duration-200 gap-3 cursor-pointer ${
                     isActive 
-                      ? 'bg-[#C1FF07]/10 text-[#C1FF07] border-l-2 border-[#C1FF07] pl-2.5 font-bold shadow-[0_0_15px_rgba(193,255,7,0.05)]' 
+                      ? theme === 'light'
+                        ? 'bg-[#5a9200]/10 text-[#5a9200] font-bold'
+                        : 'bg-[#C1FF07]/10 text-[#C1FF07] font-bold'
                       : theme === 'light' 
                         ? 'text-gray-500 hover:bg-black/5 hover:text-gray-900' 
                         : 'text-gray-400 hover:bg-white/5 hover:text-white'
@@ -244,18 +246,18 @@ export default function NavigationWrapper({ children }: { children: React.ReactN
             <div className="px-1.5 py-2">
               <button
                 onClick={() => router.push('/dashboard')}
-                className="w-full py-2.5 px-3 text-[10px] font-bold font-outfit uppercase tracking-wider rounded-lg border bg-transparent cursor-pointer transition-all duration-200 text-center flex items-center justify-center"
+                className="w-full py-2.5 px-3 text-[10px] font-bold font-outfit uppercase tracking-wider rounded border bg-transparent cursor-pointer transition-all duration-200 text-center flex items-center justify-center"
                 style={{
-                  borderColor: theme === 'light' ? 'rgba(0,0,0,0.12)' : 'rgba(193, 255, 7, 0.2)',
-                  color: theme === 'light' ? '#6aaa00' : 'var(--color-primary-lemon)',
+                  borderColor: theme === 'light' ? 'rgba(0,0,0,0.15)' : 'rgba(255,255,255,0.12)',
+                  color: theme === 'light' ? '#5a9200' : 'rgba(255,255,255,0.6)',
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = '#C1FF07';
-                  e.currentTarget.style.boxShadow = '0 0 12px rgba(193, 255, 7, 0.1)';
+                  e.currentTarget.style.borderColor = theme === 'light' ? '#5a9200' : 'rgba(255,255,255,0.3)';
+                  e.currentTarget.style.color = theme === 'light' ? '#4a7a00' : '#ffffff';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = theme === 'light' ? 'rgba(0,0,0,0.12)' : 'rgba(193, 255, 7, 0.2)';
-                  e.currentTarget.style.boxShadow = 'none';
+                  e.currentTarget.style.borderColor = theme === 'light' ? 'rgba(0,0,0,0.15)' : 'rgba(255,255,255,0.12)';
+                  e.currentTarget.style.color = theme === 'light' ? '#5a9200' : 'rgba(255,255,255,0.6)';
                 }}
               >
                 Ver Todo o Ecossistema
@@ -274,9 +276,11 @@ export default function NavigationWrapper({ children }: { children: React.ReactN
                   <Link 
                     key={item.path} 
                     href={item.path} 
-                    className={`flex items-center p-3 rounded-lg no-underline font-outfit font-medium text-sm transition-all duration-200 gap-3 cursor-pointer ${
+                    className={`flex items-center p-3 rounded no-underline font-outfit font-medium text-sm transition-all duration-200 gap-3 cursor-pointer ${
                       isActive 
-                        ? 'bg-[#C1FF07]/10 text-[#6aaa00]' 
+                        ? theme === 'light'
+                          ? 'bg-[#5a9200]/10 text-[#5a9200] font-bold'
+                          : 'bg-[#C1FF07]/10 text-[#C1FF07] font-bold'
                         : theme === 'light' 
                           ? 'text-gray-500 hover:bg-black/5 hover:text-gray-900' 
                           : 'text-gray-400 hover:bg-white/5 hover:text-white'
@@ -301,9 +305,11 @@ export default function NavigationWrapper({ children }: { children: React.ReactN
                 <Link 
                   key={item.path} 
                   href={item.path} 
-                  className={`flex items-center p-3 rounded-lg no-underline font-outfit font-medium text-sm transition-all duration-200 gap-3 cursor-pointer ${
+                  className={`flex items-center p-3 rounded no-underline font-outfit font-medium text-sm transition-all duration-200 gap-3 cursor-pointer ${
                     isActive 
-                      ? 'bg-[#C1FF07]/10 text-[#6aaa00]' 
+                      ? theme === 'light'
+                        ? 'bg-[#5a9200]/10 text-[#5a9200] font-bold'
+                        : 'bg-[#C1FF07]/10 text-[#C1FF07] font-bold'
                       : theme === 'light' 
                         ? 'text-gray-500 hover:bg-black/5 hover:text-gray-900' 
                         : 'text-gray-400 hover:bg-white/5 hover:text-white'
@@ -473,7 +479,7 @@ export default function NavigationWrapper({ children }: { children: React.ReactN
       </div>
 
       {/* Bottom Navigation Tab Bar (Mobile Only) */}
-      <nav className={`fixed bottom-0 left-0 w-full h-16 backdrop-blur-xl z-50 flex justify-around items-center px-2.5 md:hidden ${theme === 'light' ? 'bg-white/95 border-t border-black/8' : 'bg-[#010103]/96 border-t border-white/5'}`}>
+      <nav className={`fixed bottom-0 left-0 w-full h-16 backdrop-blur-xl z-50 flex justify-around items-center px-2.5 md:hidden ${theme === 'light' ? 'bg-white/95 border-t border-black/8' : 'bg-[#12131a]/96 border-t border-white/5'}`}>
         <Link href="/dashboard" className={`flex flex-col items-center justify-center text-text-secondary hover:text-white no-underline text-[10px] font-outfit font-medium gap-1 flex-grow h-full ${pathname === '/dashboard' ? 'text-primary-lemon' : ''}`}>
           <LayoutDashboard size={20} />
           <span>Início</span>

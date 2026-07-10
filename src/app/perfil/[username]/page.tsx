@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import { customConfirm } from '@/components/CustomConfirm';
 import { 
   User, 
   Briefcase, 
@@ -353,7 +354,11 @@ export default function MemberProfilePage() {
   // Dissolve Connection (Desfazer)
   const handleRemoveConnect = async (otherId: string) => {
     if (!user) return;
-    if (!confirm('Deseja desfazer esta conexão de networking?')) return;
+    const confirmed = await customConfirm(
+      'Deseja desfazer esta conexão de networking?',
+      'Desfazer Conexão'
+    );
+    if (!confirmed) return;
     try {
       const response = await fetch('/api/db');
       if (response.ok) {
@@ -456,7 +461,8 @@ export default function MemberProfilePage() {
           {isOwnProfile ? (
             <button 
               onClick={() => setIsEditing(!isEditing)} 
-              className="px-4 py-2 border border-primary-lemon/20 text-primary-lemon hover:bg-primary-lemon/5 font-semibold rounded-lg text-xs flex items-center gap-1.5 cursor-pointer transition-colors"
+              className="outline-btn text-xs"
+              style={{ padding: '8px 16px', borderRadius: '2px' }}
             >
               <Edit size={14} />
               <span>{isEditing ? 'Cancelar' : 'Editar Perfil'}</span>
@@ -464,31 +470,51 @@ export default function MemberProfilePage() {
           ) : (
             <div className="flex gap-2.5">
               {connectionState === 'none' && (
-                <button onClick={() => handleConnect(profile.id)} className="px-4 py-2 bg-gradient-to-r from-primary-lemon to-primary-lemon-hover text-bg-deep rounded-lg text-xs font-bold hover:shadow-[0_0_12px_rgba(193,255,7,0.2)] cursor-pointer transition-all duration-200 flex items-center gap-1.5">
+                <button 
+                  onClick={() => handleConnect(profile.id)} 
+                  className="btn-primary text-xs"
+                  style={{ padding: '8px 16px', borderRadius: '2px' }}
+                >
                   <UserPlus size={14} />
                   <span>Conectar</span>
                 </button>
               )}
               {connectionState === 'pending_sent' && (
-                <button onClick={() => handleRejectConnect(profile.id)} className="px-4 py-2 border border-white/20 text-text-secondary hover:text-white rounded-lg text-xs font-semibold cursor-pointer transition-colors flex items-center gap-1.5">
+                <button 
+                  onClick={() => handleRejectConnect(profile.id)} 
+                  className="outline-btn text-xs"
+                  style={{ padding: '8px 16px', borderRadius: '2px' }}
+                >
                   <UserMinus size={14} />
                   <span>Cancelar Solicitação</span>
                 </button>
               )}
               {connectionState === 'pending_received' && (
                 <>
-                  <button onClick={() => handleAcceptConnect(profile.id)} className="px-4 py-2 bg-gradient-to-r from-primary-lemon to-primary-lemon-hover text-bg-deep rounded-lg text-xs font-bold hover:shadow-[0_0_12px_rgba(193,255,7,0.2)] cursor-pointer transition-all duration-200 flex items-center gap-1.5">
+                  <button 
+                    onClick={() => handleAcceptConnect(profile.id)} 
+                    className="btn-primary text-xs"
+                    style={{ padding: '8px 16px', borderRadius: '2px' }}
+                  >
                     <UserCheck size={14} />
                     <span>Aceitar</span>
                   </button>
-                  <button onClick={() => handleRejectConnect(profile.id)} className="px-4 py-2 border border-accent-red/20 text-accent-red hover:bg-accent-red/5 rounded-lg text-xs font-semibold cursor-pointer transition-colors flex items-center gap-1.5">
+                  <button 
+                    onClick={() => handleRejectConnect(profile.id)} 
+                    className="outline-btn text-xs text-accent-red hover:text-white"
+                    style={{ padding: '8px 16px', borderRadius: '2px', borderColor: 'rgba(255,82,82,0.2)' }}
+                  >
                     <UserX size={14} />
                     <span>Recusar</span>
                   </button>
                 </>
               )}
               {connectionState === 'connected' && (
-                <button onClick={() => handleRemoveConnect(profile.id)} className="px-4 py-2 border border-accent-red/20 text-accent-red hover:bg-accent-red/5 rounded-lg text-xs font-semibold cursor-pointer transition-colors flex items-center gap-1.5">
+                <button 
+                  onClick={() => handleRemoveConnect(profile.id)} 
+                  className="outline-btn text-xs text-accent-red hover:text-white"
+                  style={{ padding: '8px 16px', borderRadius: '2px', borderColor: 'rgba(255,82,82,0.2)' }}
+                >
                   <UserMinus size={14} />
                   <span>Desfazer Conexão</span>
                 </button>
@@ -507,12 +533,12 @@ export default function MemberProfilePage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs text-text-secondary font-medium font-outfit">Nome Completo *</label>
-                <input type="text" className="w-full px-4 py-2.5 bg-white/2 border border-primary-lemon/15 rounded-lg text-white placeholder-text-muted focus:outline-none focus:border-primary-lemon focus:ring-1 focus:ring-primary-lemon text-sm transition duration-200" value={editName} onChange={e => setEditName(e.target.value)} required />
+                <input type="text" className="form-input text-sm" value={editName} onChange={e => setEditName(e.target.value)} required />
               </div>
               
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs text-text-secondary font-medium font-outfit">Nome de Usuário *</label>
-                <input type="text" className="w-full px-4 py-2.5 bg-white/2 border border-primary-lemon/15 rounded-lg text-white placeholder-text-muted focus:outline-none focus:border-primary-lemon focus:ring-1 focus:ring-primary-lemon text-sm transition duration-200" value={editUsername} onChange={e => setEditUsername(e.target.value)} required />
+                <input type="text" className="form-input text-sm" value={editUsername} onChange={e => setEditUsername(e.target.value)} required />
                 <span className="text-[10px] text-text-muted mt-1 leading-none">
                   Apenas letras minúsculas, números, sublinhas (_) ou pontos (.).
                 </span>
@@ -520,29 +546,29 @@ export default function MemberProfilePage() {
 
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs text-text-secondary font-medium font-outfit">Cargo</label>
-                <input type="text" className="w-full px-4 py-2.5 bg-white/2 border border-primary-lemon/15 rounded-lg text-white placeholder-text-muted focus:outline-none focus:border-primary-lemon focus:ring-1 focus:ring-primary-lemon text-sm transition duration-200" value={editRole} onChange={e => setEditRole(e.target.value)} />
+                <input type="text" className="form-input text-sm" value={editRole} onChange={e => setEditRole(e.target.value)} />
               </div>
 
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs text-text-secondary font-medium font-outfit">Empresa</label>
-                <input type="text" className="w-full px-4 py-2.5 bg-white/2 border border-primary-lemon/15 rounded-lg text-white placeholder-text-muted focus:outline-none focus:border-primary-lemon focus:ring-1 focus:ring-primary-lemon text-sm transition duration-200" value={editCompany} onChange={e => setEditCompany(e.target.value)} />
+                <input type="text" className="form-input text-sm" value={editCompany} onChange={e => setEditCompany(e.target.value)} />
               </div>
 
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs text-text-secondary font-medium font-outfit">Indústria / Área</label>
-                <input type="text" className="w-full px-4 py-2.5 bg-white/2 border border-primary-lemon/15 rounded-lg text-white placeholder-text-muted focus:outline-none focus:border-primary-lemon focus:ring-1 focus:ring-primary-lemon text-sm transition duration-200" value={editIndustry} onChange={e => setEditIndustry(e.target.value)} />
+                <input type="text" className="form-input text-sm" value={editIndustry} onChange={e => setEditIndustry(e.target.value)} />
               </div>
 
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs text-text-secondary font-medium font-outfit">Localização</label>
-                <input type="text" className="w-full px-4 py-2.5 bg-white/2 border border-primary-lemon/15 rounded-lg text-white placeholder-text-muted focus:outline-none focus:border-primary-lemon focus:ring-1 focus:ring-primary-lemon text-sm transition duration-200" value={editLocation} onChange={e => setEditLocation(e.target.value)} />
+                <input type="text" className="form-input text-sm" value={editLocation} onChange={e => setEditLocation(e.target.value)} />
               </div>
             </div>
 
             <div className="flex flex-col gap-1.5">
               <label className="text-xs text-text-secondary font-medium font-outfit">Biografia / Resumo</label>
               <textarea 
-                className="w-full px-4 py-2.5 bg-white/2 border border-primary-lemon/15 rounded-lg text-white placeholder-text-muted focus:outline-none focus:border-primary-lemon focus:ring-1 focus:ring-primary-lemon text-sm min-h-[100px] resize-y transition duration-200" 
+                className="form-input text-sm min-h-[100px] resize-y" 
                 value={editBio} 
                 onChange={e => setEditBio(e.target.value)}
               />
@@ -551,19 +577,19 @@ export default function MemberProfilePage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs text-text-secondary font-medium font-outfit">Link LinkedIn</label>
-                <input type="url" className="w-full px-4 py-2.5 bg-white/2 border border-primary-lemon/15 rounded-lg text-white placeholder-text-muted focus:outline-none focus:border-primary-lemon focus:ring-1 focus:ring-primary-lemon text-sm transition duration-200" value={editLinkedIn} onChange={e => setEditLinkedIn(e.target.value)} placeholder="https://linkedin.com/in/seuperfil" />
+                <input type="url" className="form-input text-sm" value={editLinkedIn} onChange={e => setEditLinkedIn(e.target.value)} placeholder="https://linkedin.com/in/seuperfil" />
               </div>
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs text-text-secondary font-medium font-outfit">Link Instagram</label>
-                <input type="url" className="w-full px-4 py-2.5 bg-white/2 border border-primary-lemon/15 rounded-lg text-white placeholder-text-muted focus:outline-none focus:border-primary-lemon focus:ring-1 focus:ring-primary-lemon text-sm transition duration-200" value={editInstagram} onChange={e => setEditInstagram(e.target.value)} placeholder="https://instagram.com/seuuser" />
+                <input type="url" className="form-input text-sm" value={editInstagram} onChange={e => setEditInstagram(e.target.value)} placeholder="https://instagram.com/seuuser" />
               </div>
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs text-text-secondary font-medium font-outfit">Website Pessoal</label>
-                <input type="url" className="w-full px-4 py-2.5 bg-white/2 border border-primary-lemon/15 rounded-lg text-white placeholder-text-muted focus:outline-none focus:border-primary-lemon focus:ring-1 focus:ring-primary-lemon text-sm transition duration-200" value={editWebsite} onChange={e => setEditWebsite(e.target.value)} placeholder="https://seusite.com" />
+                <input type="url" className="form-input text-sm" value={editWebsite} onChange={e => setEditWebsite(e.target.value)} placeholder="https://seusite.com" />
               </div>
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs text-text-secondary font-medium font-outfit">Avatar (Imagem de Perfil)</label>
-                <input type="file" className="w-full px-3 py-1.5 bg-white/2 border border-primary-lemon/15 rounded-lg text-white text-xs placeholder-text-muted focus:outline-none focus:border-primary-lemon transition duration-200" accept="image/*" onChange={handleAvatarChange} />
+                <input type="file" className="form-input text-xs" accept="image/*" onChange={handleAvatarChange} style={{ padding: '6px 12px' }} />
                 <span className="text-[10px] text-text-muted mt-1 leading-none">
                   Tamanho máximo: 2MB.
                 </span>
@@ -571,10 +597,19 @@ export default function MemberProfilePage() {
             </div>
 
             <div className="flex gap-3 justify-end mt-4">
-              <button type="button" onClick={() => setIsEditing(false)} className="px-5 py-2.5 border border-primary-lemon/20 text-primary-lemon hover:bg-primary-lemon/5 rounded-lg text-xs font-semibold cursor-pointer transition-colors">
+              <button 
+                type="button" 
+                onClick={() => setIsEditing(false)} 
+                className="outline-btn text-xs font-semibold"
+                style={{ padding: '9px 20px', borderRadius: '2px' }}
+              >
                 Cancelar
               </button>
-              <button type="submit" className="px-5 py-2.5 bg-gradient-to-r from-primary-lemon to-primary-lemon-hover text-bg-deep rounded-lg text-xs font-bold hover:shadow-[0_0_12px_rgba(193,255,7,0.2)] cursor-pointer transition-all duration-200 flex items-center gap-1.5 font-outfit">
+              <button 
+                type="submit" 
+                className="btn-primary text-xs"
+                style={{ padding: '9px 20px', borderRadius: '2px' }}
+              >
                 <Save size={14} />
                 <span>Salvar Perfil</span>
               </button>

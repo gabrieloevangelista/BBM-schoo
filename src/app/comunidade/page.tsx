@@ -16,10 +16,14 @@ import {
   CornerDownRight, 
   Eye, 
   Users,
-  Film
+  Film,
+  Search,
+  UserPlus,
+  Check,
+  HelpCircle
 } from 'lucide-react';
 import { CommunityPost, CommunityComment, CommentReply, Member, MemberConnection } from '@/lib/db';
-import { Search, Film, UserPlus, Check, HelpCircle } from 'lucide-react';
+import { ComunidadeSkeleton } from '@/components/SkeletonLoaders';
 
 export default function ComunidadePage() {
   const { user } = useAuth();
@@ -35,6 +39,8 @@ export default function ComunidadePage() {
   const [postType, setPostType] = useState<'standard' | 'status' | 'reels'>('standard');
   const [content, setContent] = useState('');
   const [mediaUrl, setMediaUrl] = useState('');
+  const [attachedFile, setAttachedFile] = useState<File | null>(null);
+  const [attachedPreview, setAttachedPreview] = useState<string>('');
 
   // Lightbox state
   const [lightboxPost, setLightboxPost] = useState<CommunityPost | null>(null);
@@ -91,29 +97,31 @@ export default function ComunidadePage() {
         if (!db.member_connections) db.member_connections = [];
         
         const existingIndex = db.member_connections.findIndex((c: MemberConnection) => 
-          (c.sender_id === user.id && c.receiver_id === targetId) ||
-          (c.sender_id === targetId && c.receiver_id === user.id)
+          (c.requester_id === user.id && c.receiver_id === targetId) ||
+          (c.requester_id === targetId && c.receiver_id === user.id)
         );
 
         if (existingIndex === -1) {
           // Send request
           const newConn: MemberConnection = {
             id: `conn-${Date.now()}`,
-            sender_id: user.id,
+            requester_id: user.id,
             receiver_id: targetId,
             status: 'pending',
-            created_at: new Date().toISOString()
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
           };
           db.member_connections.push(newConn);
         } else {
           const conn = db.member_connections[existingIndex];
           if (conn.status === 'pending') {
-            if (conn.sender_id === user.id) {
+            if (conn.requester_id === user.id) {
               // Cancel pending request sent by us
               db.member_connections.splice(existingIndex, 1);
             } else {
               // Accept request received by us
               conn.status = 'accepted';
+              conn.updated_at = new Date().toISOString();
             }
           } else {
             // Remove connection (accepted status)
@@ -139,15 +147,34 @@ export default function ComunidadePage() {
     }
   }, [user]);
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setAttachedFile(file);
+      const localUrl = URL.createObjectURL(file);
+      setAttachedPreview(localUrl);
+    }
+  };
+
+  const handleRemoveAttachment = () => {
+    if (attachedPreview) {
+      URL.revokeObjectURL(attachedPreview);
+    }
+    setAttachedFile(null);
+    setAttachedPreview('');
+  };
+
   // Handle post creation
   const handleCreatePost = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!content.trim() && !mediaUrl.trim()) return;
+    if (!content.trim() && !attachedPreview) return;
 
     try {
       const response = await fetch('/api/db');
       if (response.ok) {
         const db = await response.json();
+        
+        const isVideo = attachedFile?.type.startsWith('video') || false;
         
         const newPost: CommunityPost = {
           id: `post-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -156,13 +183,13 @@ export default function ComunidadePage() {
           author_avatar: user?.img || '',
           author_role: user?.role || 'Mentorado Elite',
           content: content.trim(),
-          image_url: postType === 'standard' ? mediaUrl.trim() : undefined,
-          video_url: (postType === 'reels' || postType === 'standard') && mediaUrl.endsWith('.mp4') ? mediaUrl.trim() : (postType === 'reels' ? mediaUrl.trim() : undefined),
+          image_url: attachedPreview && !isVideo ? attachedPreview : undefined,
+          video_url: attachedPreview && isVideo ? attachedPreview : undefined,
           likes_count: 0,
           liked_by_users: [],
           saved_by_users: [],
           comments: [],
-          post_type: postType,
+          post_type: isVideo ? 'reels' : postType,
           created_at: new Date().toISOString()
         };
 
@@ -177,7 +204,7 @@ export default function ComunidadePage() {
 
         // Reset
         setContent('');
-        setMediaUrl('');
+        handleRemoveAttachment();
         setPostType('standard');
         fetchFeedData();
       }
@@ -474,12 +501,12 @@ export default function ComunidadePage() {
   const getConnectionState = (otherId: string): 'none' | 'pending_sent' | 'pending_received' | 'connected' => {
     if (!user) return 'none';
     const conn = connections.find(c => 
-      (c.sender_id === user.id && c.receiver_id === otherId) || 
-      (c.sender_id === otherId && c.receiver_id === user.id)
+      (c.requester_id === user.id && c.receiver_id === otherId) || 
+      (c.requester_id === otherId && c.receiver_id === user.id)
     );
     if (!conn) return 'none';
     if (conn.status === 'accepted') return 'connected';
-    return conn.sender_id === user.id ? 'pending_sent' : 'pending_received';
+    return conn.requester_id === user.id ? 'pending_sent' : 'pending_received';
   };
 
   const filteredMembers = members
@@ -612,11 +639,30 @@ export default function ComunidadePage() {
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
                   />
+
+                  {/* Attachment Preview Section */}
+                  {attachedPreview && (
+                    <div className="mt-3 relative inline-block rounded overflow-hidden border border-white/10 max-h-[220px]">
+                      {attachedFile?.type.startsWith('video') ? (
+                        <video src={attachedPreview} controls className="max-h-[200px] object-contain rounded" />
+                      ) : (
+                        <img src={attachedPreview} alt="Anexo" className="max-h-[200px] object-contain rounded" />
+                      )}
+                      <button 
+                        type="button" 
+                        onClick={handleRemoveAttachment} 
+                        className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-black/60 hover:bg-black/85 flex items-center justify-center text-white cursor-pointer border-0 transition duration-150"
+                        style={{ minWidth: 'auto' }}
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
 
               <div className="flex justify-between items-center border-t border-white/5 pt-4 flex-wrap gap-4">
-                <div className="flex gap-2">
+                <div className="flex gap-2 items-center">
                   <button 
                     type="button" 
                     onClick={() => setPostType('standard')}
@@ -656,17 +702,28 @@ export default function ComunidadePage() {
                     <Film size={12} />
                     <span>Reels Interno</span>
                   </button>
+
+                  <div className="w-[1px] h-4 bg-white/10 mx-1" />
+
+                  {/* Hidden Input File */}
+                  <input 
+                    type="file" 
+                    id="post-file-upload" 
+                    className="hidden" 
+                    accept="image/*,video/*"
+                    onChange={handleFileChange}
+                  />
+                  <label 
+                    htmlFor="post-file-upload" 
+                    className="p-1.5 text-text-secondary hover:text-white cursor-pointer transition duration-150 rounded hover:bg-white/5 flex items-center justify-center"
+                    title="Anexar foto ou vídeo"
+                  >
+                    <ImageIcon size={16} />
+                  </label>
                 </div>
 
-                <div className="flex gap-2.5 items-center flex-grow justify-end max-w-[320px]">
-                  <input 
-                    type="url" 
-                    className="w-full px-3 py-1.5 bg-white/2 border border-white/10 rounded-lg text-white text-[11px] placeholder-text-muted focus:outline-none focus:border-[#C1FF07]/30 transition duration-200" 
-                    placeholder={postType === 'reels' ? 'URL do vídeo (.mp4)' : 'Link de mídia (opcional)'}
-                    value={mediaUrl}
-                    onChange={(e) => setMediaUrl(e.target.value)}
-                  />
-                  <button type="submit" className="px-4 py-1.5 bg-gradient-to-r from-primary-lemon to-primary-lemon-hover text-bg-deep font-bold rounded-lg text-xs flex items-center gap-1.5 cursor-pointer hover:shadow-[0_0_12px_rgba(193,255,7,0.2)] transition-all duration-200 uppercase font-outfit">
+                <div className="flex gap-2.5 items-center justify-end">
+                  <button type="submit" className="px-4 py-1.5 bg-gradient-to-r from-primary-lemon to-primary-lemon-hover text-bg-deep font-bold rounded-lg text-xs flex items-center gap-1.5 cursor-pointer hover:shadow-[0_0_12px_rgba(193,255,7,0.2)] transition-all duration-200 uppercase font-outfit" style={{ borderRadius: '2px' }}>
                     <span>Publicar</span>
                   </button>
                 </div>
@@ -739,33 +796,64 @@ export default function ComunidadePage() {
                   )}
 
                   {/* Action Buttons */}
-                  <div className="flex justify-between items-center border-y border-white/5 py-1.5 mb-4">
-                    <button 
-                      onClick={() => handleLikePost(post.id)}
-                      className="outline-btn border-0 text-xs flex items-center gap-1.5"
-                      style={{ minWidth: 'auto', padding: '6px 12px', color: isLiked ? '#FF4A4A' : 'var(--color-text-secondary)' }}
-                    >
-                      <Heart size={16} fill={isLiked ? '#FF4A4A' : 'transparent'} />
-                      <span>{post.likes_count} Curtidas</span>
-                    </button>
+                  <div className="flex justify-between items-center border-y border-white/5 py-1 mb-4">
+                    <div className="flex items-center gap-1">
+                      <button 
+                        onClick={() => handleLikePost(post.id)}
+                        className="outline-btn border-0 text-xs flex items-center gap-1.5"
+                        style={{ minWidth: 'auto', padding: '6px 12px', color: isLiked ? '#FF4A4A' : 'var(--color-text-secondary)' }}
+                        title="Curtir Post"
+                      >
+                        <Heart size={16} fill={isLiked ? '#FF4A4A' : 'transparent'} />
+                      </button>
 
-                    <button 
-                      onClick={() => setLightboxPost(post)}
-                      className="outline-btn border-0 text-xs flex items-center gap-1.5"
-                      style={{ minWidth: 'auto', padding: '6px 12px' }}
-                    >
-                      <MessageSquare size={16} />
-                      <span>{post.comments.length} Comentários</span>
-                    </button>
+                      <button 
+                        onClick={() => setLightboxPost(post)}
+                        className="outline-btn border-0 text-xs flex items-center gap-1.5"
+                        style={{ minWidth: 'auto', padding: '6px 12px' }}
+                        title="Comentários"
+                      >
+                        <MessageSquare size={16} />
+                        <span className="text-[11px] font-bold text-white/50">{post.comments.length}</span>
+                      </button>
 
-                    <button 
-                      onClick={() => handleSavePost(post.id)}
-                      className="outline-btn border-0 text-xs flex items-center gap-1.5"
-                      style={{ minWidth: 'auto', padding: '6px 12px', color: isSaved ? '#C1FF07' : 'var(--color-text-secondary)' }}
-                    >
-                      <Bookmark size={16} fill={isSaved ? '#C1FF07' : 'transparent'} />
-                      <span>Salvar</span>
-                    </button>
+                      <button 
+                        onClick={() => handleSavePost(post.id)}
+                        className="outline-btn border-0 text-xs flex items-center gap-1.5"
+                        style={{ minWidth: 'auto', padding: '6px 12px', color: isSaved ? '#C1FF07' : 'var(--color-text-secondary)' }}
+                        title="Salvar Post"
+                      >
+                        <Bookmark size={16} fill={isSaved ? '#C1FF07' : 'transparent'} />
+                      </button>
+                    </div>
+
+                    {/* Liked Users Avatar Stack */}
+                    {post.liked_by_users.length > 0 && (
+                      <div className="flex items-center gap-2">
+                        <div className="flex -space-x-1.5 overflow-hidden">
+                          {post.liked_by_users.slice(0, 3).map(userId => {
+                            const liker = members.find(m => m.id === userId);
+                            if (!liker) return null;
+                            return (
+                              <div 
+                                key={userId}
+                                className="w-5 h-5 rounded-full ring-2 ring-[#12131a] bg-[#171821] flex items-center justify-center text-[7px] font-bold text-[#C1FF07] overflow-hidden"
+                                title={liker.name}
+                              >
+                                {liker.img ? (
+                                  <img src={liker.img} alt={liker.name} className="w-full h-full object-cover" />
+                                ) : (
+                                  <span>{liker.initials || '??'}</span>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                        <span className="text-[10px] text-white/40 font-bold uppercase tracking-wider font-outfit">
+                          {post.likes_count} {post.likes_count === 1 ? 'curtida' : 'curtidas'}
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   {/* Quick comments input */}
@@ -814,7 +902,7 @@ export default function ComunidadePage() {
                 value={memberSearch}
                 onChange={(e) => setMemberSearch(e.target.value)}
               />
-              <Search size={14} className="absolute left-3 top-2.5 text-text-muted" />
+              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted z-10 pointer-events-none" />
             </div>
 
             {/* Members List */}
@@ -865,7 +953,6 @@ export default function ComunidadePage() {
             </div>
           </div>
         </aside>
-      </div>
       </div>
 
       {/* Story Viewer Modal */}

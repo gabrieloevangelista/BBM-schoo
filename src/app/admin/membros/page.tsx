@@ -12,6 +12,7 @@ import {
 import { Member } from '@/lib/db';
 import Switch from '@/components/Switch';
 import { AdminSkeleton } from '@/components/SkeletonLoaders';
+import { customConfirm } from '@/components/CustomConfirm';
 
 export default function MembrosAdminPage() {
   const { user } = useAuth();
@@ -71,7 +72,11 @@ export default function MembrosAdminPage() {
 
   // Delete member
   const handleDeleteMember = async (id: string) => {
-    if (!confirm('Deseja excluir este membro permanentemente? Esta ação não pode ser desfeita.')) return;
+    const confirmed = await customConfirm(
+      'Deseja excluir este membro permanentemente? Esta ação não pode ser desfeita.',
+      'Excluir Membro'
+    );
+    if (!confirmed) return;
     try {
       const response = await fetch('/api/db');
       if (response.ok) {

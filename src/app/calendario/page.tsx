@@ -117,7 +117,7 @@ export default function CalendarioPage() {
           event_date: selectedDateStr,
           start_time: newStartTime + ':00',
           end_time: newEndTime + ':00',
-          mentor_name: user?.name || 'Diego BBM',
+          mentor_name: user?.name || 'Gabriel Evangelista',
           mentor_role: user?.role || 'CEO & Fundador',
           mentor_avatar: user?.img || '',
           topic: newTopic,
@@ -336,19 +336,27 @@ export default function CalendarioPage() {
         </div>
 
         {/* View Mode Toggle */}
-        <div className="flex gap-1 border border-white/10 rounded-lg p-1 bg-white/2">
+        <div className="flex gap-1 border border-white/10 rounded-[4px] p-1 bg-white/2">
           <button 
             onClick={() => setViewMode('grid')}
-            className={`p-1.5 rounded cursor-pointer ${viewMode === 'grid' ? 'bg-[#C1FF07]/10 text-[#C1FF07]' : 'text-text-secondary hover:text-white'}`}
-            style={{ border: 'none', background: viewMode === 'grid' ? 'rgba(193,255,7,0.1)' : 'transparent' }}
+            className="p-1.5 rounded-[2px] cursor-pointer transition-all duration-200 flex items-center justify-center"
+            style={{ 
+              border: 'none', 
+              backgroundColor: viewMode === 'grid' ? 'var(--color-primary-lemon)' : 'transparent',
+              color: viewMode === 'grid' ? 'var(--color-switch-active-text)' : 'var(--text-secondary)'
+            }}
             title="Grade"
           >
             <CalendarIcon size={14} />
           </button>
           <button 
             onClick={() => setViewMode('list')}
-            className={`p-1.5 rounded cursor-pointer ${viewMode === 'list' ? 'bg-[#C1FF07]/10 text-[#C1FF07]' : 'text-text-secondary hover:text-white'}`}
-            style={{ border: 'none', background: viewMode === 'list' ? 'rgba(193,255,7,0.1)' : 'transparent' }}
+            className="p-1.5 rounded-[2px] cursor-pointer transition-all duration-200 flex items-center justify-center"
+            style={{ 
+              border: 'none', 
+              backgroundColor: viewMode === 'list' ? 'var(--color-primary-lemon)' : 'transparent',
+              color: viewMode === 'list' ? 'var(--color-switch-active-text)' : 'var(--text-secondary)'
+            }}
             title="Lista"
           >
             <List size={14} />

@@ -18,6 +18,7 @@ import {
   Link as LinkIcon,
   Folder
 } from 'lucide-react';
+import { customConfirm } from '@/components/CustomConfirm';
 import { Mission, MissionSubmission, Member } from '@/lib/db';
 import { AdminSkeleton } from '@/components/SkeletonLoaders';
 
@@ -152,7 +153,11 @@ export default function MissoesAdminPage() {
 
   // Delete mission
   const handleDeleteMission = async (id: string) => {
-    if (!confirm('Deseja excluir esta missão permanentemente? Todas as entregas dos alunos serão perdidas.')) return;
+    const confirmed = await customConfirm(
+      'Deseja excluir esta missão permanentemente? Todas as entregas dos alunos serão perdidas.',
+      'Excluir Missão Prática'
+    );
+    if (!confirmed) return;
     try {
       const response = await fetch('/api/db');
       if (response.ok) {

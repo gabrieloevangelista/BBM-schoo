@@ -15,6 +15,7 @@ import {
   CheckCircle,
   ExternalLink
 } from 'lucide-react';
+import { customConfirm } from '@/components/CustomConfirm';
 import { EcosystemBanner } from '@/lib/db';
 import Switch from '@/components/Switch';
 import { AdminSkeleton } from '@/components/SkeletonLoaders';
@@ -151,7 +152,11 @@ export default function EcossistemaBannersAdminPage() {
 
   // Delete banner
   const handleDeleteBanner = async (id: string) => {
-    if (!confirm('Deseja excluir este banner permanentemente?')) return;
+    const confirmed = await customConfirm(
+      'Deseja excluir este banner permanentemente?',
+      'Excluir Banner do Ecossistema'
+    );
+    if (!confirmed) return;
     try {
       const response = await fetch('/api/db');
       if (response.ok) {

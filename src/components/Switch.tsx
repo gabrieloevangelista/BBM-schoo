@@ -15,20 +15,23 @@ export default function Switch({ checked, onChange, disabled = false }: SwitchPr
       disabled={disabled}
       onClick={() => !disabled && onChange(!checked)}
       className={`
-        relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent 
-        transition-colors duration-200 ease-in-out focus:outline-none 
-        ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
-        ${checked ? 'bg-[#C1FF07] shadow-[0_0_10px_rgba(193,255,7,0.3)]' : 'bg-gray-700/80'}
+        relative inline-flex h-5 w-10 shrink-0 cursor-pointer items-center rounded-full
+        transition-colors duration-200 ease-in-out focus:outline-none border
+        ${disabled ? 'opacity-40 cursor-not-allowed' : ''}
       `}
+      style={{
+        backgroundColor: checked ? 'var(--color-primary-lemon)' : 'rgba(255, 255, 255, 0.06)',
+        borderColor: checked ? 'transparent' : 'rgba(255, 255, 255, 0.12)'
+      }}
     >
       <span className="sr-only">Toggle</span>
       <span
         aria-hidden="true"
-        className={`
-          pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 
-          transition duration-200 ease-in-out
-          ${checked ? 'translate-x-4 bg-[#010103]' : 'translate-x-0'}
-        `}
+        className="pointer-events-none absolute top-1/2 -translate-y-1/2 h-3 w-3 rounded-full shadow transition-all duration-200 ease-in-out"
+        style={{
+          left: checked ? 'calc(100% - 12px - 3.5px)' : '3.5px',
+          backgroundColor: checked ? '#010103' : 'rgba(255, 255, 255, 0.6)'
+        }}
       />
     </button>
   );
