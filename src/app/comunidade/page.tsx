@@ -1,0 +1,1160 @@
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '@/context/AuthContext';
+import { 
+  MessageSquare, 
+  Heart, 
+  Bookmark, 
+  Image as ImageIcon, 
+  Video as VideoIcon, 
+  Send, 
+  X, 
+  Play, 
+  Plus, 
+  Trash2, 
+  CornerDownRight, 
+  Eye, 
+  Users,
+  Film
+} from 'lucide-react';
+import { CommunityPost, CommunityComment, CommentReply, Member, MemberConnection } from '@/lib/db';
+import { Search, Film, UserPlus, Check, HelpCircle } from 'lucide-react';
+
+export default function ComunidadePage() {
+  const { user } = useAuth();
+  const [posts, setPosts] = useState<CommunityPost[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Stories (status posts)
+  const [stories, setStories] = useState<CommunityPost[]>([]);
+  const [activeStory, setActiveStory] = useState<CommunityPost | null>(null);
+  const [storyViewers, setStoryViewers] = useState<any[]>([]);
+
+  // Post Creator states
+  const [postType, setPostType] = useState<'standard' | 'status' | 'reels'>('standard');
+  const [content, setContent] = useState('');
+  const [mediaUrl, setMediaUrl] = useState('');
+
+  // Lightbox state
+  const [lightboxPost, setLightboxPost] = useState<CommunityPost | null>(null);
+
+  // Inline Comment states
+  const [commentTexts, setCommentTexts] = useState<Record<string, string>>({});
+  const [replyTexts, setReplyTexts] = useState<Record<string, string>>({});
+  const [activeReplyBox, setActiveReplyBox] = useState<string | null>(null);
+
+  // Overhaul states for Case style
+  const [activeTab, setActiveTab] = useState<'all' | 'reels'>('all');
+  const [members, setMembers] = useState<Member[]>([]);
+  const [connections, setConnections] = useState<MemberConnection[]>([]);
+  const [memberSearch, setMemberSearch] = useState('');
+
+  const fetchFeedData = async () => {
+    try {
+      const response = await fetch('/api/db');
+      if (response.ok) {
+        const db = await response.json();
+        
+        // 1. Filter normal timeline posts: standard & reels
+        let timelineList = db.community_posts.filter((p: CommunityPost) => p.post_type !== 'status');
+        timelineList.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+        setPosts(timelineList);
+
+        // 2. Filter stories: status posts created in the last 24 hours
+        const nowTime = new Date().getTime();
+        let storyList = db.community_posts.filter((p: CommunityPost) => {
+          if (p.post_type !== 'status') return false;
+          const postTime = new Date(p.created_at).getTime();
+          return (nowTime - postTime) < 24 * 60 * 60 * 1000;
+        });
+        storyList.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+        setStories(storyList);
+
+        // 3. Set members and connections
+        setMembers(db.members || []);
+        setConnections(db.member_connections || []);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleConnectToggle = async (targetId: string) => {
+    if (!user) return;
+    try {
+      const response = await fetch('/api/db');
+      if (response.ok) {
+        const db = await response.json();
+        if (!db.member_connections) db.member_connections = [];
+        
+        const existingIndex = db.member_connections.findIndex((c: MemberConnection) => 
+          (c.sender_id === user.id && c.receiver_id === targetId) ||
+          (c.sender_id === targetId && c.receiver_id === user.id)
+        );
+
+        if (existingIndex === -1) {
+          // Send request
+          const newConn: MemberConnection = {
+            id: `conn-${Date.now()}`,
+            sender_id: user.id,
+            receiver_id: targetId,
+            status: 'pending',
+            created_at: new Date().toISOString()
+          };
+          db.member_connections.push(newConn);
+        } else {
+          const conn = db.member_connections[existingIndex];
+          if (conn.status === 'pending') {
+            if (conn.sender_id === user.id) {
+              // Cancel pending request sent by us
+              db.member_connections.splice(existingIndex, 1);
+            } else {
+              // Accept request received by us
+              conn.status = 'accepted';
+            }
+          } else {
+            // Remove connection (accepted status)
+            db.member_connections.splice(existingIndex, 1);
+          }
+        }
+
+        await fetch('/api/db', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(db)
+        });
+        fetchFeedData();
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  useEffect(() => {
+    if (user) {
+      fetchFeedData();
+    }
+  }, [user]);
+
+  // Handle post creation
+  const handleCreatePost = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!content.trim() && !mediaUrl.trim()) return;
+
+    try {
+      const response = await fetch('/api/db');
+      if (response.ok) {
+        const db = await response.json();
+        
+        const newPost: CommunityPost = {
+          id: `post-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          user_id: user?.id,
+          author_name: user?.name || 'Membro BBM',
+          author_avatar: user?.img || '',
+          author_role: user?.role || 'Mentorado Elite',
+          content: content.trim(),
+          image_url: postType === 'standard' ? mediaUrl.trim() : undefined,
+          video_url: (postType === 'reels' || postType === 'standard') && mediaUrl.endsWith('.mp4') ? mediaUrl.trim() : (postType === 'reels' ? mediaUrl.trim() : undefined),
+          likes_count: 0,
+          liked_by_users: [],
+          saved_by_users: [],
+          comments: [],
+          post_type: postType,
+          created_at: new Date().toISOString()
+        };
+
+        if (!db.community_posts) db.community_posts = [];
+        db.community_posts.unshift(newPost);
+
+        await fetch('/api/db', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(db)
+        });
+
+        // Reset
+        setContent('');
+        setMediaUrl('');
+        setPostType('standard');
+        fetchFeedData();
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // Delete post
+  const handleDeletePost = async (postId: string) => {
+    if (!confirm('Deseja excluir esta publicação permanentemente?')) return;
+    try {
+      const response = await fetch('/api/db');
+      if (response.ok) {
+        const db = await response.json();
+        db.community_posts = db.community_posts.filter((p: CommunityPost) => p.id !== postId);
+        
+        await fetch('/api/db', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(db)
+        });
+        
+        if (lightboxPost?.id === postId) setLightboxPost(null);
+        fetchFeedData();
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  // Toggle Like
+  const handleLikePost = async (postId: string) => {
+    if (!user) return;
+    try {
+      const response = await fetch('/api/db');
+      if (response.ok) {
+        const db = await response.json();
+        db.community_posts = db.community_posts.map((p: CommunityPost) => {
+          if (p.id === postId) {
+            const liked = p.liked_by_users.includes(user.id);
+            const newList = liked 
+              ? p.liked_by_users.filter(id => id !== user.id)
+              : [...p.liked_by_users, user.id];
+            
+            return {
+              ...p,
+              liked_by_users: newList,
+              likes_count: newList.length
+            };
+          }
+          return p;
+        });
+
+        await fetch('/api/db', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(db)
+        });
+
+        fetchFeedData();
+        // Update lightbox if open
+        if (lightboxPost && lightboxPost.id === postId) {
+          const updated = db.community_posts.find((p: CommunityPost) => p.id === postId);
+          setLightboxPost(updated);
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  // Toggle Save
+  const handleSavePost = async (postId: string) => {
+    if (!user) return;
+    try {
+      const response = await fetch('/api/db');
+      if (response.ok) {
+        const db = await response.json();
+        db.community_posts = db.community_posts.map((p: CommunityPost) => {
+          if (p.id === postId) {
+            const saved = p.saved_by_users.includes(user.id);
+            const newList = saved 
+              ? p.saved_by_users.filter(id => id !== user.id)
+              : [...p.saved_by_users, user.id];
+            
+            return {
+              ...p,
+              saved_by_users: newList
+            };
+          }
+          return p;
+        });
+
+        await fetch('/api/db', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(db)
+        });
+
+        fetchFeedData();
+        if (lightboxPost && lightboxPost.id === postId) {
+          const updated = db.community_posts.find((p: CommunityPost) => p.id === postId);
+          setLightboxPost(updated);
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  // Story views logger
+  const handleOpenStory = async (story: CommunityPost) => {
+    setActiveStory(story);
+    if (!user) return;
+
+    try {
+      const response = await fetch('/api/db');
+      if (response.ok) {
+        const db = await response.json();
+        
+        // Log view in story_views table
+        const exists = db.story_views.some(
+          (v: any) => v.story_id === story.id && v.viewer_id === user.id
+        );
+        if (!exists) {
+          db.story_views.push({
+            id: `view-${Date.now()}`,
+            story_id: story.id,
+            viewer_id: user.id,
+            created_at: new Date().toISOString()
+          });
+
+          await fetch('/api/db', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(db)
+          });
+        }
+
+        // Load viewer profiles
+        const viewersList = db.story_views
+          .filter((v: any) => v.story_id === story.id)
+          .map((v: any) => {
+            const member = db.members.find((m: any) => m.id === v.viewer_id);
+            return member ? member.name : 'Membro';
+          });
+        setStoryViewers(viewersList);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  // Add Comment/Reply to Community Post
+  const handleAddComment = async (postId: string, parentCommentId?: string) => {
+    const text = parentCommentId ? replyTexts[parentCommentId] : commentTexts[postId];
+    if (!text || !text.trim() || !user) return;
+
+    try {
+      const response = await fetch('/api/db');
+      if (response.ok) {
+        const db = await response.json();
+
+        db.community_posts = db.community_posts.map((post: CommunityPost) => {
+          if (post.id === postId) {
+            const newCommentId = `comm-${Date.now()}`;
+            
+            if (parentCommentId) {
+              // 2nd level reply
+              const newReply: CommentReply = {
+                id: newCommentId,
+                user_id: user.id,
+                user_name: user.name,
+                user_avatar: user.img || '',
+                content: text.trim(),
+                created_at: new Date().toISOString()
+              };
+              
+              return {
+                ...post,
+                comments: post.comments.map(c => {
+                  if (c.id === parentCommentId) {
+                    return {
+                      ...c,
+                      replies: [...c.replies, newReply]
+                    };
+                  }
+                  return c;
+                })
+              };
+            } else {
+              // Root level comment
+              const newComment: CommunityComment = {
+                id: newCommentId,
+                user_id: user.id,
+                user_name: user.name,
+                user_avatar: user.img || '',
+                content: text.trim(),
+                created_at: new Date().toISOString(),
+                replies: []
+              };
+              
+              return {
+                ...post,
+                comments: [...post.comments, newComment]
+              };
+            }
+          }
+          return post;
+        });
+
+        await fetch('/api/db', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(db)
+        });
+
+        if (parentCommentId) {
+          setReplyTexts(prev => ({ ...prev, [parentCommentId]: '' }));
+          setActiveReplyBox(null);
+        } else {
+          setCommentTexts(prev => ({ ...prev, [postId]: '' }));
+        }
+
+        fetchFeedData();
+
+        // Update active Lightbox post if open
+        if (lightboxPost && lightboxPost.id === postId) {
+          const updated = db.community_posts.find((p: CommunityPost) => p.id === postId);
+          setLightboxPost(updated);
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  // Delete comment from post
+  const handleDeleteComment = async (postId: string, commentId: string, isReply: boolean = false, parentId?: string) => {
+    if (!confirm('Deseja excluir este comentário?')) return;
+    try {
+      const response = await fetch('/api/db');
+      if (response.ok) {
+        const db = await response.json();
+        
+        db.community_posts = db.community_posts.map((post: CommunityPost) => {
+          if (post.id === postId) {
+            if (isReply && parentId) {
+              return {
+                ...post,
+                comments: post.comments.map(c => {
+                  if (c.id === parentId) {
+                    return {
+                      ...c,
+                      replies: c.replies.filter(r => r.id !== commentId)
+                    };
+                  }
+                  return c;
+                })
+              };
+            } else {
+              return {
+                ...post,
+                comments: post.comments.filter(c => c.id !== commentId)
+              };
+            }
+          }
+          return post;
+        });
+
+        await fetch('/api/db', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(db)
+        });
+
+        fetchFeedData();
+
+        if (lightboxPost && lightboxPost.id === postId) {
+          const updated = db.community_posts.find((p: CommunityPost) => p.id === postId);
+          setLightboxPost(updated);
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  if (isLoading) {
+    return <ComunidadeSkeleton />;
+  }
+
+  const getConnectionState = (otherId: string): 'none' | 'pending_sent' | 'pending_received' | 'connected' => {
+    if (!user) return 'none';
+    const conn = connections.find(c => 
+      (c.sender_id === user.id && c.receiver_id === otherId) || 
+      (c.sender_id === otherId && c.receiver_id === user.id)
+    );
+    if (!conn) return 'none';
+    if (conn.status === 'accepted') return 'connected';
+    return conn.sender_id === user.id ? 'pending_sent' : 'pending_received';
+  };
+
+  const filteredMembers = members
+    .filter(m => m.id !== user?.id)
+    .filter(m => {
+      if (!memberSearch) return true;
+      return m.name.toLowerCase().includes(memberSearch.toLowerCase()) || 
+             (m.role && m.role.toLowerCase().includes(memberSearch.toLowerCase()));
+    });
+
+  const filteredTimelinePosts = posts.filter(post => {
+    if (activeTab === 'all') return true;
+    return post.post_type === 'reels';
+  });
+
+  return (
+    <div className="flex flex-col gap-6">
+      <div>
+        <h1 className="page-title">Feed da Comunidade</h1>
+        <p className="page-subtitle">Acompanhe as novidades, interaja com postagens e conecte-se com os Masters da comunidade.</p>
+      </div>
+
+      {/* Tabs */}
+      <div className="flex border-b border-white/5 pb-0 mb-2 gap-8">
+        <button
+          onClick={() => setActiveTab('all')}
+          className={`pb-3 text-sm font-semibold cursor-pointer border-b-2 transition-all duration-200 ${
+            activeTab === 'all'
+              ? 'border-primary-lemon text-primary-lemon'
+              : 'border-transparent text-text-secondary hover:text-white'
+          }`}
+          style={{ background: 'transparent' }}
+        >
+          Feed da Comunidade
+        </button>
+        <button
+          onClick={() => setActiveTab('reels')}
+          className={`pb-3 text-sm font-semibold cursor-pointer border-b-2 transition-all duration-200 ${
+            activeTab === 'reels'
+              ? 'border-primary-lemon text-primary-lemon'
+              : 'border-transparent text-text-secondary hover:text-white'
+          }`}
+          style={{ background: 'transparent' }}
+        >
+          Reels CLS
+        </button>
+      </div>
+
+      {/* Two columns on desktop */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        {/* Left column - Feed */}
+        <div className="lg:col-span-8 flex flex-col gap-6">
+          {/* Stories Bar */}
+          <section className="glass-panel p-4 flex gap-4 overflow-x-auto scrollbar-none items-center">
+            {/* Novo Status Story Circle */}
+            <div 
+              style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', flexShrink: 0 }}
+              onClick={() => {
+                setPostType('status');
+                setContent('');
+                setMediaUrl('');
+                // Alert user to use creator below
+                alert('Escreva o conteúdo no publicador abaixo e selecione "Status / Story" para criar!');
+              }}
+            >
+              <div style={{ width: '56px', height: '56px', borderRadius: '50%', border: '2px dashed var(--color-text-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-secondary)' }}>
+                <Plus size={20} />
+              </div>
+              <span className="text-[10px] text-text-secondary mt-1.5 font-medium">Novo Status</span>
+            </div>
+
+            {stories.map(story => (
+              <div 
+                key={story.id} 
+                onClick={() => handleOpenStory(story)}
+                style={{ 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  alignItems: 'center', 
+                  cursor: 'pointer',
+                  flexShrink: 0
+                }}
+              >
+                <div 
+                  style={{ 
+                    width: '56px', 
+                    height: '56px', 
+                    borderRadius: '50%', 
+                    padding: '2px', 
+                    border: '2px solid #C1FF07',
+                    background: 'var(--bg-deep)'
+                  }}
+                >
+                  {story.author_avatar ? (
+                    <img src={story.author_avatar} alt={story.author_name} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                  ) : (
+                    <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', color: '#C1FF07', fontSize: '0.85rem', fontWeight: 600 }} className="flex-center">
+                      {story.author_name.substring(0, 2).toUpperCase()}
+                    </div>
+                  )}
+                </div>
+                <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', marginTop: '4px', maxWidth: '65px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {story.author_name.split(' ')[0]}
+                </span>
+              </div>
+            ))}
+
+            {stories.length === 0 && (
+              <span className="text-xs text-text-muted italic ml-2">Nenhum status ativo</span>
+            )}
+          </section>
+
+          {/* Post Creator Panel */}
+          <section className="glass-panel p-5">
+            <form onSubmit={handleCreatePost}>
+              <div className="flex gap-3.5 items-start mb-4">
+                {user?.img ? (
+                  <img src={user.img} alt={user.name} className="w-10 h-10 rounded-full object-cover border border-primary-lemon/20" />
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-primary-lemon/10 border border-primary-lemon text-primary-lemon flex items-center justify-center font-bold text-sm">
+                    {user?.initials}
+                  </div>
+                )}
+
+                <div className="flex-grow">
+                  <textarea 
+                    className="w-full bg-transparent border-0 text-white placeholder-text-muted focus:outline-none text-sm min-h-[70px] p-0 resize-none" 
+                    placeholder="Compartilhe um insight, atualização de obra ou dúvida com a comunidade..."
+                    value={content}
+                    onChange={(e) => setContent(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-between items-center border-t border-white/5 pt-4 flex-wrap gap-4">
+                <div className="flex gap-2">
+                  <button 
+                    type="button" 
+                    onClick={() => setPostType('standard')}
+                    className={`px-3 py-1.5 rounded-full text-[10px] font-bold cursor-pointer transition-all duration-200 flex items-center gap-1 ${
+                      postType === 'standard' 
+                        ? 'bg-white/10 text-white border border-white/20' 
+                        : 'border border-transparent text-text-secondary hover:text-white'
+                    }`}
+                    style={{ background: postType === 'standard' ? 'rgba(255,255,255,0.06)' : 'transparent' }}
+                  >
+                    <MessageSquare size={12} />
+                    <span>Feed Geral</span>
+                  </button>
+                  <button 
+                    type="button" 
+                    onClick={() => setPostType('status')}
+                    className={`px-3 py-1.5 rounded-full text-[10px] font-bold cursor-pointer transition-all duration-200 flex items-center gap-1 ${
+                      postType === 'status' 
+                        ? 'bg-white/10 text-white border border-white/20' 
+                        : 'border border-transparent text-text-secondary hover:text-white'
+                    }`}
+                    style={{ background: postType === 'status' ? 'rgba(255,255,255,0.06)' : 'transparent' }}
+                  >
+                    <Users size={12} />
+                    <span>Status / Story</span>
+                  </button>
+                  <button 
+                    type="button" 
+                    onClick={() => setPostType('reels')}
+                    className={`px-3 py-1.5 rounded-full text-[10px] font-bold cursor-pointer transition-all duration-200 flex items-center gap-1 ${
+                      postType === 'reels' 
+                        ? 'bg-white/10 text-white border border-white/20' 
+                        : 'border border-transparent text-text-secondary hover:text-white'
+                    }`}
+                    style={{ background: postType === 'reels' ? 'rgba(255,255,255,0.06)' : 'transparent' }}
+                  >
+                    <Film size={12} />
+                    <span>Reels Interno</span>
+                  </button>
+                </div>
+
+                <div className="flex gap-2.5 items-center flex-grow justify-end max-w-[320px]">
+                  <input 
+                    type="url" 
+                    className="w-full px-3 py-1.5 bg-white/2 border border-white/10 rounded-lg text-white text-[11px] placeholder-text-muted focus:outline-none focus:border-[#C1FF07]/30 transition duration-200" 
+                    placeholder={postType === 'reels' ? 'URL do vídeo (.mp4)' : 'Link de mídia (opcional)'}
+                    value={mediaUrl}
+                    onChange={(e) => setMediaUrl(e.target.value)}
+                  />
+                  <button type="submit" className="px-4 py-1.5 bg-gradient-to-r from-primary-lemon to-primary-lemon-hover text-bg-deep font-bold rounded-lg text-xs flex items-center gap-1.5 cursor-pointer hover:shadow-[0_0_12px_rgba(193,255,7,0.2)] transition-all duration-200 uppercase font-outfit">
+                    <span>Publicar</span>
+                  </button>
+                </div>
+              </div>
+            </form>
+          </section>
+
+          {/* Main Feed List */}
+          <div className="flex flex-col gap-6">
+            {filteredTimelinePosts.map(post => {
+              const isLiked = user && post.liked_by_users.includes(user.id);
+              const isSaved = user && post.saved_by_users.includes(user.id);
+              const isAuthor = user && post.user_id === user.id;
+              const isAdmin = user?.member_type === 'admin';
+
+              return (
+                <article key={post.id} className="glass-panel p-6">
+                  {/* Post Header */}
+                  <div className="flex justify-between items-center mb-4">
+                    <div className="flex gap-3 items-center">
+                      {post.author_avatar ? (
+                        <img src={post.author_avatar} alt={post.author_name} className="w-10 h-10 rounded-full object-cover border border-white/5" />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-primary-lemon/10 border border-primary-lemon/20 text-primary-lemon flex items-center justify-center font-bold text-sm">
+                          {post.author_name.substring(0, 2).toUpperCase()}
+                        </div>
+                      )}
+                      <div>
+                        <h3 className="text-sm font-bold text-white leading-tight font-outfit">{post.author_name}</h3>
+                        <p className="text-[11px] text-text-secondary mt-0.5">{post.author_role} • {new Date(post.created_at).toLocaleDateString('pt-BR')}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2 items-center">
+                      {post.post_type === 'reels' && (
+                        <span className="badge badge-lemon text-[9px] flex items-center gap-1">
+                          <Film size={10} /> Reels
+                        </span>
+                      )}
+                      {(isAuthor || isAdmin) && (
+                        <button onClick={() => handleDeletePost(post.id)} className="outline-btn border-0 p-1 text-red-500 hover:text-red-400" style={{ minWidth: 'auto' }}>
+                          <Trash2 size={16} />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Post Content */}
+                  <p className="text-white text-sm mb-4 leading-relaxed white-space-pre-wrap">
+                    {post.content}
+                  </p>
+
+                  {/* Post Media (Image / Video Player) */}
+                  {(post.image_url || post.video_url) && (
+                    <div 
+                      onClick={() => setLightboxPost(post)}
+                      className="cursor-pointer rounded-xl overflow-hidden border border-white/5 bg-[#000] mb-4 relative max-h-[400px] flex-center"
+                    >
+                      {post.video_url ? (
+                        <div className="w-full relative">
+                          <video src={post.video_url} className="w-full max-h-[400px] block" muted loop autoPlay />
+                          <div className="absolute top-3 right-3 bg-black/60 p-2 rounded-full text-white">
+                            <Play size={16} />
+                          </div>
+                        </div>
+                      ) : (
+                        <img src={post.image_url} alt="Media" className="w-full max-h-[400px] object-contain block" />
+                      )}
+                    </div>
+                  )}
+
+                  {/* Action Buttons */}
+                  <div className="flex justify-between items-center border-y border-white/5 py-1.5 mb-4">
+                    <button 
+                      onClick={() => handleLikePost(post.id)}
+                      className="outline-btn border-0 text-xs flex items-center gap-1.5"
+                      style={{ minWidth: 'auto', padding: '6px 12px', color: isLiked ? '#FF4A4A' : 'var(--color-text-secondary)' }}
+                    >
+                      <Heart size={16} fill={isLiked ? '#FF4A4A' : 'transparent'} />
+                      <span>{post.likes_count} Curtidas</span>
+                    </button>
+
+                    <button 
+                      onClick={() => setLightboxPost(post)}
+                      className="outline-btn border-0 text-xs flex items-center gap-1.5"
+                      style={{ minWidth: 'auto', padding: '6px 12px' }}
+                    >
+                      <MessageSquare size={16} />
+                      <span>{post.comments.length} Comentários</span>
+                    </button>
+
+                    <button 
+                      onClick={() => handleSavePost(post.id)}
+                      className="outline-btn border-0 text-xs flex items-center gap-1.5"
+                      style={{ minWidth: 'auto', padding: '6px 12px', color: isSaved ? '#C1FF07' : 'var(--color-text-secondary)' }}
+                    >
+                      <Bookmark size={16} fill={isSaved ? '#C1FF07' : 'transparent'} />
+                      <span>Salvar</span>
+                    </button>
+                  </div>
+
+                  {/* Quick comments input */}
+                  <form 
+                    onSubmit={(e) => { e.preventDefault(); handleAddComment(post.id); }}
+                    className="flex gap-2.5"
+                  >
+                    <input 
+                      type="text" 
+                      className="form-input text-xs" 
+                      placeholder="Escreva um comentário..."
+                      value={commentTexts[post.id] || ''}
+                      onChange={(e) => setCommentTexts(prev => ({ ...prev, [post.id]: e.target.value }))}
+                      style={{ padding: '8px 12px', borderRadius: '6px' }}
+                    />
+                    <button type="submit" className="outline-btn text-xs" style={{ padding: '8px 12px', minWidth: 'auto' }}>
+                      <Send size={12} />
+                    </button>
+                  </form>
+                </article>
+              );
+            })}
+
+            {filteredTimelinePosts.length === 0 && (
+              <div className="glass-panel p-8 text-center text-text-secondary text-sm italic">
+                Nenhuma publicação encontrada no feed.
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Right column - Masters sidebar */}
+        <aside className="lg:col-span-4 flex flex-col gap-6">
+          <div className="glass-panel p-5 flex flex-col gap-4">
+            <h3 className="text-sm font-bold text-white font-outfit flex items-center gap-2 uppercase tracking-wider">
+              <Users size={16} className="text-primary-lemon" />
+              <span>Masters</span>
+            </h3>
+            
+            {/* Search Input */}
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Buscar Master..."
+                className="form-input text-xs w-full pl-9 pr-4 py-2"
+                value={memberSearch}
+                onChange={(e) => setMemberSearch(e.target.value)}
+              />
+              <Search size={14} className="absolute left-3 top-2.5 text-text-muted" />
+            </div>
+
+            {/* Members List */}
+            <div className="flex flex-col gap-3.5 max-h-[500px] overflow-y-auto pr-1 scrollbar-none">
+              {filteredMembers.map(m => {
+                const connectionState = getConnectionState(m.id);
+                return (
+                  <div key={m.id} className="flex items-center justify-between gap-3 p-2 rounded-lg hover:bg-white/1">
+                    <div className="flex items-center gap-3 min-w-0">
+                      {m.img ? (
+                        <img src={m.img} alt={m.name} className="w-9 h-9 rounded-full object-cover border border-white/5" />
+                      ) : (
+                        <div className="w-9 h-9 rounded-full bg-[#C1FF07]/10 border border-[#C1FF07]/20 text-[#C1FF07] flex items-center justify-center font-bold text-xs flex-shrink-0">
+                          {m.initials || m.name.substring(0, 2).toUpperCase()}
+                        </div>
+                      )}
+                      <div className="min-w-0">
+                        <h4 className="text-xs font-bold text-white truncate leading-snug">{m.name}</h4>
+                        <p className="text-[10px] text-text-secondary truncate leading-normal">{m.role || 'Membro BBM'}</p>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => handleConnectToggle(m.id)}
+                      className={`px-3 py-1 rounded text-[9px] font-extrabold uppercase tracking-wider transition-all duration-200 border cursor-pointer ${
+                        connectionState === 'connected'
+                          ? 'border-[#34D399]/20 text-[#34D399] bg-[#34D399]/5'
+                          : connectionState === 'pending_sent' || connectionState === 'pending_received'
+                            ? 'border-white/10 text-text-secondary hover:bg-white/5'
+                            : 'border-[#C1FF07]/20 text-[#C1FF07] hover:bg-[#C1FF07]/5'
+                      }`}
+                      style={{ minWidth: '75px', textAlign: 'center' }}
+                    >
+                      {connectionState === 'connected' && 'CONECTADO'}
+                      {connectionState === 'pending_sent' && 'PENDENTE'}
+                      {connectionState === 'pending_received' && 'ACEITAR'}
+                      {connectionState === 'none' && 'CONECTAR'}
+                    </button>
+                  </div>
+                );
+              })}
+
+              {filteredMembers.length === 0 && (
+                <div className="text-center py-6 text-text-muted text-xs font-medium">
+                  Nenhum membro encontrado.
+                </div>
+              )}
+            </div>
+          </div>
+        </aside>
+      </div>
+      </div>
+
+      {/* Story Viewer Modal */}
+      {activeStory && (
+        <div 
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            background: 'rgba(0,0,0,0.95)',
+            zIndex: 2000,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px'
+          }}
+        >
+          <div 
+            className="modal-card"
+            style={{
+              maxWidth: '420px',
+              width: '100%',
+              padding: '24px',
+              position: 'relative'
+            }}
+          >
+            <button 
+              onClick={() => setActiveStory(null)}
+              className="outline-btn border-0 p-1 text-gray-400 hover:text-white"
+              style={{ minWidth: 'auto', position: 'absolute', top: '15px', right: '15px' }}
+            >
+              <X size={20} />
+            </button>
+
+            {/* Story Header */}
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '20px' }}>
+              <div style={{ width: '40px', height: '40px', borderRadius: '50%', padding: '1px', border: '1px solid #C1FF07' }}>
+                <img src={activeStory.author_avatar} alt="Author" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+              </div>
+              <div>
+                <h4 style={{ color: '#fff', fontSize: '0.9rem', fontWeight: 600 }}>{activeStory.author_name}</h4>
+                <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>Status publicado hoje</span>
+              </div>
+            </div>
+
+            {/* Story Message */}
+            <div 
+              style={{ 
+                minHeight: '200px', 
+                background: 'rgba(255,255,255,0.01)', 
+                border: '1px solid rgba(255,255,255,0.03)',
+                borderRadius: '12px',
+                padding: '20px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                textAlign: 'center',
+                marginBottom: '20px'
+              }}
+            >
+              <p style={{ color: '#fff', fontSize: '1.15rem', fontStyle: 'italic', fontFamily: 'var(--font-outfit)' }}>
+                "{activeStory.content}"
+              </p>
+            </div>
+
+            {/* Story Viewers list */}
+            {user?.member_type === 'admin' && (
+              <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '12px' }}>
+                <h5 style={{ fontSize: '0.75rem', color: 'var(--color-primary-lemon)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <Eye size={12} />
+                  <span>Visualizações ({storyViewers.length})</span>
+                </h5>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.7rem', marginTop: '4px' }}>
+                  {storyViewers.length > 0 ? storyViewers.join(', ') : 'Nenhuma visualização registrada.'}
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Post Lightbox Modal */}
+      {lightboxPost && (
+        <div 
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            background: 'rgba(0,0,0,0.92)',
+            zIndex: 1500,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px'
+          }}
+        >
+          <div 
+            className="glass-panel"
+            style={{
+              maxWidth: '900px',
+              width: '100%',
+              height: '80vh',
+              maxHeight: '650px',
+              display: 'flex',
+              flexDirection: 'row',
+              overflow: 'hidden',
+              border: '1px solid rgba(193, 255, 7, 0.1)',
+              boxShadow: '0 20px 60px rgba(0,0,0,0.8)'
+            }}
+          >
+            {/* Left side: Media column */}
+            <div 
+              style={{ 
+                flex: '1.2', 
+                background: '#000', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center',
+                position: 'relative',
+                borderRight: '1px solid rgba(193, 255, 7, 0.1)'
+              }}
+            >
+              {lightboxPost.video_url ? (
+                <video src={lightboxPost.video_url} controls style={{ width: '100%', height: '100%', objectFit: 'contain' }} autoPlay loop />
+              ) : lightboxPost.image_url ? (
+                <img src={lightboxPost.image_url} alt="Lightbox Media" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+              ) : (
+                <div style={{ color: 'var(--text-secondary)', padding: '30px', textAlign: 'center' }}>
+                  Sem mídia para visualização.
+                </div>
+              )}
+            </div>
+
+            {/* Right side: Comments panel column */}
+            <div style={{ flex: '1', display: 'flex', flexDirection: 'column', background: 'var(--bg-deep)', height: '100%' }}>
+              
+              {/* Header */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', borderBottom: '1px solid rgba(193, 255, 7, 0.1)' }}>
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                  {lightboxPost.author_avatar ? (
+                    <img src={lightboxPost.author_avatar} alt="Author" style={{ width: '32px', height: '32px', borderRadius: '50%' }} />
+                  ) : (
+                    <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', color: '#C1FF07' }} className="flex-center font-bold text-xs">
+                      {lightboxPost.author_name.substring(0, 2).toUpperCase()}
+                    </div>
+                  )}
+                  <div>
+                    <h4 style={{ color: '#fff', fontSize: '0.8rem', fontWeight: 600 }}>{lightboxPost.author_name}</h4>
+                    <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>{lightboxPost.author_role}</span>
+                  </div>
+                </div>
+
+                <button onClick={() => setLightboxPost(null)} className="outline-btn border-0 p-1 text-gray-400 hover:text-white" style={{ minWidth: 'auto' }}>
+                  <X size={18} />
+                </button>
+              </div>
+
+              {/* Scrollable Comments area */}
+              <div style={{ flexGrow: 1, overflowY: 'auto', padding: '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <p style={{ fontSize: '0.85rem', color: '#fff', lineHeight: 1.5, paddingBottom: '12px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                  {lightboxPost.content}
+                </p>
+
+                {/* Likes summary */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                  <Heart size={12} fill="#FF4A4A" className="text-red-500" />
+                  <span>{lightboxPost.liked_by_users.length} curtidas</span>
+                </div>
+
+                {/* Comments List */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '10px' }}>
+                  {lightboxPost.comments.length === 0 ? (
+                    <div style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.75rem', padding: '20px 0' }}>
+                      Nenhum comentário. Seja o primeiro!
+                    </div>
+                  ) : (
+                    lightboxPost.comments.map(c => {
+                      const isCommentAuthor = user?.id === c.user_id;
+                      const isPostAdmin = user?.member_type === 'admin';
+
+                      return (
+                        <div key={c.id} style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                          <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
+                            {c.user_avatar ? (
+                              <img src={c.user_avatar} alt="User" style={{ width: '28px', height: '28px', borderRadius: '50%' }} />
+                            ) : (
+                              <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)' }} className="flex-center font-bold text-xs">
+                                {c.user_name.substring(0, 2).toUpperCase()}
+                              </div>
+                            )}
+
+                            <div style={{ flexGrow: 1 }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <span style={{ color: '#fff', fontSize: '0.75rem', fontWeight: 600 }}>{c.user_name}</span>
+                                {(isCommentAuthor || isPostAdmin) && (
+                                  <button onClick={() => handleDeleteComment(lightboxPost.id, c.id)} className="outline-btn border-0 p-1 text-red-500 hover:text-red-400" style={{ minWidth: 'auto' }}>
+                                    <Trash2 size={10} />
+                                  </button>
+                                )}
+                              </div>
+                              <p style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', marginTop: '2px' }}>{c.content}</p>
+                              
+                              <button 
+                                onClick={() => setActiveReplyBox(activeReplyBox === c.id ? null : c.id)}
+                                className="outline-btn border-0 text-xs text-gray-500 p-0 hover:text-white"
+                                style={{ minWidth: 'auto', marginTop: '4px', fontSize: '0.65rem' }}
+                              >
+                                Responder
+                              </button>
+
+                              {activeReplyBox === c.id && (
+                                <form onSubmit={(e) => { e.preventDefault(); handleAddComment(lightboxPost.id, c.id); }} style={{ display: 'flex', gap: '6px', marginTop: '6px' }}>
+                                  <input 
+                                    type="text" 
+                                    className="form-input text-xs" 
+                                    placeholder="Escrever resposta..."
+                                    value={replyTexts[c.id] || ''}
+                                    onChange={(e) => setReplyTexts(prev => ({ ...prev, [c.id]: e.target.value }))}
+                                    style={{ padding: '6px 10px' }}
+                                  />
+                                  <button type="submit" className="gold-glow-btn text-xs" style={{ padding: '6px 10px', minWidth: 'auto' }}>
+                                    <Send size={10} />
+                                  </button>
+                                </form>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Nested Replies */}
+                          {c.replies && c.replies.map(r => {
+                            const isReplyAuthor = user?.id === r.user_id;
+
+                            return (
+                              <div key={r.id} style={{ display: 'flex', gap: '8px', marginLeft: '24px', alignItems: 'flex-start' }}>
+                                <CornerDownRight size={12} className="text-gray-600 flex-shrink-0" style={{ marginTop: '4px' }} />
+                                {r.user_avatar ? (
+                                  <img src={r.user_avatar} alt="User" style={{ width: '20px', height: '20px', borderRadius: '50%' }} />
+                                ) : (
+                                  <div style={{ width: '20px', height: '20px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)' }} className="flex-center font-bold text-xs">
+                                    {r.user_name.substring(0, 2).toUpperCase()}
+                                  </div>
+                                )}
+                                <div style={{ flexGrow: 1 }}>
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <span style={{ color: '#fff', fontSize: '0.7rem', fontWeight: 600 }}>{r.user_name}</span>
+                                    {(isReplyAuthor || isPostAdmin) && (
+                                      <button onClick={() => handleDeleteComment(lightboxPost.id, r.id, true, c.id)} className="outline-btn border-0 p-1 text-red-500 hover:text-red-400" style={{ minWidth: 'auto' }}>
+                                        <Trash2 size={8} />
+                                      </button>
+                                    )}
+                                  </div>
+                                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.7rem', marginTop: '1px' }}>{r.content}</p>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+
+              {/* Bottom comments form */}
+              <form 
+                onSubmit={(e) => { e.preventDefault(); handleAddComment(lightboxPost.id); }}
+                style={{ padding: '16px', borderTop: '1px solid rgba(193, 255, 7, 0.1)', display: 'flex', gap: '10px' }}
+              >
+                <input 
+                  type="text" 
+                  className="form-input text-xs" 
+                  placeholder="Comentar..."
+                  value={commentTexts[lightboxPost.id] || ''}
+                  onChange={(e) => setCommentTexts(prev => ({ ...prev, [lightboxPost.id]: e.target.value }))}
+                />
+                <button type="submit" className="gold-glow-btn text-xs" style={{ padding: '8px 12px', minWidth: 'auto' }}>
+                  <Send size={12} />
+                </button>
+              </form>
+
+            </div>
+          </div>
+        </div>
+      )}
+
+    </div>
+  );
+}

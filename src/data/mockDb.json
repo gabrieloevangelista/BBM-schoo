@@ -1,0 +1,561 @@
+{
+  "members": [
+    {
+      "id": "admin-uuid-0000-0000-000000000001",
+      "name": "Diego BBM",
+      "email": "admin@bbm.com",
+      "role": "CEO & Fundador",
+      "company": "Grupo BBM",
+      "industry": "Consultoria e Marketing",
+      "location": "São Paulo, SP",
+      "initials": "DB",
+      "img": "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=150",
+      "bio": "CEO da BBM School Holding, investidor anjo e especialista em marketing estratégico e escala de negócios.",
+      "username": "diego.bbm",
+      "member_type": "admin",
+      "theme": "dark",
+      "status": "Ativo",
+      "added_at": "2026-01-01T12:00:00Z"
+    },
+    {
+      "id": "master-uuid-0000-0000-000000000002",
+      "name": "Thiago Master",
+      "email": "master@bbm.com",
+      "role": "Diretor de Vendas Comercial",
+      "company": "BBM Consulting",
+      "industry": "Marketing & Vendas",
+      "location": "Curitiba, PR",
+      "initials": "TM",
+      "img": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=150",
+      "bio": "Mentor de vendas corporativas e processos de prospecção de alto padrão. Especialista em Funis de Escala.",
+      "username": "thiago.master",
+      "member_type": "master",
+      "theme": "dark",
+      "status": "Ativo",
+      "added_at": "2026-01-10T12:00:00Z"
+    },
+    {
+      "id": "mentor-uuid-0000-0000-000000000003",
+      "name": "Lucas Mentor",
+      "email": "mentor@bbm.com",
+      "role": "Consultor Comercial",
+      "company": "Membro do Clube Elite",
+      "industry": "Marketing Estratégico",
+      "location": "Florianópolis, SC",
+      "initials": "LM",
+      "img": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=150",
+      "bio": "Mentorado e empresário na BBM School. Focado em marketing digital de performance e escalonamento de PMEs.",
+      "username": "lucas.mentor",
+      "member_type": "mentor",
+      "theme": "dark",
+      "status": "Ativo",
+      "added_at": "2026-02-15T12:00:00Z"
+    },
+    {
+      "id": "blocked-uuid-0000-0000-000000000004",
+      "name": "Usuário Bloqueado",
+      "email": "blocked@bbm.com",
+      "role": "Ex-Membro",
+      "company": "N/A",
+      "industry": "N/A",
+      "location": "N/A",
+      "initials": "UB",
+      "img": "",
+      "bio": "Conta inativa na plataforma.",
+      "username": "blocked.member",
+      "member_type": "mentor",
+      "theme": "dark",
+      "status": "Inativo",
+      "added_at": "2026-02-20T12:00:00Z",
+      "deactivated_at": "2026-06-01T15:00:00Z"
+    }
+  ],
+  "courses": [
+    {
+      "id": "course-uuid-0001",
+      "title": "Marketing Estratégico de Alta Performance",
+      "description": "Aprenda a atrair e reter clientes ideais e escalar sua empresa com processos comerciais eficientes.",
+      "cover_image_url": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=600",
+      "status": "published",
+      "sequence_order": 0,
+      "slug": "marketing-estrategico-alta-performance",
+      "created_at": "2026-03-01T10:00:00Z"
+    },
+    {
+      "id": "course-uuid-0002",
+      "title": "Escala de Negócios e Vendas High-Ticket",
+      "description": "Estratégias comerciais avançadas de vendas corporativas, estruturação de propostas de alto valor e funis.",
+      "cover_image_url": "https://images.unsplash.com/photo-1507679799987-c73779587ccf?q=80&w=600",
+      "status": "published",
+      "sequence_order": 1,
+      "slug": "escala-negocios-vendas-highticket",
+      "created_at": "2026-03-05T10:00:00Z"
+    }
+  ],
+  "modules": [
+    {
+      "id": "module-uuid-0001",
+      "course_id": "course-uuid-0001",
+      "title": "Funis de Vendas e Aquisição de Clientes (CAC)",
+      "description": "Mapeamento de jornada de compra, métricas de aquisição (CAC/LTV) e ROI de campanhas de tráfego pago.",
+      "cover_image_url": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=400",
+      "status": "published",
+      "sequence_order": 0,
+      "slug": "funis-vendas-aquisicao-clientes",
+      "created_at": "2026-03-01T11:00:00Z"
+    },
+    {
+      "id": "module-uuid-0002",
+      "course_id": "course-uuid-0001",
+      "title": "Propostas High-Ticket e Scripts de Fechamento",
+      "description": "Passo a passo estratégico para elaborar propostas comerciais irresistíveis e contornar objeções de clientes.",
+      "cover_image_url": "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?q=80&w=400",
+      "status": "published",
+      "sequence_order": 1,
+      "slug": "propostas-highticket-scripts-fechamento",
+      "created_at": "2026-03-02T11:00:00Z"
+    },
+    {
+      "id": "module-uuid-0003",
+      "course_id": "course-uuid-0001",
+      "title": "Módulo Futuro Agendado",
+      "description": "Conteúdo exclusivo que será liberado automaticamente em breve.",
+      "cover_image_url": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=400",
+      "status": "agendado",
+      "sequence_order": 2,
+      "slug": "modulo-futuro-agendado",
+      "scheduled_at": "2026-12-31T23:59:59Z",
+      "created_at": "2026-03-03T11:00:00Z"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "lesson-uuid-0001",
+      "module_id": "module-uuid-0001",
+      "title": "Introdução ao Funil de Vendas de Alta Conversão",
+      "description": "Entenda os pilares da aquisição de leads e o conceito de LTV (Lifetime Value).",
+      "long_description": "Nesta aula, o professor Diego BBM discute como mapear o público-alvo, calcular o custo por lead qualificado (SQL) e estimar o ROI inicial das suas primeiras campanhas de marketing de performance.",
+      "duration": "12:45",
+      "video_url": "https://www.w3schools.com/html/mov_bbb.mp4",
+      "thumbnail_url": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=400",
+      "cover_image_url": "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=600",
+      "instructor_name": "Diego BBM",
+      "instructor_role": "CEO do Grupo BBM",
+      "instructor_avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=150",
+      "status": "published",
+      "sequence_order": 0,
+      "slug": "introducao-funil-vendas-alta-conversao",
+      "created_at": "2026-03-01T12:00:00Z"
+    },
+    {
+      "id": "lesson-uuid-0002",
+      "module_id": "module-uuid-0001",
+      "title": "Otimização e Escala de Campanhas de Tráfego Pago",
+      "description": "Dominando a análise de dados do tráfego pago e calculando o ROI de forma realista.",
+      "long_description": "Aprenda a otimizar o custo de conversão das landing pages e cruzar taxas de cliques (CTR) com vendas para projetar o faturamento mensal da empresa. Entenda como escalar orçamentos sem perder eficiência.",
+      "duration": "25:30",
+      "video_url": "https://www.w3schools.com/html/movie.mp4",
+      "thumbnail_url": "https://images.unsplash.com/photo-1551836022-d5d88e9218df?q=80&w=400",
+      "cover_image_url": "https://images.unsplash.com/photo-1507679799987-c73779587ccf?q=80&w=600",
+      "instructor_name": "Diego BBM",
+      "instructor_role": "CEO do Grupo BBM",
+      "instructor_avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=150",
+      "status": "published",
+      "sequence_order": 1,
+      "slug": "otimizacao-escala-campanhas-trafego-pago",
+      "created_at": "2026-03-01T13:00:00Z"
+    },
+    {
+      "id": "lesson-uuid-0003",
+      "module_id": "module-uuid-0002",
+      "title": "Scripts de Fechamento B2B e Modelagem Comercial",
+      "description": "Modelos de prospecção fria (Cold Outbound) e scripts de negociação comercial para acelerar fechamentos.",
+      "long_description": "Entenda como qualificar leads antes de reuniões de fechamento comerciais e como estruturar scripts passo a passo para grandes empresas e contas corporativas (Enterprise). Mapeie objeções e saiba contorná-las de forma persuasiva.",
+      "duration": "18:15",
+      "video_url": "https://www.w3schools.com/html/mov_bbb.mp4",
+      "thumbnail_url": "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?q=80&w=400",
+      "cover_image_url": "https://images.unsplash.com/photo-1450133064473-71024230f91b?q=80&w=600",
+      "instructor_name": "Thiago Master",
+      "instructor_role": "Diretor de Vendas",
+      "instructor_avatar": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=150",
+      "status": "published",
+      "sequence_order": 0,
+      "slug": "scripts-fechamento-b2b-modelagem-comercial",
+      "created_at": "2026-03-02T12:00:00Z"
+    },
+    {
+      "id": "lesson-uuid-0004",
+      "module_id": "module-uuid-0001",
+      "title": "Aula Agendada Futura",
+      "description": "Esta aula está agendada para liberação posterior.",
+      "long_description": "Conteúdo avançado que será disponibilizado no prazo estipulado pelo administrador.",
+      "duration": "20:00",
+      "video_url": "https://www.w3schools.com/html/mov_bbb.mp4",
+      "thumbnail_url": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=400",
+      "cover_image_url": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=600",
+      "instructor_name": "Diego BBM",
+      "instructor_role": "CEO do Grupo BBM",
+      "instructor_avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=150",
+      "status": "agendado",
+      "sequence_order": 2,
+      "slug": "aula-agendada-futura",
+      "scheduled_at": "2026-12-31T23:59:59Z",
+      "created_at": "2026-03-03T12:00:00Z"
+    }
+  ],
+  "resources": [
+    {
+      "id": "resource-uuid-0001",
+      "lesson_id": "lesson-uuid-0002",
+      "title": "Planilha de Metrificação de CAC e ROI",
+      "category": "spreadsheet",
+      "description": "Modelo profissional utilizado pela BBM Consulting para planejar orçamentos de tráfego, calcular custo de conversão e ROI.",
+      "file_url": "https://example.com/downloads/planilha_viabilidade.xlsx",
+      "format": "xlsx",
+      "size": "2.4 MB",
+      "available_at": "2026-03-01T10:00:00Z",
+      "created_at": "2026-03-01T10:00:00Z"
+    },
+    {
+      "id": "resource-uuid-0002",
+      "lesson_id": "lesson-uuid-0002",
+      "title": "Guia Completo de Landing Pages de Alta Conversão",
+      "category": "document",
+      "description": "Checklist passo a passo de copy, design e gatilhos mentais para páginas de alta conversão de leads.",
+      "file_url": "https://example.com/downloads/guia_dimensionamento.pdf",
+      "format": "pdf",
+      "size": "1.1 MB",
+      "available_at": "2026-03-01T10:00:00Z",
+      "created_at": "2026-03-01T10:00:00Z"
+    },
+    {
+      "id": "resource-uuid-0003",
+      "lesson_id": "lesson-uuid-0003",
+      "title": "Modelo de Proposta Comercial High-Ticket",
+      "category": "document",
+      "description": "Modelo padrão de proposta de consultoria estratégica pronto para envio e aprovação pelo cliente.",
+      "file_url": "https://example.com/downloads/minuta_cotistas.docx",
+      "format": "docx",
+      "size": "850 KB",
+      "available_at": "2026-03-02T10:00:00Z",
+      "created_at": "2026-03-02T10:00:00Z"
+    },
+    {
+      "id": "resource-uuid-0004",
+      "lesson_id": "lesson-uuid-0002",
+      "title": "Apresentação Comercial: Pitch de Vendas Executivo",
+      "category": "presentation",
+      "description": "Slides de pitch de consultoria comercial formatados para convencer diretores e diretores de compras.",
+      "file_url": "https://example.com/downloads/pitch_viabilidade.pptx",
+      "format": "pptx",
+      "size": "5.6 MB",
+      "available_at": "2026-03-01T10:00:00Z",
+      "created_at": "2026-03-01T10:00:00Z"
+    },
+    {
+      "id": "resource-uuid-0005",
+      "lesson_id": "lesson-uuid-0001",
+      "title": "Material Agendado Futuro",
+      "category": "document",
+      "description": "Ebook complementar que será liberado posteriormente.",
+      "file_url": "https://example.com/downloads/material_futuro.pdf",
+      "format": "pdf",
+      "size": "1.8 MB",
+      "available_at": "2026-12-31T23:59:59Z",
+      "created_at": "2026-03-01T10:00:00Z"
+    }
+  ],
+  "member_connections": [
+    {
+      "id": "connection-1",
+      "requester_id": "master-uuid-0000-0000-000000000002",
+      "receiver_id": "mentor-uuid-0000-0000-000000000003",
+      "status": "accepted",
+      "created_at": "2026-03-10T14:00:00Z",
+      "updated_at": "2026-03-11T09:00:00Z"
+    }
+  ],
+  "community_posts": [
+    {
+      "id": "post-uuid-0001",
+      "user_id": "admin-uuid-0000-0000-000000000001",
+      "author_name": "Diego BBM",
+      "author_avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=150",
+      "author_role": "CEO & Fundador",
+      "content": "Lançamos hoje o novo playbook de vendas e funis para negócios B2B. A meta é acelerar o faturamento das empresas parceiras e mentorados com funis avançados. Fiquem atentos à aba de Recursos para baixar.",
+      "image_url": "https://images.unsplash.com/photo-1542744094-3a31f103e35f?q=80&w=800",
+      "video_url": "",
+      "likes_count": 2,
+      "liked_by_users": [
+        "master-uuid-0000-0000-000000000002",
+        "mentor-uuid-0000-0000-000000000003"
+      ],
+      "saved_by_users": [
+        "mentor-uuid-0000-0000-000000000003"
+      ],
+      "post_type": "standard",
+      "comments": [
+        {
+          "id": "comment-1",
+          "user_id": "master-uuid-0000-0000-000000000002",
+          "user_name": "Thiago Master",
+          "user_avatar": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=150",
+          "content": "Material sensacional! Minha equipe comercial já começou a aplicar o script de prospecção e fechamento. Vamos escalar!",
+          "created_at": "2026-03-15T15:10:00Z",
+          "replies": [
+            {
+              "id": "reply-1-1",
+              "user_id": "admin-uuid-0000-0000-000000000001",
+              "user_name": "Diego BBM",
+              "user_avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=150",
+              "content": "Excelente, Thiago! Mantenha-nos informados sobre as taxas de conversão de leads e reuniões agendadas.",
+              "created_at": "2026-03-15T15:15:00Z"
+            }
+          ]
+        },
+        {
+          "id": "comment-2",
+          "user_id": "mentor-uuid-0000-0000-000000000003",
+          "user_name": "Lucas Mentor",
+          "user_avatar": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=150",
+          "content": "Com certeza irei baixar esse material! Fiquem de olho no simulador de ROI de marketing.",
+          "created_at": "2026-03-15T16:00:00Z",
+          "replies": []
+        }
+      ],
+      "created_at": "2026-03-15T15:00:00Z"
+    },
+    {
+      "id": "post-uuid-0002",
+      "user_id": "master-uuid-0000-0000-000000000002",
+      "author_name": "Thiago Master",
+      "author_avatar": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=150",
+      "author_role": "Diretor de Vendas",
+      "content": "Confira um trecho da nossa última mentoria sobre Funil de Marketing B2B com nossos mentorados!",
+      "image_url": "",
+      "video_url": "https://www.w3schools.com/html/mov_bbb.mp4",
+      "likes_count": 1,
+      "liked_by_users": [
+        "admin-uuid-0000-0000-000000000001"
+      ],
+      "saved_by_users": [],
+      "post_type": "reels",
+      "comments": [],
+      "created_at": "2026-03-16T10:00:00Z"
+    },
+    {
+      "id": "post-uuid-0003",
+      "user_id": "mentor-uuid-0000-0000-000000000003",
+      "author_name": "Lucas Mentor",
+      "author_avatar": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=150",
+      "author_role": "Membro Elite",
+      "content": "Reunião de alinhamento do clube!",
+      "image_url": "https://images.unsplash.com/photo-1542744094-3a31f103e35f?q=80&w=600",
+      "video_url": "",
+      "likes_count": 0,
+      "liked_by_users": [],
+      "saved_by_users": [],
+      "post_type": "status",
+      "comments": [],
+      "created_at": "2026-07-09T18:00:00Z"
+    }
+  ],
+  "lesson_comments": [],
+  "notifications": [
+    {
+      "id": "notification-1",
+      "user_id": null,
+      "title": "Nova Mentoria Marcada",
+      "description": "Mentoria técnica de Tráfego Pago e Escala com Diego BBM marcada para dia 15/07.",
+      "type": "mentoria",
+      "link": "/calendario",
+      "is_read": true,
+      "created_at": "2026-07-09T20:00:00Z"
+    }
+  ],
+  "calendar_events": [
+    {
+      "id": "event-uuid-0001",
+      "title": "Mentoria Geral: Estratégias de Tráfego Pago",
+      "event_type": "mentoria",
+      "event_date": "2026-07-15",
+      "start_time": "19:00:00",
+      "end_time": "20:30:00",
+      "mentor_name": "Diego BBM",
+      "mentor_role": "CEO & Fundador",
+      "mentor_avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=150",
+      "mentor_bio": "Fundador e Especialista.",
+      "topic": "Sessão tira-dúvidas sobre estruturação de campanhas de tráfego pago no Google Ads, Facebook Ads e LinkedIn Ads.",
+      "zoom_link": "https://zoom.us/j/1234567890",
+      "created_at": "2026-07-09T12:00:00Z"
+    },
+    {
+      "id": "event-uuid-0002",
+      "title": "Workshop: Script de Fechamento de Vendas B2B",
+      "event_type": "atualizacao",
+      "event_date": "2026-07-22",
+      "start_time": "15:00:00",
+      "end_time": "16:00:00",
+      "mentor_name": "Thiago Master",
+      "mentor_role": "Diretor de Vendas",
+      "mentor_avatar": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=150",
+      "mentor_bio": "Diretor Comercial.",
+      "topic": "Técnicas de contorno de objeções, negociação B2B avançada e geração de novas oportunidades.",
+      "zoom_link": "https://zoom.us/j/0987654321",
+      "created_at": "2026-07-09T13:00:00Z"
+    }
+  ],
+  "ecosystem_banners": [
+    {
+      "id": "banner-uuid-0001",
+      "title": "Mentoria Individual BBM Elite",
+      "subtitle": "Aceleração Comercial",
+      "description": "Receba consultoria direta individual para desenhar o marketing e o comercial do seu negócio.",
+      "tag": "INVESTIMENTO",
+      "image": "https://images.unsplash.com/photo-1560520653-9e0e4c89eb11?q=80&w=1200",
+      "cta_text": "Ver Mentorias",
+      "cta_link": "/oportunidades",
+      "disabled": false,
+      "sequence_order": 0,
+      "created_at": "2026-03-01T12:00:00Z"
+    },
+    {
+      "id": "banner-uuid-0002",
+      "title": "Diagnóstico de Vendas & ROI",
+      "subtitle": "Escala e Tráfego",
+      "description": "Simule as taxas de ROI e conversão da sua empresa de acordo com o orçamento de tráfego.",
+      "tag": "PROJETOS",
+      "image": "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?q=80&w=1200",
+      "cta_text": "Simular ROI",
+      "cta_link": "/projetos",
+      "disabled": false,
+      "sequence_order": 1,
+      "created_at": "2026-03-02T12:00:00Z"
+    }
+  ],
+  "missions": [
+    {
+      "id": "mission-uuid-0001",
+      "title": "Missão Prática 1: Planejamento de Funil e CAC",
+      "description": "Utilize a Planilha de Metrificação de CAC e ROI disponibilizada nas aulas para estruturar o plano de aquisição de clientes da sua empresa. Preencha abaixo com suas métricas.",
+      "has_text_question": true,
+      "text_question": "Qual foi o CAC (R$) e o LTV (R$) estimados no cenário base?",
+      "has_form_link": false,
+      "form_link": "",
+      "has_file_upload": true,
+      "file_upload_label": "Upload da Planilha Preenchida (.xlsx)",
+      "created_at": "2026-03-10T10:00:00Z",
+      "updated_at": "2026-03-10T10:00:00Z"
+    },
+    {
+      "id": "mission-uuid-0002",
+      "title": "Missão Prática 2: Script de Abordagem Comercial",
+      "description": "Elabore um roteiro de abordagem comercial fria para prospecção B2B de acordo com os conceitos da aula de prospecção corporativa.",
+      "has_text_question": true,
+      "text_question": "Qual a principal proposta de valor (ganchos) e qual canal de contato escolheu (e-mail, WhatsApp ou ligação)?",
+      "has_form_link": true,
+      "form_link": "https://forms.gle/exemploBbmZoneamento",
+      "has_file_upload": true,
+      "file_upload_label": "Script de Vendas em PDF (.pdf)",
+      "created_at": "2026-03-12T10:00:00Z",
+      "updated_at": "2026-03-12T10:00:00Z"
+    }
+  ],
+  "mission_submissions": [
+    {
+      "id": "submission-1",
+      "mission_id": "mission-uuid-0001",
+      "student_id": "mentor-uuid-0000-0000-000000000003",
+      "text_answer": "CAC estimado em R$ 45,00 e LTV de R$ 900,00.",
+      "form_submitted_link": "",
+      "file_url": "/mock-storage/missions/planilha_lucas_mentor.xlsx",
+      "file_name": "planilha_lucas_mentor.xlsx",
+      "status": "pending",
+      "feedback": "",
+      "submitted_at": "2026-07-09T19:30:00Z"
+    }
+  ],
+  "story_views": [
+    {
+      "id": "view-1783705692414",
+      "story_id": "post-uuid-0003",
+      "viewer_id": "admin-uuid-0000-0000-000000000001",
+      "created_at": "2026-07-10T17:48:12.414Z"
+    }
+  ],
+  "investment_opportunities": [
+    {
+      "id": "opp-1",
+      "slug": "programa-escala-acelerada",
+      "title": "Programa Escala Acelerada (B2B)",
+      "category": "Consultoria de Escala",
+      "category_label": "Mentoria Individual",
+      "description": "Acompanhamento individual de 6 meses focado em estruturar o marketing e as vendas para empresas B2B faturarem alto.",
+      "long_description": "O Programa Escala Acelerada é focado em PMEs de serviços ou tecnologia que vendem para outras empresas (B2B). Criamos juntos o funil de aquisição de clientes, definimos o perfil de cliente ideal (ICP), otimizamos seu ticket médio e implementamos roteiros comerciais testados para qualificar e fechar novos negócios corporativos de grande porte.",
+      "image_url": "https://images.unsplash.com/photo-1542744094-3a31f103e35f?q=80&w=800",
+      "badge": "ROI Projetado 4x",
+      "target_irr": "Crescimento de 150%",
+      "min_investment": "Sob consulta",
+      "status": "active",
+      "created_at": "2026-03-01T12:00:00Z"
+    },
+    {
+      "id": "opp-2",
+      "slug": "aceleradora-funis-vendas",
+      "title": "Aceleradora de Funis & Branding",
+      "category": "Marketing Digital",
+      "category_label": "Consultoria Coletiva",
+      "description": "Assessoria completa para empresas implementarem canais de atração de leads, branding corporativo premium e automação comercial.",
+      "long_description": "Entregamos um diagnóstico completo de posicionamento digital e reestruturamos suas campanhas de tráfego pago (Google, Meta, LinkedIn). Treinamos sua equipe comercial interna com scripts de pré-vendas (SDR) e acompanhamos as taxas de conversão semanais para otimizar os investimentos e custos de aquisição (CAC).",
+      "image_url": "https://images.unsplash.com/photo-1551836022-d5d88e9218df?q=80&w=800",
+      "badge": "Foco em ROI",
+      "target_irr": "Aceleração Comercial",
+      "min_investment": "Sob consulta",
+      "status": "active",
+      "created_at": "2026-03-02T12:00:00Z"
+    }
+  ],
+  "projects": [
+    {
+      "id": "project-1",
+      "title": "Funil de Vendas de Alta Conversão B2B",
+      "category": "Playbook de Vendas",
+      "description": "Modelo pronto de estruturação de processo comercial e funil de vendas passo a passo para empresas de serviços.",
+      "image_url": "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=600",
+      "status": "pronto",
+      "created_at": "2026-03-01T12:00:00Z"
+    },
+    {
+      "id": "project-2",
+      "title": "Modelo de Landing Page Premium",
+      "category": "Landing Page",
+      "description": "Template executivo testado e otimizado para alta conversão de leads qualificados, pronto para implementação no WordPress ou Elementor.",
+      "image_url": "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?q=80&w=600",
+      "status": "pronto",
+      "created_at": "2026-03-02T12:00:00Z"
+    }
+  ],
+  "user_lesson_progress": [
+    {
+      "id": "progress-1",
+      "user_id": "mentor-uuid-0000-0000-000000000003",
+      "lesson_id": "lesson-uuid-0001",
+      "watched_seconds": 765,
+      "total_seconds": 765,
+      "percent_complete": 100,
+      "completed": true,
+      "last_watched_at": "2026-07-09T19:00:00Z"
+    },
+    {
+      "id": "progress-2",
+      "user_id": "mentor-uuid-0000-0000-000000000003",
+      "lesson_id": "lesson-uuid-0002",
+      "watched_seconds": 350,
+      "total_seconds": 1530,
+      "percent_complete": 22,
+      "completed": false,
+      "last_watched_at": "2026-07-09T19:15:00Z"
+    }
+  ],
+  "webhook_logs": []
+}
