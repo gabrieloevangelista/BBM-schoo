@@ -14,9 +14,13 @@ import {
   FileEdit,
   ArrowRight,
   Clock,
-  User
+  User,
+  Plus,
+  Paperclip,
+  Trash2,
+  X
 } from 'lucide-react';
-import { Course, Module, Lesson } from '@/lib/db';
+import { Course, Module, Lesson, Resource } from '@/lib/db';
 
 export default function ReordenacaoAdminPage() {
   const { user } = useAuth();
@@ -36,6 +40,20 @@ export default function ReordenacaoAdminPage() {
   const [draggingType, setDraggingType] = useState<'module' | 'lesson' | null>(null);
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [draggingSourceModuleId, setDraggingSourceModuleId] = useState<string | null>(null);
+
+  // Modals UI state
+  const [showModuleModal, setShowModuleModal] = useState(false);
+  const [newModuleTitle, setNewModuleTitle] = useState('');
+  const [newModuleDesc, setNewModuleDesc] = useState('');
+  
+  const [showLessonModal, setShowLessonModal] = useState(false);
+  const [activeModuleForLesson, setActiveModuleForLesson] = useState<string | null>(null);
+  const [newLessonData, setNewLessonData] = useState({ title: '', duration: '', video_url: '', instructor_name: '' });
+
+  const [showResourceModal, setShowResourceModal] = useState(false);
+  const [activeLessonForResource, setActiveLessonForResource] = useState<string | null>(null);
+  const [lessonResources, setLessonResources] = useState<Resource[]>([]);
+  const [newResourceData, setNewResourceData] = useState({ title: '', file_url: '', category: 'other' as const });
 
   const loadData = async () => {
     try {
@@ -107,6 +125,146 @@ export default function ReordenacaoAdminPage() {
     } catch (e) {
       console.error(e);
     }
+  };
+
+  // Content Creation Handlers
+  const handleCreateModule = async () => {
+    if (!newModuleTitle.trim() || !selectedCourseId) return;
+    try {
+      const response = await fetch('/api/db');
+      if (response.ok) {
+        const db = await response.json();
+        
+        const courseModules = db.modules.filter((m: Module) => m.course_id === selectedCourseId);
+        const nextOrder = courseModules.length;
+
+        const novoModulo: Module = {
+          id: crypto.randomUUID(),
+          course_id: selectedCourseId,
+          title: newModuleTitle.trim(),
+          description: newModuleDesc.trim(),
+          slug: newModuleTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+          status: 'published',
+          sequence_order: nextOrder,
+          created_at: new Date().toISOString()
+        };
+
+        db.modules.push(novoModulo);
+
+        await fetch('/api/db', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(db)
+        });
+
+        setShowModuleModal(false);
+        setNewModuleTitle('');
+        setNewModuleDesc('');
+        loadData();
+      }
+    } catch(e) { console.error(e); }
+  };
+
+  const handleCreateLesson = async () => {
+    if (!newLessonData.title.trim() || !activeModuleForLesson) return;
+    try {
+      const response = await fetch('/api/db');
+      if (response.ok) {
+        const db = await response.json();
+        
+        const moduleLessons = db.lessons.filter((l: Lesson) => l.module_id === activeModuleForLesson);
+        const nextOrder = moduleLessons.length;
+
+        const novaAula: Lesson = {
+          id: crypto.randomUUID(),
+          module_id: activeModuleForLesson,
+          title: newLessonData.title.trim(),
+          duration: newLessonData.duration || '00:00',
+          video_url: newLessonData.video_url,
+          instructor_name: newLessonData.instructor_name,
+          slug: newLessonData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+          status: 'published',
+          sequence_order: nextOrder,
+          created_at: new Date().toISOString()
+        };
+
+        db.lessons.push(novaAula);
+
+        await fetch('/api/db', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(db)
+        });
+
+        setShowLessonModal(false);
+        setActiveModuleForLesson(null);
+        setNewLessonData({ title: '', duration: '', video_url: '', instructor_name: '' });
+        loadData();
+      }
+    } catch(e) { console.error(e); }
+  };
+
+  const openResourceModal = async (lessonId: string) => {
+    setActiveLessonForResource(lessonId);
+    try {
+      const response = await fetch('/api/db');
+      if (response.ok) {
+        const db = await response.json();
+        const resList = (db.resources || []).filter((r: Resource) => r.lesson_id === lessonId);
+        setLessonResources(resList);
+        setShowResourceModal(true);
+      }
+    } catch (e) { console.error(e); }
+  };
+
+  const handleCreateResource = async () => {
+    if (!newResourceData.title.trim() || !newResourceData.file_url.trim() || !activeLessonForResource) return;
+    try {
+      const response = await fetch('/api/db');
+      if (response.ok) {
+        const db = await response.json();
+        
+        const novoRecurso: Resource = {
+          id: crypto.randomUUID(),
+          lesson_id: activeLessonForResource,
+          title: newResourceData.title.trim(),
+          file_url: newResourceData.file_url.trim(),
+          category: newResourceData.category,
+          created_at: new Date().toISOString()
+        };
+
+        if(!db.resources) db.resources = [];
+        db.resources.push(novoRecurso);
+
+        await fetch('/api/db', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(db)
+        });
+
+        setLessonResources([...lessonResources, novoRecurso]);
+        setNewResourceData({ title: '', file_url: '', category: 'other' });
+      }
+    } catch(e) { console.error(e); }
+  };
+
+  const handleDeleteResource = async (id: string) => {
+    try {
+      const response = await fetch('/api/db');
+      if (response.ok) {
+        const db = await response.json();
+        
+        db.resources = (db.resources || []).filter((r: Resource) => r.id !== id);
+
+        await fetch('/api/db', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(db)
+        });
+
+        setLessonResources(lessonResources.filter(r => r.id !== id));
+      }
+    } catch(e) { console.error(e); }
   };
 
   // Drag Modules Handlers
@@ -268,23 +426,33 @@ export default function ReordenacaoAdminPage() {
   return (
     <div>
       {/* Header */}
-      <h1 className="page-title">Reordenação de Conteúdo</h1>
-      <p className="page-subtitle">Acesso restrito para administradores. Arraste e solte para ordenar módulos e aulas. Clique duas vezes para renomear.</p>
+      <h1 className="page-title">Gerenciador de Conteúdo</h1>
+      <p className="page-subtitle">Acesso restrito para administradores. Crie módulos, aulas e recursos. Arraste e solte para ordenar. Clique duas vezes no título para renomear.</p>
 
-      {/* Course selector */}
+      {/* Course selector & Module Creation */}
       <section className="glass-panel" style={{ padding: '20px', marginBottom: '30px' }}>
-        <div className="form-group" style={{ margin: 0 }}>
-          <label className="form-label">Selecione a Masterclass para Organizar</label>
-          <select 
-            className="form-input"
-            value={selectedCourseId}
-            onChange={(e) => setSelectedCourseId(e.target.value)}
-            style={{ background: 'rgba(1,1,5,0.95)' }}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+          <div className="form-group" style={{ margin: 0, flexGrow: 1, maxWidth: '400px' }}>
+            <label className="form-label">Selecione a Masterclass / Curso</label>
+            <select 
+              className="form-input"
+              value={selectedCourseId}
+              onChange={(e) => setSelectedCourseId(e.target.value)}
+              style={{ background: 'rgba(1,1,5,0.95)' }}
+            >
+              {courses.map(c => (
+                <option key={c.id} value={c.id}>{c.title}</option>
+              ))}
+            </select>
+          </div>
+          <button 
+            onClick={() => setShowModuleModal(true)}
+            disabled={!selectedCourseId}
+            className="btn-primary" 
+            style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
           >
-            {courses.map(c => (
-              <option key={c.id} value={c.id}>{c.title}</option>
-            ))}
-          </select>
+            <Plus size={18} /> Novo Módulo
+          </button>
         </div>
       </section>
 
@@ -352,7 +520,16 @@ export default function ReordenacaoAdminPage() {
                     )}
                   </div>
 
-                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Módulo</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Módulo</span>
+                    <button 
+                      onClick={() => { setActiveModuleForLesson(m.id); setShowLessonModal(true); }}
+                      className="outline-btn text-xs py-1 px-2"
+                      style={{ display: 'flex', alignItems: 'center', gap: '4px', borderColor: 'rgba(255,255,255,0.1)' }}
+                    >
+                      <Plus size={14} /> Aula
+                    </button>
+                  </div>
                 </div>
 
                 {/* Lessons list inside Module */}
@@ -428,9 +605,16 @@ export default function ReordenacaoAdminPage() {
                           )}
                         </div>
 
-                        <div style={{ display: 'flex', gap: '15px', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                        <div style={{ display: 'flex', gap: '15px', fontSize: '0.75rem', color: 'var(--text-muted)', alignItems: 'center' }}>
                           <span className="flex items-center gap-1"><Clock size={12} /> {lesson.duration}</span>
-                          <span className="flex items-center gap-1"><User size={12} /> {lesson.instructor_name}</span>
+                          <span className="flex items-center gap-1"><User size={12} /> {lesson.instructor_name || 'N/A'}</span>
+                          <button 
+                            onClick={() => openResourceModal(lesson.id)}
+                            className="p-1 rounded bg-white/5 hover:bg-white/10 transition-colors text-white"
+                            title="Gerenciar Recursos"
+                          >
+                            <Paperclip size={14} />
+                          </button>
                         </div>
                       </div>
                     ))
@@ -439,6 +623,181 @@ export default function ReordenacaoAdminPage() {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* --- MODALS --- */}
+      
+      {/* Module Modal */}
+      {showModuleModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="bg-[#12131a] border border-white/10 p-6 rounded-lg max-w-md w-full shadow-2xl">
+            <h3 className="text-xl font-outfit font-bold text-white mb-4">Novo Módulo</h3>
+            <div className="flex flex-col gap-4">
+              <div className="form-group mb-0">
+                <label className="form-label">Título do Módulo</label>
+                <input 
+                  type="text" 
+                  className="form-input" 
+                  value={newModuleTitle} 
+                  onChange={e => setNewModuleTitle(e.target.value)} 
+                  placeholder="Ex: Introdução ao Mercado"
+                  autoFocus
+                />
+              </div>
+              <div className="form-group mb-0">
+                <label className="form-label">Descrição (Opcional)</label>
+                <textarea 
+                  className="form-input" 
+                  value={newModuleDesc} 
+                  onChange={e => setNewModuleDesc(e.target.value)} 
+                  placeholder="Descreva o que será ensinado neste módulo..."
+                  rows={3}
+                />
+              </div>
+            </div>
+            <div className="flex justify-end gap-3 mt-6">
+              <button onClick={() => setShowModuleModal(false)} className="outline-btn text-sm">Cancelar</button>
+              <button onClick={handleCreateModule} className="btn-primary text-sm">Salvar Módulo</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Lesson Modal */}
+      {showLessonModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="bg-[#12131a] border border-white/10 p-6 rounded-lg max-w-lg w-full shadow-2xl">
+            <h3 className="text-xl font-outfit font-bold text-white mb-4">Nova Aula</h3>
+            <div className="flex flex-col gap-4">
+              <div className="form-group mb-0">
+                <label className="form-label">Título da Aula</label>
+                <input 
+                  type="text" 
+                  className="form-input" 
+                  value={newLessonData.title} 
+                  onChange={e => setNewLessonData({...newLessonData, title: e.target.value})} 
+                  placeholder="Ex: Aula 1 - O Mindset Vencedor"
+                  autoFocus
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="form-group mb-0">
+                  <label className="form-label">Duração</label>
+                  <input 
+                    type="text" 
+                    className="form-input" 
+                    value={newLessonData.duration} 
+                    onChange={e => setNewLessonData({...newLessonData, duration: e.target.value})} 
+                    placeholder="Ex: 15:30"
+                  />
+                </div>
+                <div className="form-group mb-0">
+                  <label className="form-label">Nome do Instrutor</label>
+                  <input 
+                    type="text" 
+                    className="form-input" 
+                    value={newLessonData.instructor_name} 
+                    onChange={e => setNewLessonData({...newLessonData, instructor_name: e.target.value})} 
+                    placeholder="Ex: João Silva"
+                  />
+                </div>
+              </div>
+              <div className="form-group mb-0">
+                <label className="form-label">URL do Vídeo</label>
+                <input 
+                  type="text" 
+                  className="form-input" 
+                  value={newLessonData.video_url} 
+                  onChange={e => setNewLessonData({...newLessonData, video_url: e.target.value})} 
+                  placeholder="https://vimeo.com/..."
+                />
+              </div>
+            </div>
+            <div className="flex justify-end gap-3 mt-6">
+              <button onClick={() => setShowLessonModal(false)} className="outline-btn text-sm">Cancelar</button>
+              <button onClick={handleCreateLesson} className="btn-primary text-sm">Salvar Aula</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Resource Modal */}
+      {showResourceModal && (
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="bg-[#12131a] border border-white/10 rounded-lg max-w-2xl w-full flex flex-col max-h-[85vh]">
+            <div className="flex justify-between items-center p-6 border-b border-white/10">
+              <h3 className="text-xl font-outfit font-bold text-white flex items-center gap-2"><Paperclip size={20}/> Recursos da Aula</h3>
+              <button onClick={() => setShowResourceModal(false)} className="text-white/50 hover:text-white transition-colors"><X size={20}/></button>
+            </div>
+            
+            <div className="p-6 overflow-y-auto flex-grow flex flex-col gap-6">
+              {/* Add form */}
+              <div className="bg-white/5 p-4 rounded-lg border border-white/10 flex flex-col gap-4">
+                <h4 className="text-sm font-bold text-white uppercase tracking-wider">Adicionar Novo Recurso</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="form-group mb-0">
+                    <label className="form-label text-xs">Título / Nome</label>
+                    <input 
+                      type="text" 
+                      className="form-input text-sm" 
+                      value={newResourceData.title} 
+                      onChange={e => setNewResourceData({...newResourceData, title: e.target.value})} 
+                      placeholder="Ex: Planilha de Apoio"
+                    />
+                  </div>
+                  <div className="form-group mb-0">
+                    <label className="form-label text-xs">Tipo</label>
+                    <select 
+                      className="form-input text-sm bg-[#12131a]" 
+                      value={newResourceData.category}
+                      onChange={e => setNewResourceData({...newResourceData, category: e.target.value as any})}
+                    >
+                      <option value="document">Documento (PDF/Doc)</option>
+                      <option value="spreadsheet">Planilha</option>
+                      <option value="presentation">Apresentação</option>
+                      <option value="other">Outro Link</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="form-group mb-0">
+                  <label className="form-label text-xs">URL / Link do Arquivo</label>
+                  <div className="flex gap-2">
+                    <input 
+                      type="text" 
+                      className="form-input text-sm flex-grow" 
+                      value={newResourceData.file_url} 
+                      onChange={e => setNewResourceData({...newResourceData, file_url: e.target.value})} 
+                      placeholder="https://..."
+                    />
+                    <button onClick={handleCreateResource} className="btn-primary text-sm whitespace-nowrap">Adicionar</button>
+                  </div>
+                </div>
+              </div>
+
+              {/* List */}
+              <div className="flex flex-col gap-2">
+                <h4 className="text-sm font-bold text-white uppercase tracking-wider mb-2">Recursos Atuais ({lessonResources.length})</h4>
+                {lessonResources.length === 0 ? (
+                  <div className="text-sm text-white/50 text-center p-4 border border-white/5 rounded-lg border-dashed">
+                    Nenhum recurso cadastrado nesta aula.
+                  </div>
+                ) : (
+                  lessonResources.map(r => (
+                    <div key={r.id} className="flex justify-between items-center p-3 bg-white/5 border border-white/5 rounded">
+                      <div className="flex flex-col">
+                        <span className="text-sm font-semibold text-white">{r.title}</span>
+                        <span className="text-xs text-white/40">{r.category === 'document' ? 'Documento' : r.category === 'spreadsheet' ? 'Planilha' : r.category === 'presentation' ? 'Apresentação' : 'Outro'} • <a href={r.file_url} target="_blank" className="hover:underline">{r.file_url}</a></span>
+                      </div>
+                      <button onClick={() => handleDeleteResource(r.id)} className="p-2 text-red-400 hover:text-red-300 hover:bg-red-400/10 rounded transition-colors" title="Excluir recurso">
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

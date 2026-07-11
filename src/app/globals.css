@@ -7,6 +7,7 @@
   --color-bg-deep: #12131a;
   --color-bg-card: rgba(255, 255, 255, 0.02);
   --color-bg-card-hover: rgba(255, 255, 255, 0.04);
+  --color-text-base: var(--color-text-base);
   --color-text-secondary: #9aa0a6;
   --color-text-muted: #5f6368;
   --color-accent-red: #ff5252;
@@ -856,4 +857,13 @@ input[type="datetime-local"].form-input::-webkit-datetime-edit-minute-field:focu
 
 [data-theme="light"] table tbody tr {
   border-color: rgba(0, 0, 0, 0.04) !important;
+}
+
+/* Hide scrollbars but keep scrolling functionality */
+.scrollbar-none {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari and Opera */
 }

@@ -190,7 +190,7 @@ export default function DashboardPage() {
               </button>
             </div>
 
-            <h3 className="text-lg font-bold text-white mb-3 font-outfit">
+            <h3 className="text-lg font-bold mb-3 font-outfit">
               {tutorialSteps[currentStep].title}
             </h3>
             
@@ -229,7 +229,7 @@ export default function DashboardPage() {
 
       {/* Welcome & Executive Summary Header */}
       <section id="onboarding-welcome" className="flex flex-col gap-1">
-        <h1 className="text-3xl font-extrabold text-white tracking-tight font-outfit m-0">
+        <h1 className="text-3xl font-extrabold tracking-tight font-outfit m-0">
           {greeting}, <span className="text-[#C1FF07]">{user ? getFirstName(user.name) : 'Membro'}</span> .
         </h1>
         <p className="text-text-secondary text-sm md:text-base m-0">
@@ -249,7 +249,7 @@ export default function DashboardPage() {
             <TrendingUp size={18} className="text-[#C1FF07]" />
           </div>
           <div className="mt-4">
-            <h3 className="text-xl font-bold text-white font-outfit m-0">{stats.percentLessons}% <span className="text-xs text-text-muted font-normal">Concluído</span></h3>
+            <h3 className="text-xl font-bold font-outfit m-0">{stats.percentLessons}% <span className="text-xs text-text-muted font-normal">Concluído</span></h3>
             
             {/* Sparkline Curve */}
             <svg className="w-full h-8 mt-2 text-[#C1FF07]/30" viewBox="0 0 100 30" preserveAspectRatio="none">
@@ -270,7 +270,7 @@ export default function DashboardPage() {
           <div className="mt-4">
             {latestEvent ? (
               <div>
-                <h4 className="text-xs font-bold text-white truncate mb-1 leading-snug">{latestEvent.title}</h4>
+                <h4 className="text-xs font-bold truncate mb-1 leading-snug">{latestEvent.title}</h4>
                 <p className="text-[10px] text-text-secondary truncate m-0">{latestEvent.event_date.split('-').reverse().join('/')} às {latestEvent.start_time.substring(0, 5)}</p>
               </div>
             ) : (
@@ -289,7 +289,7 @@ export default function DashboardPage() {
             <Trophy size={18} className="text-[#C1FF07]" />
           </div>
           <div className="mt-4 flex flex-col gap-2">
-            <h3 className="text-xl font-bold text-white font-outfit m-0">
+            <h3 className="text-xl font-bold font-outfit m-0">
               {stats.totalMissions > 0 ? Math.round((stats.completedMissions / stats.totalMissions) * 100) : 0}% <span className="text-xs text-text-muted font-normal">Concluído</span>
             </h3>
             <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
@@ -320,7 +320,7 @@ export default function DashboardPage() {
       <section className="flex flex-col gap-4">
         <div className="flex justify-between items-baseline">
           <div>
-            <h3 className="text-lg font-bold text-white font-outfit m-0">Últimas Masterclasses</h3>
+            <h3 className="text-lg font-bold font-outfit m-0">Últimas Masterclasses</h3>
             <p className="text-xs text-text-secondary m-0 mt-0.5">Adicionadas recentemente ao seu currículo.</p>
           </div>
           <Link 
@@ -348,7 +348,7 @@ export default function DashboardPage() {
                   />
                 </div>
                 <div className="p-5 flex flex-col flex-grow">
-                  <h4 className="text-sm font-bold text-white mb-2 leading-snug group-hover:text-primary-lemon transition duration-200 font-outfit">{course.title}</h4>
+                  <h4 className="text-sm font-bold mb-2 leading-snug group-hover:text-primary-lemon transition duration-200 font-outfit">{course.title}</h4>
                   <p className="text-xs text-text-secondary leading-relaxed line-clamp-2 mt-auto">
                     {course.description || 'Uma visão detalhada e prática das diretrizes da BBM School.'}
                   </p>

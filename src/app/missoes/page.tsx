@@ -219,16 +219,14 @@ export default function StudentMissionsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-3xl font-extrabold text-white tracking-tight font-outfit">Missões Práticas</h1>
-      <p className="text-text-secondary text-sm font-medium leading-normal -mt-3 max-w-2xl">
-        Coloque a teoria em prática e envie seus relatórios e planejamentos para avaliação dos mentores.
-      </p>
+      <h1 className="text-3xl font-extrabold tracking-tight font-outfit">Missões Práticas</h1>
+      <p className="text-text-secondary mt-1">Coloque a teoria em prática e envie seus relatórios e planejamentos para avaliação dos mentores.</p>
 
       {/* Progress Board */}
       <section className="glass-panel p-6">
         <div className="flex justify-between items-center mb-3 flex-wrap gap-2">
-          <h3 className="text-sm font-bold text-white flex items-center gap-2 font-outfit">
-            <Trophy size={20} className="text-primary-lemon" />
+          <h3 className="text-sm font-bold flex items-center gap-2 font-outfit">
+            <Trophy size={16} className="text-[#C1FF07]" />
             <span>Desempenho Prático</span>
           </h3>
           <span className="text-primary-lemon font-semibold text-sm">

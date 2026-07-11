@@ -168,7 +168,7 @@ export default function CourseModulesPage() {
                     Nenhuma aula cadastrada neste módulo.
                   </p>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-none scroll-smooth">
                     {moduleLessons.map(lesson => {
                       const isCompleted = completedLessonIds.has(lesson.id);
                       const isHovered = hoveredLessonId === lesson.id;
@@ -184,7 +184,7 @@ export default function CourseModulesPage() {
                       return (
                         <div 
                           key={lesson.id}
-                          className="glass-panel glass-panel-hover flex flex-col justify-between overflow-hidden group"
+                          className="glass-panel glass-panel-hover flex flex-col justify-between overflow-hidden group w-full sm:w-[calc(50%-12px)] md:w-[calc(33.333%-16px)] lg:w-[calc(25%-18px)] flex-shrink-0 snap-start"
                           style={{ borderRadius: '4px' }}
                           onMouseEnter={() => setHoveredLessonId(lesson.id)}
                           onMouseLeave={() => setHoveredLessonId(null)}
@@ -229,7 +229,7 @@ export default function CourseModulesPage() {
                           {/* Info & Content */}
                           <div className="p-4 flex flex-col justify-between flex-grow gap-4">
                             <div className="flex flex-col gap-1.5">
-                              <h4 className="text-sm font-extrabold text-white tracking-tight leading-snug group-hover:text-[#C1FF07] transition duration-150">
+                              <h4 className="text-sm font-extrabold text-white tracking-tight leading-snug group-hover:text-[#C1FF07] transition duration-150 text-ellipsis overflow-hidden line-clamp-1">
                                 {lesson.title}
                               </h4>
                               {lesson.description && (
@@ -240,7 +240,7 @@ export default function CourseModulesPage() {
                             </div>
 
                             <div className="flex items-center justify-between pt-3 border-t border-white/[0.03]">
-                              <span className="text-[10px] text-text-secondary font-medium">
+                              <span className="text-[10px] text-text-secondary font-medium truncate max-w-[60%]">
                                 Instrutor: {lesson.instructor_name || 'Mentor CLS'}
                               </span>
                               

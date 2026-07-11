@@ -266,7 +266,7 @@ export default function CalendarioPage() {
       {/* Page Title */}
       <div className="flex justify-between items-center flex-wrap gap-4 mb-2">
         <div>
-          <h1 className="text-3xl font-extrabold text-white tracking-tight font-outfit m-0">Calendário de Mentorias</h1>
+          <h1 className="text-3xl font-extrabold tracking-tight font-outfit m-0">Calendário de Mentorias</h1>
           <p className="text-text-secondary text-sm m-0 mt-1">Fuso Horário: Brasília (GMT-3). Agende suas mentorias e adicione-as ao seu dia a dia.</p>
         </div>
         

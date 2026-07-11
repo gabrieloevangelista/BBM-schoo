@@ -271,7 +271,7 @@ export default function RecursosPage() {
     <div className="flex flex-col gap-6">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-extrabold text-white tracking-tight font-outfit m-0">Biblioteca de Recursos</h1>
+          <h1 className="text-3xl font-extrabold tracking-tight font-outfit m-0">Biblioteca de Recursos</h1>
           <p className="text-text-secondary text-sm m-0 mt-1">Materiais de apoio exclusivos, modelos financeiros e diretrizes táticas para acelerar a performance.</p>
         </div>
         
@@ -315,7 +315,7 @@ export default function RecursosPage() {
               <FileQuestion size={20} />
             </div>
             <div>
-              <h4 className="text-xs font-bold text-white mb-1 font-outfit">Todos os Arquivos</h4>
+              <h4 className="text-xs font-bold mb-1 font-outfit">Todos os Arquivos</h4>
               <p className="text-[10px] text-text-secondary m-0 leading-normal">Todos os downloads consolidados.</p>
             </div>
           </div>
@@ -333,7 +333,7 @@ export default function RecursosPage() {
               <FileText size={20} />
             </div>
             <div>
-              <h4 className="text-xs font-bold text-white mb-1 font-outfit">PDFs Executivos</h4>
+              <h4 className="text-xs font-bold mb-1 font-outfit">PDFs Executivos</h4>
               <p className="text-[10px] text-text-secondary m-0 leading-normal">Guias estratégicos, relatórios e manuais.</p>
             </div>
           </div>
@@ -351,7 +351,7 @@ export default function RecursosPage() {
               <FileSpreadsheet size={20} />
             </div>
             <div>
-              <h4 className="text-xs font-bold text-white mb-1 font-outfit">Planilhas & Cálculos</h4>
+              <h4 className="text-xs font-bold mb-1 font-outfit">Planilhas & Cálculos</h4>
               <p className="text-[10px] text-text-secondary m-0 leading-normal">Modelos de viabilidade e simuladores de valuation.</p>
             </div>
           </div>
@@ -369,7 +369,7 @@ export default function RecursosPage() {
               <FileText size={20} />
             </div>
             <div>
-              <h4 className="text-xs font-bold text-white mb-1 font-outfit">Templates Prontos</h4>
+              <h4 className="text-xs font-bold mb-1 font-outfit">Templates Prontos</h4>
               <p className="text-[10px] text-text-secondary m-0 leading-normal">Apresentações executivas e propostas comerciais.</p>
             </div>
           </div>
