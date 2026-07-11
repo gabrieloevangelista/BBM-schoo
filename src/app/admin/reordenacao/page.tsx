@@ -62,7 +62,11 @@ export default function AdminContentManager() {
   const [lessonForm, setLessonForm] = useState<Lesson>({ id: '', module_id: '', title: '', duration: '', instructor_name: '', video_url: '', cover_image_url: '', sequence_order: 0, is_published: false, description: '' });
 
   // Inline title editing
-  const [editingTitle, setEditingTitle] = useState<{id: string, type: 'course'|'module', title: string} | null>(null);
+  const [editingTitle, setEditingTitle] = useState<{id: string, type: 'course'|'module'|'lesson', title: string} | null>(null);
+
+  // Drag and drop state
+  const [draggedModule, setDraggedModule] = useState<string | null>(null);
+  const [draggedLesson, setDraggedLesson] = useState<string | null>(null);
 
   const loadData = async () => {
     try {
@@ -196,12 +200,59 @@ export default function AdminContentManager() {
     if (editingTitle.type === 'course') {
       const idx = db.courses.findIndex((c: Course) => c.id === editingTitle.id);
       if (idx > -1) db.courses[idx].title = editingTitle.title;
-    } else {
+    } else if (editingTitle.type === 'module') {
       const idx = db.modules.findIndex((m: Module) => m.id === editingTitle.id);
       if (idx > -1) db.modules[idx].title = editingTitle.title;
+    } else if (editingTitle.type === 'lesson') {
+      const idx = db.lessons.findIndex((l: Lesson) => l.id === editingTitle.id);
+      if (idx > -1) db.lessons[idx].title = editingTitle.title;
     }
     await saveDb(db);
     setEditingTitle(null);
+  };
+
+  const handleDropModule = async (targetModuleId: string) => {
+    if (!draggedModule || draggedModule === targetModuleId || !selectedCourse) return;
+    const db = await (await fetch('/api/db')).json();
+    const courseModules = db.modules.filter((m: Module) => m.course_id === selectedCourse.id);
+    courseModules.sort((a: Module, b: Module) => (a.sequence_order || 0) - (b.sequence_order || 0));
+    const sourceIdx = courseModules.findIndex((m: Module) => m.id === draggedModule);
+    const targetIdx = courseModules.findIndex((m: Module) => m.id === targetModuleId);
+    
+    if (sourceIdx > -1 && targetIdx > -1) {
+      const draggedObj = courseModules[sourceIdx];
+      courseModules.splice(sourceIdx, 1);
+      courseModules.splice(targetIdx, 0, draggedObj);
+      courseModules.forEach((m: Module, idx: number) => {
+        m.sequence_order = idx;
+        const globalIdx = db.modules.findIndex((g: Module) => g.id === m.id);
+        if (globalIdx > -1) db.modules[globalIdx] = m;
+      });
+      await saveDb(db);
+    }
+    setDraggedModule(null);
+  };
+
+  const handleDropLesson = async (targetLessonId: string, moduleId: string) => {
+    if (!draggedLesson || draggedLesson === targetLessonId) return;
+    const db = await (await fetch('/api/db')).json();
+    const moduleLessons = db.lessons.filter((l: Lesson) => l.module_id === moduleId);
+    moduleLessons.sort((a: Lesson, b: Lesson) => a.sequence_order - b.sequence_order);
+    const sourceIdx = moduleLessons.findIndex((l: Lesson) => l.id === draggedLesson);
+    const targetIdx = moduleLessons.findIndex((l: Lesson) => l.id === targetLessonId);
+    
+    if (sourceIdx > -1 && targetIdx > -1) {
+      const draggedObj = moduleLessons[sourceIdx];
+      moduleLessons.splice(sourceIdx, 1);
+      moduleLessons.splice(targetIdx, 0, draggedObj);
+      moduleLessons.forEach((l: Lesson, idx: number) => {
+        l.sequence_order = idx;
+        const globalIdx = db.lessons.findIndex((g: Lesson) => g.id === l.id);
+        if (globalIdx > -1) db.lessons[globalIdx] = l;
+      });
+      await saveDb(db);
+    }
+    setDraggedLesson(null);
   };
 
   // ============================================================
@@ -347,11 +398,36 @@ export default function AdminContentManager() {
           {courseModules.map((module) => {
             const moduleLessons = lessons.filter(l => l.module_id === module.id);
             return (
-              <div key={module.id} className="glass-panel overflow-hidden flex flex-col group/module">
+              <div 
+                key={module.id} 
+                className={`glass-panel overflow-hidden flex flex-col group/module ${draggedModule === module.id ? 'opacity-50' : ''}`}
+                draggable
+                onDragStart={(e) => { e.stopPropagation(); setDraggedModule(module.id); }}
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={(e) => { e.stopPropagation(); handleDropModule(module.id); }}
+              >
                 <div className="p-4 flex items-center justify-between border-b border-transparent group-hover/module:border-[var(--color-glass-border)] transition-colors">
                   <div className="flex items-center gap-3">
-                    <GripVertical size={16} className="text-text-muted cursor-grab" />
-                    <h3 className="text-sm font-bold text-text-base m-0">{module.title}</h3>
+                    <div className="cursor-grab active:cursor-grabbing"><GripVertical size={16} className="text-text-muted" /></div>
+                    {editingTitle?.id === module.id && editingTitle.type === 'module' ? (
+                      <input 
+                        type="text" 
+                        value={editingTitle.title} 
+                        onChange={e => setEditingTitle({...editingTitle, title: e.target.value})}
+                        onBlur={saveInlineTitle}
+                        onKeyDown={e => e.key === 'Enter' && saveInlineTitle()}
+                        autoFocus
+                        className="bg-transparent border-b border-white/20 text-sm font-bold text-text-base outline-none px-1"
+                      />
+                    ) : (
+                      <h3 
+                        className="text-sm font-bold text-text-base m-0 cursor-text"
+                        onDoubleClick={() => setEditingTitle({ id: module.id, type: 'module', title: module.title })}
+                        title="Clique duas vezes para renomear"
+                      >
+                        {module.title}
+                      </h3>
+                    )}
                   </div>
                   
                   <div className="flex items-center gap-3">
@@ -367,10 +443,35 @@ export default function AdminContentManager() {
                 
                 <div className="flex flex-col">
                   {moduleLessons.map((lesson, lIdx) => (
-                    <div key={lesson.id} className="flex items-center justify-between p-3 px-6 border-t border-[var(--color-glass-border)] hover:bg-[var(--color-glass-hover-bg)] transition-colors group/lesson">
+                    <div 
+                      key={lesson.id} 
+                      className={`flex items-center justify-between p-3 px-6 border-t border-[var(--color-glass-border)] hover:bg-[var(--color-glass-hover-bg)] transition-colors group/lesson ${draggedLesson === lesson.id ? 'opacity-50 bg-[var(--color-glass-hover-bg)]' : ''}`}
+                      draggable
+                      onDragStart={(e) => { e.stopPropagation(); setDraggedLesson(lesson.id); }}
+                      onDragOver={(e) => e.preventDefault()}
+                      onDrop={(e) => { e.stopPropagation(); handleDropLesson(lesson.id, module.id); }}
+                    >
                       <div className="flex items-center gap-3 pl-6">
-                        <GripVertical size={14} className="text-text-muted opacity-0 group-hover/lesson:opacity-100 cursor-grab transition-opacity" />
-                        <span className="text-xs text-text-base">{String(lIdx + 1).padStart(2, '0')} - {lesson.title}</span>
+                        <div className="cursor-grab active:cursor-grabbing opacity-0 group-hover/lesson:opacity-100 transition-opacity"><GripVertical size={14} className="text-text-muted" /></div>
+                        {editingTitle?.id === lesson.id && editingTitle.type === 'lesson' ? (
+                          <input 
+                            type="text" 
+                            value={editingTitle.title} 
+                            onChange={e => setEditingTitle({...editingTitle, title: e.target.value})}
+                            onBlur={saveInlineTitle}
+                            onKeyDown={e => e.key === 'Enter' && saveInlineTitle()}
+                            autoFocus
+                            className="bg-transparent border-b border-white/20 text-xs text-text-base outline-none px-1 flex-1 min-w-[200px]"
+                          />
+                        ) : (
+                          <span 
+                            className="text-xs text-text-base cursor-text"
+                            onDoubleClick={() => setEditingTitle({ id: lesson.id, type: 'lesson', title: lesson.title })}
+                            title="Clique duas vezes para renomear"
+                          >
+                            {String(lIdx + 1).padStart(2, '0')} - {lesson.title}
+                          </span>
+                        )}
                       </div>
                       <div className="flex items-center gap-4">
                         <span className="text-[9px] uppercase tracking-wider text-green-400/70 font-bold">Publicado</span>
