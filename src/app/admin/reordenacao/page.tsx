@@ -586,31 +586,8 @@ export default function AdminContentManager() {
   // ============================================================
   return (
     <div className="flex flex-col w-full">
-      {/* Top Admin Navigation Tabs */}
-      <div>
-        <h1 className="text-2xl font-bold mb-2">Painel Administrativo</h1>
-        <p className="text-sm text-text-secondary mb-6">Gerencie as masterclasses, faça upload de recursos/planilhas e agende mentorias.</p>
-        
-        <div className="flex items-center gap-6 border-b border-[var(--color-glass-border)] overflow-x-auto scrollbar-none">
-          <button onClick={() => setView('masterclasses')} className="text-text-base border-b-2 border-primary-lemon pb-3 -mb-[2px] text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 cursor-pointer">
-            <GraduationCap size={14} /> Masterclasses
-          </button>
-          <Link href="/admin/membros" className="text-text-secondary hover:text-text-base pb-3 text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 transition-colors">
-            <Users size={14} /> Mentorados
-          </Link>
-          <button className="text-text-secondary hover:text-text-base pb-3 text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 transition-colors">
-            <MessageSquare size={14} /> Comentários
-          </button>
-          <button className="text-text-secondary hover:text-text-base pb-3 text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 transition-colors">
-            <UserPlus size={14} /> Cadastrar Usuário
-          </button>
-          <Link href="/admin/ecossistema" className="text-text-secondary hover:text-text-base pb-3 text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 transition-colors">
-            <Box size={14} /> Ecossistema
-          </Link>
-        </div>
-      </div>
 
-      <div className="mt-6">
+      <div className="animate-fade-in">
         {isLoading ? (
           <div className="flex items-center justify-center py-20 text-text-secondary">Carregando conteúdos...</div>
         ) : (

@@ -153,18 +153,16 @@ export default function MembrosAdminPage() {
   return (
     <div>
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', flexWrap: 'wrap', gap: '15px' }}>
-        <h1 className="page-title" style={{ marginBottom: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Users size={28} className="text-primary-lemon" />
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-xl font-bold text-text-base flex items-center gap-2">
           Gerenciamento de Membros
-        </h1>
+        </h2>
         
-        <button onClick={openCreateModal} className="btn-primary text-xs" style={{ padding: '10px 16px' }}>
+        <button onClick={openCreateModal} className="btn-primary text-xs uppercase tracking-wider py-2 px-4 flex items-center gap-2">
           <Plus size={16} />
           <span>Adicionar Membro</span>
         </button>
       </div>
-      <p className="page-subtitle">Acesso restrito para administradores. Gerencie acessos, adicione e exclua membros da plataforma.</p>
 
       {/* Members Table */}
       <div className="glass-panel" style={{ overflowX: 'auto', padding: '10px' }}>
