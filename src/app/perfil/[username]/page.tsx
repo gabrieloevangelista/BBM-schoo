@@ -443,7 +443,7 @@ export default function MemberProfilePage() {
           <div className="flex items-center gap-3 flex-wrap">
             <h1 className="text-2xl md:text-3xl font-extrabold text-text-base tracking-tight font-outfit m-0">{profile.name}</h1>
             <span className="badge badge-lemon text-[10px] font-bold uppercase tracking-wider">
-              {profile.member_type === 'admin' ? 'Admin' : profile.member_type === 'master' ? 'Mestre' : 'Membro'}
+              {profile.member_type === 'admin' ? 'Admin' : profile.member_type === 'mentor' ? 'Mentor' : 'Mentorado'}
             </span>
           </div>
           <p className="text-primary-lemon text-sm font-semibold mt-1">

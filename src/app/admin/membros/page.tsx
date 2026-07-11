@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { 
   Plus, 
   Trash2, 
@@ -17,16 +17,9 @@ import { customConfirm } from '@/components/CustomConfirm';
 
 export default function MembrosAdminPage() {
   const { user } = useAuth();
-  const searchParams = useSearchParams();
+  const router = useRouter();
   const [members, setMembers] = useState<Member[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-
-  // Modal states
-  const [showModal, setShowModal] = useState(false);
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [memberType, setMemberType] = useState<'admin' | 'master' | 'mentor'>('master');
-  const [role, setRole] = useState('');
 
   const fetchMembers = async () => {
     try {
@@ -45,13 +38,8 @@ export default function MembrosAdminPage() {
   useEffect(() => {
     if (user) {
       fetchMembers();
-      
-      const action = searchParams.get('action');
-      if (action === 'new') {
-        openCreateModal();
-      }
     }
-  }, [user, searchParams]);
+  }, [user]);
 
   // Toggle Member Status (Ativo / Inativo)
   const handleToggleStatus = async (id: string, currentStatus: string) => {
@@ -103,56 +91,6 @@ export default function MembrosAdminPage() {
     }
   };
 
-  const openCreateModal = () => {
-    setName('');
-    setEmail('');
-    setRole('');
-    setMemberType('master');
-    setShowModal(true);
-  };
-
-  // Create new member
-  const handleSaveMember = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name || !email) {
-      alert('Por favor, preencha nome e e-mail.');
-      return;
-    }
-
-    try {
-      const response = await fetch('/api/db');
-      if (response.ok) {
-        const db = await response.json();
-        
-        const newMember: Member = {
-          id: `user-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-          name,
-          email,
-          role,
-          member_type: memberType,
-          status: 'Ativo',
-          theme: 'dark',
-          added_at: new Date().toISOString(),
-          initials: name.substring(0, 2).toUpperCase()
-        };
-
-        if (!db.members) db.members = [];
-        db.members.push(newMember);
-
-        await fetch('/api/db', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(db)
-        });
-
-        setShowModal(false);
-        fetchMembers();
-      }
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
   if (isLoading) {
     return <AdminSkeleton />;
   }
@@ -165,7 +103,7 @@ export default function MembrosAdminPage() {
           Gerenciamento de Membros
         </h2>
         
-        <button onClick={openCreateModal} className="btn-primary text-xs uppercase tracking-wider py-2 px-4 flex items-center gap-2">
+        <button onClick={() => router.push('/admin/cadastrar')} className="btn-primary text-xs uppercase tracking-wider py-2 px-4 flex items-center gap-2">
           <Plus size={16} />
           <span>Adicionar Membro</span>
         </button>
@@ -218,10 +156,10 @@ export default function MembrosAdminPage() {
                   <td style={{ padding: '15px 12px' }}>
                     {m.member_type === 'admin' ? (
                       <span className="badge badge-lemon">Administrador</span>
-                    ) : m.member_type === 'master' ? (
-                      <span className="badge badge-green">Mestre</span>
+                    ) : m.member_type === 'mentor' ? (
+                      <span className="badge badge-green">Mentor</span>
                     ) : (
-                      <span className="badge badge-gray">Membro</span>
+                      <span className="badge badge-gray">Mentorado</span>
                     )}
                   </td>
 
@@ -265,87 +203,6 @@ export default function MembrosAdminPage() {
         )}
       </div>
 
-      {/* Create Member Modal */}
-      {showModal && (
-        <div 
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            width: '100vw',
-            height: '100vh',
-            background: 'rgba(0,0,0,0.85)',
-            zIndex: 1000,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '20px'
-          }}
-        >
-          <div 
-            className="modal-card"
-            style={{
-              maxWidth: '500px',
-              width: '100%',
-              padding: '30px'
-            }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-              <h3 style={{ fontSize: '1.25rem', color: '#fff', fontFamily: 'var(--font-outfit)' }}>
-                Adicionar Novo Membro
-              </h3>
-              <button 
-                onClick={() => setShowModal(false)}
-                className="outline-btn border-0 p-1 text-gray-400 hover:text-white"
-                style={{ minWidth: 'auto' }}
-              >
-                <X size={20} />
-              </button>
-            </div>
-
-            <form onSubmit={handleSaveMember}>
-              <div className="form-group">
-                <label className="form-label">Nome Completo *</label>
-                <input type="text" className="form-input" value={name} onChange={e => setName(e.target.value)} required />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">E-mail *</label>
-                <input type="email" className="form-input" value={email} onChange={e => setEmail(e.target.value)} required />
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-                <div className="form-group">
-                  <label className="form-label">Tipo de Perfil *</label>
-                  <select 
-                    className="form-input" 
-                    value={memberType} 
-                    onChange={e => setMemberType(e.target.value as 'admin' | 'master' | 'mentor')} 
-                    required
-                  >
-                    <option value="mentor">Membro Padrão</option>
-                    <option value="master">Mestre (Masterclass)</option>
-                    <option value="admin">Administrador</option>
-                  </select>
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Cargo / Título</label>
-                  <input type="text" className="form-input" placeholder="Ex: CEO" value={role} onChange={e => setRole(e.target.value)} />
-                </div>
-              </div>
-
-              <button 
-                type="submit" 
-                className="btn-primary w-full mt-4" 
-                style={{ padding: '12px' }}
-              >
-                <Save size={16} />
-                <span>Salvar Membro</span>
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
 
     </div>
   );

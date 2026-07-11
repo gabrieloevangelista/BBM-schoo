@@ -464,7 +464,7 @@ export default function NavigationWrapper({ children }: { children: React.ReactN
                 <div className="max-md:hidden text-left">
                   <p className={`text-xs font-semibold ${theme === 'light' ? 'text-gray-900' : 'text-white'}`}>{user.name}</p>
                   <p className="text-[10px] text-[#C1FF07] font-medium uppercase tracking-wider" style={{ color: theme === 'light' ? '#6aaa00' : '#C1FF07' }}>
-                    {user.member_type === 'admin' ? 'Admin' : user.member_type === 'master' ? 'Mestre' : 'Membro'}
+                    {user.member_type === 'admin' ? 'Admin' : user.member_type === 'mentor' ? 'Mentor' : 'Mentorado'}
                   </p>
                 </div>
               </div>

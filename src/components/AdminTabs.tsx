@@ -12,7 +12,7 @@ export default function AdminTabs() {
     { name: 'Masterclasses', href: '/admin/reordenacao', icon: GraduationCap },
     { name: 'Mentorados', href: '/admin/membros', icon: Users },
     { name: 'Comentários', href: '/admin/comentarios', icon: MessageSquare },
-    { name: 'Cadastrar Usuário', href: '/admin/membros?action=new', icon: UserPlus },
+    { name: 'Cadastrar Usuário', href: '/admin/cadastrar', icon: UserPlus },
     { name: 'Ecossistema', href: '/admin/ecossistema', icon: Box },
   ];
 

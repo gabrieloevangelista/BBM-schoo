@@ -222,7 +222,7 @@ export default function CalendarioPage() {
     return filteredEvents.filter(e => e.event_date === dateStr);
   };
 
-  const canManage = user?.member_type === 'admin' || user?.member_type === 'master';
+  const canManage = user?.member_type === 'admin' || user?.member_type === 'mentor';
 
   if (isLoading) {
     return <CalendarioSkeleton />;

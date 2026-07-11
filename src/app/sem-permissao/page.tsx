@@ -62,7 +62,7 @@ export default function AccessDeniedPage() {
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', marginBottom: '24px', lineHeight: 1.6 }}>
               Esta página ou recurso é de uso exclusivo para administradores da plataforma.
               <br />
-              Seu perfil atual é de <strong>{user ? (user.member_type === 'master' ? 'Mentor Master' : 'Mentorado') : 'Visitante'}</strong>.
+              Seu perfil atual é de <strong>{user ? (user.member_type === 'mentor' ? 'Mentor' : 'Mentorado') : 'Visitante'}</strong>.
             </p>
           </div>
         )}

@@ -14,7 +14,7 @@ export interface Member {
   img?: string;
   bio?: string;
   username?: string;
-  member_type: 'admin' | 'master' | 'mentor';
+  member_type: 'admin' | 'mentor' | 'mentorado';
   theme: string;
   status: 'Ativo' | 'Inativo';
   added_at: string;
