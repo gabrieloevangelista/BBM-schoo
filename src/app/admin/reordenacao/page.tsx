@@ -1,801 +1,649 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/context/AuthContext';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { 
-  Move, 
-  ChevronRight, 
-  Layers, 
-  BookOpen, 
-  Edit2, 
-  Save, 
-  Check, 
-  FileEdit,
-  ArrowRight,
-  Clock,
-  User,
-  Plus,
-  Paperclip,
-  Trash2,
-  X
+  GraduationCap, Users, MessageSquare, UserPlus, Box,
+  Edit2, Trash2, ChevronDown, ChevronUp, Image as ImageIcon,
+  Play, Plus, ArrowLeft, GripVertical, Check, Video, Paperclip, X,
+  Minimize2, Search, Filter, AlertTriangle, Upload
 } from 'lucide-react';
-import { Course, Module, Lesson, Resource } from '@/lib/db';
+import { useAuth } from '@/context/AuthContext';
 
-export default function ReordenacaoAdminPage() {
+// Types
+interface Course { id: string; title: string; slug: string; description: string; is_published?: boolean; cover_image_url?: string; }
+interface Module { id: string; course_id: string; title: string; description?: string; is_published?: boolean; cover_image_url?: string; }
+interface Lesson { id: string; module_id: string; title: string; duration: string; instructor_name: string; video_url: string; cover_image_url: string; sequence_order: number; is_published?: boolean; description?: string; }
+interface Resource { id: string; lesson_id: string; title: string; category: string; file_url: string; }
+
+type ViewType = 'masterclasses' | 'modules' | 'lesson' | 'editCourse' | 'editModule';
+
+// Reusable styled input
+const FormField = ({ label, children }: { label: string; children: React.ReactNode }) => (
+  <div className="flex flex-col gap-1.5">
+    <label className="text-[10px] font-bold text-text-secondary uppercase tracking-widest">{label}</label>
+    {children}
+  </div>
+);
+
+const inputClass = "bg-[var(--color-input-bg)] border border-[var(--color-input-border)] rounded-md p-3 text-sm text-text-base focus:border-[var(--color-input-border-focus)] outline-none transition-colors w-full";
+const selectClass = "bg-[var(--color-input-bg)] border border-[var(--color-input-border)] rounded-md p-3 w-full text-sm text-text-base appearance-none outline-none";
+
+export default function AdminContentManager() {
   const { user } = useAuth();
-  const router = useRouter();
-
+  const [isLoading, setIsLoading] = useState(true);
+  
+  // Data
   const [courses, setCourses] = useState<Course[]>([]);
-  const [selectedCourseId, setSelectedCourseId] = useState<string>('');
-  
   const [modules, setModules] = useState<Module[]>([]);
-  const [lessonsByModule, setLessonsByModule] = useState<Record<string, Lesson[]>>({});
-
-  // Inline rename state
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editingText, setEditingText] = useState('');
-
-  // Drag and Drop State
-  const [draggingType, setDraggingType] = useState<'module' | 'lesson' | null>(null);
-  const [draggingId, setDraggingId] = useState<string | null>(null);
-  const [draggingSourceModuleId, setDraggingSourceModuleId] = useState<string | null>(null);
-
-  // Modals UI state
-  const [showModuleModal, setShowModuleModal] = useState(false);
-  const [newModuleTitle, setNewModuleTitle] = useState('');
-  const [newModuleDesc, setNewModuleDesc] = useState('');
+  const [lessons, setLessons] = useState<Lesson[]>([]);
+  const [resources, setResources] = useState<Resource[]>([]);
   
-  const [showLessonModal, setShowLessonModal] = useState(false);
-  const [activeModuleForLesson, setActiveModuleForLesson] = useState<string | null>(null);
-  const [newLessonData, setNewLessonData] = useState({ title: '', duration: '', video_url: '', instructor_name: '' });
+  // Views
+  const [view, setView] = useState<ViewType>('masterclasses');
+  
+  // Selections
+  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
+  const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null);
+  const [selectedModule, setSelectedModule] = useState<Module | null>(null);
 
-  const [showResourceModal, setShowResourceModal] = useState(false);
-  const [activeLessonForResource, setActiveLessonForResource] = useState<string | null>(null);
-  const [lessonResources, setLessonResources] = useState<Resource[]>([]);
-  const [newResourceData, setNewResourceData] = useState({ title: '', file_url: '', category: 'other' as const });
+  // Custom Confirm Dialog
+  const [confirmDialog, setConfirmDialog] = useState<{message: string; onConfirm: () => void} | null>(null);
+
+  // Form states for course editor
+  const [courseForm, setCourseForm] = useState({ title: '', description: '', cover_image_url: '' });
+  const [courseEditId, setCourseEditId] = useState<string | null>(null);
+
+  // Form states for module editor
+  const [moduleForm, setModuleForm] = useState({ title: '', description: '', cover_image_url: '' });
+  const [moduleEditId, setModuleEditId] = useState<string | null>(null);
+  
+  // Form states for lesson editor
+  const [lessonForm, setLessonForm] = useState<Lesson>({ id: '', module_id: '', title: '', duration: '', instructor_name: '', video_url: '', cover_image_url: '', sequence_order: 0, is_published: false, description: '' });
+
+  // Inline title editing
+  const [editingTitle, setEditingTitle] = useState<{id: string, type: 'course'|'module', title: string} | null>(null);
 
   const loadData = async () => {
     try {
       const response = await fetch('/api/db');
       if (response.ok) {
-        const db = await response.json();
-        setCourses(db.courses || []);
-        
-        if (db.courses.length > 0 && !selectedCourseId) {
-          setSelectedCourseId(db.courses[0].id);
-        }
-
-        if (selectedCourseId) {
-          // Filter modules
-          const rawModules = db.modules.filter((m: Module) => m.course_id === selectedCourseId)
-            .sort((a: Module, b: Module) => a.sequence_order - b.sequence_order);
-          setModules(rawModules);
-
-          // Filter lessons
-          const lessonsMap: Record<string, Lesson[]> = {};
-          rawModules.forEach((m: Module) => {
-            const rawLessons = db.lessons.filter((l: Lesson) => l.module_id === m.id)
-              .sort((a: Lesson, b: Lesson) => a.sequence_order - b.sequence_order);
-            lessonsMap[m.id] = rawLessons;
-          });
-          setLessonsByModule(lessonsMap);
-        }
+        const data = await response.json();
+        setCourses(data.courses || []);
+        setModules(data.modules || []);
+        setLessons((data.lessons || []).sort((a: Lesson, b: Lesson) => a.sequence_order - b.sequence_order));
+        setResources(data.resources || []);
       }
     } catch (e) {
       console.error(e);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    if (user) {
-      loadData();
-    }
-  }, [user, selectedCourseId]);
+    loadData();
+  }, []);
 
-  // Rename handle (on Enter key or on Blur)
-  const handleRenameSave = async (id: string, type: 'module' | 'lesson') => {
-    if (!editingText.trim()) return;
-
+  const saveDb = async (newData: any) => {
     try {
-      const response = await fetch('/api/db');
-      if (response.ok) {
-        const db = await response.json();
-        
-        if (type === 'module') {
-          db.modules = db.modules.map((m: Module) => 
-            m.id === id ? { ...m, title: editingText.trim() } : m
-          );
-        } else {
-          db.lessons = db.lessons.map((l: Lesson) => 
-            l.id === id ? { ...l, title: editingText.trim() } : l
-          );
-        }
-
-        await fetch('/api/db', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(db)
-        });
-
-        setEditingId(null);
-        setEditingText('');
-        loadData();
-      }
+      await fetch('/api/db', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newData)
+      });
+      await loadData();
     } catch (e) {
       console.error(e);
     }
   };
 
-  // Content Creation Handlers
-  const handleCreateModule = async () => {
-    if (!newModuleTitle.trim() || !selectedCourseId) return;
-    try {
-      const response = await fetch('/api/db');
-      if (response.ok) {
-        const db = await response.json();
-        
-        const courseModules = db.modules.filter((m: Module) => m.course_id === selectedCourseId);
-        const nextOrder = courseModules.length;
+  if (!user || user.member_type !== 'admin') {
+    return <div className="p-10 text-center">Acesso Negado. Você precisa ser administrador.</div>;
+  }
 
-        const novoModulo: Module = {
-          id: crypto.randomUUID(),
-          course_id: selectedCourseId,
-          title: newModuleTitle.trim(),
-          description: newModuleDesc.trim(),
-          slug: newModuleTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-          status: 'published',
-          sequence_order: nextOrder,
-          created_at: new Date().toISOString()
-        };
+  // --- Custom Confirm Dialog ---
+  const showConfirm = (message: string, onConfirm: () => void) => {
+    setConfirmDialog({ message, onConfirm });
+  };
 
-        db.modules.push(novoModulo);
+  // --- Handlers ---
+  const handleDeleteCourse = (id: string) => {
+    showConfirm('Deseja excluir esta masterclass e todo o seu conteúdo?', async () => {
+      const db = await (await fetch('/api/db')).json();
+      db.courses = db.courses.filter((c: Course) => c.id !== id);
+      db.modules = db.modules.filter((m: Module) => m.course_id !== id);
+      const moduleIds = modules.filter(m => m.course_id === id).map(m => m.id);
+      db.lessons = db.lessons.filter((l: Lesson) => !moduleIds.includes(l.module_id));
+      await saveDb(db);
+      setConfirmDialog(null);
+    });
+  };
 
-        await fetch('/api/db', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(db)
-        });
+  const handleDeleteModule = (id: string) => {
+    showConfirm('Deseja excluir este módulo e todas as suas aulas?', async () => {
+      const db = await (await fetch('/api/db')).json();
+      db.modules = db.modules.filter((m: Module) => m.id !== id);
+      db.lessons = db.lessons.filter((l: Lesson) => l.module_id !== id);
+      await saveDb(db);
+      setConfirmDialog(null);
+    });
+  };
 
-        setShowModuleModal(false);
-        setNewModuleTitle('');
-        setNewModuleDesc('');
-        loadData();
+  const handleDeleteLesson = (id: string) => {
+    showConfirm('Deseja excluir esta aula?', async () => {
+      const db = await (await fetch('/api/db')).json();
+      db.lessons = db.lessons.filter((l: Lesson) => l.id !== id);
+      await saveDb(db);
+      setConfirmDialog(null);
+    });
+  };
+
+  const handleSaveCourse = async () => {
+    const db = await (await fetch('/api/db')).json();
+    if (courseEditId) {
+      const idx = db.courses.findIndex((c: Course) => c.id === courseEditId);
+      if (idx > -1) {
+        db.courses[idx] = { ...db.courses[idx], ...courseForm, slug: courseForm.title.toLowerCase().replace(/\s+/g, '-') };
       }
-    } catch(e) { console.error(e); }
-  };
-
-  const handleCreateLesson = async () => {
-    if (!newLessonData.title.trim() || !activeModuleForLesson) return;
-    try {
-      const response = await fetch('/api/db');
-      if (response.ok) {
-        const db = await response.json();
-        
-        const moduleLessons = db.lessons.filter((l: Lesson) => l.module_id === activeModuleForLesson);
-        const nextOrder = moduleLessons.length;
-
-        const novaAula: Lesson = {
-          id: crypto.randomUUID(),
-          module_id: activeModuleForLesson,
-          title: newLessonData.title.trim(),
-          duration: newLessonData.duration || '00:00',
-          video_url: newLessonData.video_url,
-          instructor_name: newLessonData.instructor_name,
-          slug: newLessonData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-          status: 'published',
-          sequence_order: nextOrder,
-          created_at: new Date().toISOString()
-        };
-
-        db.lessons.push(novaAula);
-
-        await fetch('/api/db', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(db)
-        });
-
-        setShowLessonModal(false);
-        setActiveModuleForLesson(null);
-        setNewLessonData({ title: '', duration: '', video_url: '', instructor_name: '' });
-        loadData();
-      }
-    } catch(e) { console.error(e); }
-  };
-
-  const openResourceModal = async (lessonId: string) => {
-    setActiveLessonForResource(lessonId);
-    try {
-      const response = await fetch('/api/db');
-      if (response.ok) {
-        const db = await response.json();
-        const resList = (db.resources || []).filter((r: Resource) => r.lesson_id === lessonId);
-        setLessonResources(resList);
-        setShowResourceModal(true);
-      }
-    } catch (e) { console.error(e); }
-  };
-
-  const handleCreateResource = async () => {
-    if (!newResourceData.title.trim() || !newResourceData.file_url.trim() || !activeLessonForResource) return;
-    try {
-      const response = await fetch('/api/db');
-      if (response.ok) {
-        const db = await response.json();
-        
-        const novoRecurso: Resource = {
-          id: crypto.randomUUID(),
-          lesson_id: activeLessonForResource,
-          title: newResourceData.title.trim(),
-          file_url: newResourceData.file_url.trim(),
-          category: newResourceData.category,
-          created_at: new Date().toISOString()
-        };
-
-        if(!db.resources) db.resources = [];
-        db.resources.push(novoRecurso);
-
-        await fetch('/api/db', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(db)
-        });
-
-        setLessonResources([...lessonResources, novoRecurso]);
-        setNewResourceData({ title: '', file_url: '', category: 'other' });
-      }
-    } catch(e) { console.error(e); }
-  };
-
-  const handleDeleteResource = async (id: string) => {
-    try {
-      const response = await fetch('/api/db');
-      if (response.ok) {
-        const db = await response.json();
-        
-        db.resources = (db.resources || []).filter((r: Resource) => r.id !== id);
-
-        await fetch('/api/db', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(db)
-        });
-
-        setLessonResources(lessonResources.filter(r => r.id !== id));
-      }
-    } catch(e) { console.error(e); }
-  };
-
-  // Drag Modules Handlers
-  const handleModuleDragStart = (e: React.DragEvent, id: string) => {
-    setDraggingType('module');
-    setDraggingId(id);
-    e.dataTransfer.setData('text/plain', id);
-  };
-
-  const handleModuleDragOver = (e: React.DragEvent) => {
-    if (draggingType === 'module') {
-      e.preventDefault(); // allow drop
+    } else {
+      db.courses.push({
+        id: crypto.randomUUID(),
+        ...courseForm,
+        slug: courseForm.title.toLowerCase().replace(/\s+/g, '-'),
+        is_published: false
+      });
     }
+    await saveDb(db);
+    setView('masterclasses');
   };
 
-  const handleModuleDrop = async (e: React.DragEvent, targetModuleId: string) => {
-    e.preventDefault();
-    if (draggingType !== 'module' || draggingId === targetModuleId) return;
-
-    try {
-      const response = await fetch('/api/db');
-      if (response.ok) {
-        const db = await response.json();
-        
-        // Find index of modules
-        const activeModules = db.modules.filter((m: Module) => m.course_id === selectedCourseId)
-          .sort((a: Module, b: Module) => a.sequence_order - b.sequence_order);
-
-        const dragIdx = activeModules.findIndex((m: Module) => m.id === draggingId);
-        const dropIdx = activeModules.findIndex((m: Module) => m.id === targetModuleId);
-
-        if (dragIdx > -1 && dropIdx > -1) {
-          const [draggedItem] = activeModules.splice(dragIdx, 1);
-          activeModules.splice(dropIdx, 0, draggedItem);
-          
-          // Re-assign sequence order index
-          activeModules.forEach((m: Module, idx: number) => {
-            m.sequence_order = idx;
-          });
-
-          // merge back to full list
-          db.modules = db.modules.map((m: Module) => {
-            const updated = activeModules.find((up: Module) => up.id === m.id);
-            return updated || m;
-          });
-
-          await fetch('/api/db', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(db)
-          });
-
-          loadData();
-        }
+  const handleSaveModule = async () => {
+    if (!selectedCourse) return;
+    const db = await (await fetch('/api/db')).json();
+    if (moduleEditId) {
+      const idx = db.modules.findIndex((m: Module) => m.id === moduleEditId);
+      if (idx > -1) {
+        db.modules[idx] = { ...db.modules[idx], ...moduleForm };
       }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setDraggingType(null);
-      setDraggingId(null);
+    } else {
+      db.modules.push({
+        id: crypto.randomUUID(),
+        course_id: selectedCourse.id,
+        ...moduleForm,
+        is_published: false
+      });
     }
+    await saveDb(db);
+    setView('modules');
   };
 
-  // Drag Lessons Handlers (Can move inside module or move between modules)
-  const handleLessonDragStart = (e: React.DragEvent, lessonId: string, sourceModuleId: string) => {
-    setDraggingType('lesson');
-    setDraggingId(lessonId);
-    setDraggingSourceModuleId(sourceModuleId);
-    e.dataTransfer.setData('text/plain', lessonId);
-  };
-
-  const handleLessonDragOver = (e: React.DragEvent) => {
-    if (draggingType === 'lesson') {
-      e.preventDefault();
+  const handleSaveLesson = async () => {
+    const db = await (await fetch('/api/db')).json();
+    const existingIdx = db.lessons.findIndex((l: Lesson) => l.id === lessonForm.id);
+    if (existingIdx > -1) {
+      db.lessons[existingIdx] = lessonForm;
+    } else {
+      db.lessons.push(lessonForm);
     }
+    await saveDb(db);
+    setView('modules');
   };
 
-  const handleLessonDrop = async (e: React.DragEvent, targetModuleId: string, targetLessonId?: string) => {
-    e.preventDefault();
-    if (draggingType !== 'lesson' || !draggingId) return;
-
-    try {
-      const response = await fetch('/api/db');
-      if (response.ok) {
-        const db = await response.json();
-
-        // 1. Get lessons of target module
-        const targetLessons = db.lessons.filter((l: Lesson) => l.module_id === targetModuleId)
-          .sort((a: Lesson, b: Lesson) => a.sequence_order - b.sequence_order);
-
-        // 2. Remove dragged lesson from source
-        const draggedLesson = db.lessons.find((l: Lesson) => l.id === draggingId);
-        if (!draggedLesson) return;
-
-        // update its module pointer if moved between modules
-        draggedLesson.module_id = targetModuleId;
-
-        // 3. Insert into target list at correct spot
-        let targetIdx = targetLessons.length;
-        if (targetLessonId) {
-          targetIdx = targetLessons.findIndex((l: Lesson) => l.id === targetLessonId);
-        }
-
-        // remove from targetLessons if already in it (reorder)
-        const cleanTargetLessons = targetLessons.filter((l: Lesson) => l.id !== draggingId);
-        cleanTargetLessons.splice(targetIdx, 0, draggedLesson);
-
-        // 4. Update sequence order numbers
-        cleanTargetLessons.forEach((l: Lesson, idx: number) => {
-          l.sequence_order = idx;
-        });
-
-        // 5. Update global db lessons array
-        db.lessons = db.lessons.map((l: Lesson) => {
-          if (l.id === draggingId) {
-            return draggedLesson;
-          }
-          const inTarget = cleanTargetLessons.find((cl: Lesson) => cl.id === l.id);
-          return inTarget || l;
-        });
-
-        // Also sort source lessons if we moved between modules
-        if (draggingSourceModuleId !== targetModuleId) {
-          const sourceLessons = db.lessons.filter((l: Lesson) => l.module_id === draggingSourceModuleId)
-            .sort((a: Lesson, b: Lesson) => a.sequence_order - b.sequence_order);
-          
-          sourceLessons.forEach((l: Lesson, idx: number) => {
-            l.sequence_order = idx;
-          });
-
-          db.lessons = db.lessons.map((l: Lesson) => {
-            const inSource = sourceLessons.find((sl: Lesson) => sl.id === l.id);
-            return inSource || l;
-          });
-        }
-
-        await fetch('/api/db', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(db)
-        });
-
-        loadData();
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setDraggingType(null);
-      setDraggingId(null);
-      setDraggingSourceModuleId(null);
+  const saveInlineTitle = async () => {
+    if (!editingTitle) return;
+    const db = await (await fetch('/api/db')).json();
+    if (editingTitle.type === 'course') {
+      const idx = db.courses.findIndex((c: Course) => c.id === editingTitle.id);
+      if (idx > -1) db.courses[idx].title = editingTitle.title;
+    } else {
+      const idx = db.modules.findIndex((m: Module) => m.id === editingTitle.id);
+      if (idx > -1) db.modules[idx].title = editingTitle.title;
     }
+    await saveDb(db);
+    setEditingTitle(null);
   };
 
-  const startRename = (id: string, currentTitle: string) => {
-    setEditingId(id);
-    setEditingText(currentTitle);
-  };
-
-  return (
-    <div>
-      {/* Header */}
-      <h1 className="page-title">Gerenciador de Conteúdo</h1>
-      <p className="page-subtitle">Acesso restrito para administradores. Crie módulos, aulas e recursos. Arraste e solte para ordenar. Clique duas vezes no título para renomear.</p>
-
-      {/* Course selector & Module Creation */}
-      <section className="glass-panel" style={{ padding: '20px', marginBottom: '30px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-          <div className="form-group" style={{ margin: 0, flexGrow: 1, maxWidth: '400px' }}>
-            <label className="form-label">Selecione a Masterclass / Curso</label>
-            <select 
-              className="form-input"
-              value={selectedCourseId}
-              onChange={(e) => setSelectedCourseId(e.target.value)}
-              style={{ background: 'rgba(1,1,5,0.95)' }}
-            >
-              {courses.map(c => (
-                <option key={c.id} value={c.id}>{c.title}</option>
-              ))}
-            </select>
-          </div>
-          <button 
-            onClick={() => setShowModuleModal(true)}
-            disabled={!selectedCourseId}
-            className="btn-primary" 
-            style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-          >
-            <Plus size={18} /> Novo Módulo
-          </button>
-        </div>
-      </section>
-
-      {modules.length === 0 ? (
-        <div className="glass-panel" style={{ padding: '40px', textAlign: 'center', color: 'var(--text-secondary)' }}>
-          Nenhum módulo cadastrado nesta masterclass.
-        </div>
-      ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
-          {modules.map((m, mIdx) => {
-            const moduleLessons = lessonsByModule[m.id] || [];
-            
-            // Section 4.1 Physical conflicts: Disable dragging module if we are dragging a lesson
-            const isModuleDraggable = draggingType !== 'lesson';
-
-            return (
-              <div 
-                key={m.id}
-                draggable={isModuleDraggable}
-                onDragStart={(e) => handleModuleDragStart(e, m.id)}
-                onDragOver={handleModuleDragOver}
-                onDrop={(e) => handleModuleDrop(e, m.id)}
-                className="glass-panel"
-                style={{
-                  padding: '24px',
-                  background: draggingId === m.id ? 'rgba(193,255,7,0.02)' : 'var(--bg-card)',
-                  border: draggingId === m.id ? '1px dashed var(--color-primary-lemon)' : '1px solid rgba(193, 255, 7, 0.1)',
-                  cursor: isModuleDraggable ? 'grab' : 'default'
-                }}
-              >
-                {/* Module Header */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '12px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexGrow: 1 }}>
-                    <div style={{ color: 'var(--color-primary-lemon)' }}><Move size={16} /></div>
-                    
-                    <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Módulo {mIdx + 1}:</span>
-                    
-                    {/* Inline Rename input vs DoubleClick Text */}
-                    {editingId === m.id ? (
-                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexGrow: 1 }}>
-                        <input 
-                          type="text" 
-                          className="form-input text-sm"
-                          value={editingText}
-                          onChange={(e) => setEditingText(e.target.value)}
-                          onBlur={() => handleRenameSave(m.id, 'module')}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') handleRenameSave(m.id, 'module');
-                          }}
-                          autoFocus
-                          style={{ padding: '6px 12px', width: '300px' }}
-                        />
-                        <button onClick={() => handleRenameSave(m.id, 'module')} className="outline-btn p-1 border-0" style={{ minWidth: 'auto' }}>
-                          <Check size={16} className="text-green-400" />
-                        </button>
-                      </div>
-                    ) : (
-                      <h3 
-                        onDoubleClick={() => startRename(m.id, m.title)}
-                        style={{ fontSize: '1.15rem', color: '#fff', margin: 0, cursor: 'text' }}
-                        title="Clique duas vezes para renomear"
-                      >
-                        {m.title}
-                      </h3>
-                    )}
-                  </div>
-
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Módulo</span>
-                    <button 
-                      onClick={() => { setActiveModuleForLesson(m.id); setShowLessonModal(true); }}
-                      className="outline-btn text-xs py-1 px-2"
-                      style={{ display: 'flex', alignItems: 'center', gap: '4px', borderColor: 'rgba(255,255,255,0.1)' }}
-                    >
-                      <Plus size={14} /> Aula
-                    </button>
+  // ============================================================
+  // VIEW: Masterclasses Grid
+  // ============================================================
+  const renderMasterclassesView = () => (
+    <div className="flex flex-col gap-6 animate-fade-in">
+      <div className="flex justify-between items-center mb-2">
+        <h2 className="text-xl font-bold text-text-base flex items-center gap-2">Conteúdos (Masterclasses)</h2>
+        <button 
+          onClick={() => { setCourseEditId(null); setCourseForm({ title: '', description: '', cover_image_url: '' }); setView('editCourse'); }}
+          className="btn-primary text-xs uppercase tracking-wider py-2 px-4 flex items-center gap-2"
+        >
+          <Plus size={16} /> Criar Masterclass
+        </button>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {courses.map(course => {
+          const courseModules = modules.filter(m => m.course_id === course.id);
+          return (
+            <div key={course.id} className="glass-panel hover:border-[var(--color-glass-hover-border)] transition-colors flex flex-col gap-4 group overflow-hidden">
+              {/* Thumbnail */}
+              {course.cover_image_url && (
+                <div className="h-36 overflow-hidden -m-[1px] -mt-[1px] rounded-t-[3px]">
+                  <img src={course.cover_image_url} alt={course.title} className="w-full h-full object-cover" />
+                </div>
+              )}
+              <div className="p-5 pt-0 flex flex-col gap-4 flex-grow" style={course.cover_image_url ? {} : { paddingTop: '20px' }}>
+                <div className="flex justify-between items-start">
+                  <h3 className="text-lg font-bold text-text-base leading-snug">{course.title}</h3>
+                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button onClick={() => { setCourseEditId(course.id); setCourseForm({ title: course.title, description: course.description, cover_image_url: course.cover_image_url || '' }); setView('editCourse'); }} className="p-1.5 text-text-secondary hover:text-text-base rounded bg-[var(--color-glass-bg)]"><Edit2 size={14}/></button>
+                    <button onClick={() => handleDeleteCourse(course.id)} className="p-1.5 text-red-400 hover:text-red-300 rounded bg-red-400/10"><Trash2 size={14}/></button>
                   </div>
                 </div>
-
-                {/* Lessons list inside Module */}
-                <div 
-                  onDragOver={handleLessonDragOver}
-                  onDrop={(e) => handleLessonDrop(e, m.id)}
-                  style={{
-                    background: 'rgba(0,0,0,0.15)',
-                    borderRadius: '8px',
-                    padding: '16px',
-                    minHeight: '80px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '10px'
-                  }}
+                
+                <p className="text-xs text-text-secondary line-clamp-2">{course.description}</p>
+                
+                <div className="mt-auto flex justify-between items-center pt-2">
+                  <span className="text-[11px] font-bold text-text-secondary uppercase tracking-wider">{courseModules.length} módulos</span>
+                  <span className="badge badge-lemon text-[9px] px-2 py-0.5 uppercase">Publicado</span>
+                </div>
+                
+                <button 
+                  onClick={() => { setSelectedCourse(course); setView('modules'); }}
+                  className="w-full mt-2 glass-panel glass-panel-hover text-text-base text-xs font-bold uppercase tracking-wider py-2 rounded transition-colors text-center"
                 >
-                  {moduleLessons.length === 0 ? (
-                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textAlign: 'center', padding: '10px 0' }}>
-                      Arraste aulas aqui ou crie aulas no módulo.
-                    </div>
-                  ) : (
-                    moduleLessons.map(lesson => (
-                      <div 
-                        key={lesson.id}
-                        draggable={true}
-                        onDragStart={(e) => handleLessonDragStart(e, lesson.id, m.id)}
-                        onDragOver={handleLessonDragOver}
-                        onDrop={(e) => {
-                          e.stopPropagation(); // prevent dropping over parent module drop area
-                          handleLessonDrop(e, m.id, lesson.id);
-                        }}
-                        style={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                          padding: '10px 16px',
-                          background: draggingId === lesson.id ? 'rgba(255,255,255,0.01)' : 'rgba(255,255,255,0.02)',
-                          border: draggingId === lesson.id ? '1px dashed var(--color-primary-lemon)' : '1px solid rgba(255,255,255,0.04)',
-                          borderRadius: '6px',
-                          cursor: 'grab'
-                        }}
-                      >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexGrow: 1 }}>
-                          <div style={{ color: 'var(--text-muted)' }}><Move size={14} /></div>
-                          
-                          {/* Inline Rename input vs DoubleClick Text for Lesson */}
-                          {editingId === lesson.id ? (
-                            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexGrow: 1 }}>
-                              <input 
-                                type="text" 
-                                className="form-input text-xs"
-                                value={editingText}
-                                onChange={(e) => setEditingText(e.target.value)}
-                                onBlur={() => handleRenameSave(lesson.id, 'lesson')}
-                                onKeyDown={(e) => {
-                                  if (e.key === 'Enter') handleRenameSave(lesson.id, 'lesson');
-                                }}
-                                autoFocus
-                                style={{ padding: '4px 8px', width: '250px' }}
-                              />
-                              <button onClick={() => handleRenameSave(lesson.id, 'lesson')} className="outline-btn p-1 border-0" style={{ minWidth: 'auto' }}>
-                                <Check size={14} className="text-green-400" />
-                              </button>
-                            </div>
-                          ) : (
-                            <span 
-                              onDoubleClick={() => startRename(lesson.id, lesson.title)}
-                              style={{ color: '#fff', fontSize: '0.85rem', cursor: 'text' }}
-                              title="Clique duas vezes para renomear"
-                            >
-                              {lesson.title}
-                            </span>
-                          )}
-                        </div>
+                  Gerenciar Conteúdo
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
 
-                        <div style={{ display: 'flex', gap: '15px', fontSize: '0.75rem', color: 'var(--text-muted)', alignItems: 'center' }}>
-                          <span className="flex items-center gap-1"><Clock size={12} /> {lesson.duration}</span>
-                          <span className="flex items-center gap-1"><User size={12} /> {lesson.instructor_name || 'N/A'}</span>
-                          <button 
-                            onClick={() => openResourceModal(lesson.id)}
-                            className="p-1 rounded bg-white/5 hover:bg-white/10 transition-colors text-white"
-                            title="Gerenciar Recursos"
-                          >
-                            <Paperclip size={14} />
-                          </button>
+  // ============================================================
+  // VIEW: Edit/Create Course (Full Page)
+  // ============================================================
+  const renderCourseEditor = () => (
+    <div className="flex flex-col gap-6 animate-fade-in max-w-3xl mx-auto w-full">
+      <div className="flex flex-col gap-1">
+        <div className="text-[10px] text-text-secondary font-bold uppercase tracking-widest flex items-center gap-2 mb-2">
+          <button onClick={() => setView('masterclasses')} className="hover:text-text-base flex items-center gap-1 transition-colors">
+            <ArrowLeft size={12} /> VOLTAR
+          </button>
+          <span>/</span>
+          <span>MASTERCLASSES</span>
+        </div>
+        <h1 className="text-2xl font-extrabold text-text-base">{courseEditId ? 'Editar Masterclass' : 'Nova Masterclass'}</h1>
+        <p className="text-xs text-text-secondary">Defina o título, descrição e imagem de capa da masterclass.</p>
+      </div>
+
+      <div className="glass-panel p-8 flex flex-col gap-6">
+        <FormField label="Título da Masterclass *">
+          <input type="text" className={inputClass} value={courseForm.title} onChange={e => setCourseForm({...courseForm, title: e.target.value})} placeholder="Ex: Marketing Estratégico de Alta Performance" />
+        </FormField>
+
+        <FormField label="Descrição">
+          <textarea className={`${inputClass} min-h-[120px] resize-y`} value={courseForm.description} onChange={e => setCourseForm({...courseForm, description: e.target.value})} placeholder="Uma breve descrição sobre o conteúdo desta masterclass..." />
+        </FormField>
+
+        <FormField label="Imagem de Capa (Thumbnail)">
+          {courseForm.cover_image_url ? (
+            <div className="relative w-full h-[200px] rounded-lg border border-[var(--color-glass-border)] overflow-hidden">
+              <img src={courseForm.cover_image_url} alt="Capa" className="w-full h-full object-cover" />
+              <button onClick={() => setCourseForm({...courseForm, cover_image_url: ''})} className="absolute top-3 right-3 w-8 h-8 rounded bg-black/60 border border-white/10 flex items-center justify-center text-red-400 hover:bg-red-400/20 transition-colors">
+                <Trash2 size={14} />
+              </button>
+            </div>
+          ) : null}
+          <label className="mt-2 border border-dashed border-[var(--color-input-border)] rounded-lg p-6 flex flex-col items-center justify-center gap-2 hover:bg-[var(--color-glass-hover-bg)] transition-colors cursor-pointer text-text-secondary hover:text-text-base">
+            <Upload size={24} />
+            <span className="text-xs font-bold">Arraste ou clique para subir a imagem de capa</span>
+            <input type="file" className="hidden" accept="image/*" onChange={e => {
+              const file = e.target.files?.[0];
+              if (file) setCourseForm({...courseForm, cover_image_url: URL.createObjectURL(file)});
+            }} />
+          </label>
+        </FormField>
+
+        <div className="flex items-center gap-4 mt-6 pt-6 border-t border-[var(--color-glass-border)]">
+          <button onClick={() => setView('masterclasses')} className="flex-1 glass-panel text-text-base text-xs font-bold uppercase tracking-widest py-4 rounded transition-colors text-center hover:bg-[var(--color-glass-hover-bg)]">
+            Cancelar
+          </button>
+          <button onClick={handleSaveCourse} disabled={!courseForm.title.trim()} className="flex-1 btn-primary text-xs font-bold uppercase tracking-widest py-4 rounded disabled:opacity-40">
+            {courseEditId ? 'Salvar Alterações' : 'Criar Masterclass'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  // ============================================================
+  // VIEW: Modules & Lessons Accordion
+  // ============================================================
+  const renderModulesView = () => {
+    if (!selectedCourse) return null;
+    const courseModules = modules.filter(m => m.course_id === selectedCourse.id);
+    
+    return (
+      <div className="flex flex-col gap-6 animate-fade-in max-w-5xl mx-auto w-full">
+        <div className="flex justify-between items-center glass-panel p-4">
+          <div className="flex items-center gap-3">
+            <button onClick={() => setView('masterclasses')} className="text-text-secondary hover:text-text-base p-1 rounded transition-colors">
+              <ArrowLeft size={20} />
+            </button>
+            <h2 className="text-lg font-bold text-text-base">Módulos da Masterclass</h2>
+          </div>
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={() => { setModuleEditId(null); setModuleForm({ title: '', description: '', cover_image_url: '' }); setView('editModule'); }}
+              className="btn-primary text-xs uppercase tracking-wider px-3 py-1.5 flex items-center gap-2"
+            >
+              <Plus size={14} /> Criar Módulo
+            </button>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-3">
+          {courseModules.map((module) => {
+            const moduleLessons = lessons.filter(l => l.module_id === module.id);
+            return (
+              <div key={module.id} className="glass-panel overflow-hidden flex flex-col group/module">
+                <div className="p-4 flex items-center justify-between border-b border-transparent group-hover/module:border-[var(--color-glass-border)] transition-colors">
+                  <div className="flex items-center gap-3">
+                    <GripVertical size={16} className="text-text-muted cursor-grab" />
+                    <h3 className="text-sm font-bold text-text-base m-0">{module.title}</h3>
+                  </div>
+                  
+                  <div className="flex items-center gap-3">
+                    <span className="text-[10px] uppercase tracking-wider text-green-400 font-bold px-2 py-0.5 rounded border border-green-400/20 bg-green-400/10">Publicado</span>
+                    <span className="text-[10px] font-bold text-text-secondary bg-[var(--color-glass-bg)] px-2 py-0.5 rounded">{moduleLessons.length} conteúdos</span>
+                    <div className="flex items-center gap-1">
+                      <button onClick={() => { setModuleEditId(module.id); setModuleForm({ title: module.title, description: module.description || '', cover_image_url: module.cover_image_url || '' }); setView('editModule'); }} className="p-1.5 text-text-secondary hover:text-text-base rounded hover:bg-[var(--color-glass-hover-bg)] transition-colors"><Edit2 size={14}/></button>
+                      <button onClick={() => handleDeleteModule(module.id)} className="p-1.5 text-red-400/70 hover:text-red-400 rounded hover:bg-red-400/10 transition-colors"><Trash2 size={14}/></button>
+                    </div>
+                    <ChevronUp size={18} className="text-text-secondary ml-2" />
+                  </div>
+                </div>
+                
+                <div className="flex flex-col">
+                  {moduleLessons.map((lesson, lIdx) => (
+                    <div key={lesson.id} className="flex items-center justify-between p-3 px-6 border-t border-[var(--color-glass-border)] hover:bg-[var(--color-glass-hover-bg)] transition-colors group/lesson">
+                      <div className="flex items-center gap-3 pl-6">
+                        <GripVertical size={14} className="text-text-muted opacity-0 group-hover/lesson:opacity-100 cursor-grab transition-opacity" />
+                        <span className="text-xs text-text-base">{String(lIdx + 1).padStart(2, '0')} - {lesson.title}</span>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <span className="text-[9px] uppercase tracking-wider text-green-400/70 font-bold">Publicado</span>
+                        <div className="flex items-center gap-1 opacity-0 group-hover/lesson:opacity-100 transition-opacity">
+                          <button onClick={() => { setLessonForm(lesson); setView('lesson'); }} className="p-1 text-text-secondary hover:text-text-base rounded hover:bg-[var(--color-glass-hover-bg)]"><Edit2 size={12}/></button>
+                          <button onClick={() => handleDeleteLesson(lesson.id)} className="p-1 text-red-400/50 hover:text-red-400 rounded hover:bg-red-400/10"><Trash2 size={12}/></button>
                         </div>
                       </div>
-                    ))
-                  )}
+                    </div>
+                  ))}
+                  
+                  <div className="p-3 px-6 border-t border-[var(--color-glass-border)]">
+                    <button 
+                      onClick={() => {
+                        setLessonForm({ id: crypto.randomUUID(), module_id: module.id, title: '', duration: '', instructor_name: '', video_url: '', cover_image_url: '', sequence_order: moduleLessons.length, is_published: false, description: '' });
+                        setView('lesson');
+                      }}
+                      className="w-6 h-6 rounded-full border border-[var(--color-input-border)] flex items-center justify-center text-text-secondary hover:text-text-base hover:border-text-base transition-all ml-12"
+                    >
+                      <Plus size={14} />
+                    </button>
+                  </div>
                 </div>
               </div>
             );
           })}
         </div>
-      )}
+      </div>
+    );
+  };
 
-      {/* --- MODALS --- */}
-      
-      {/* Module Modal */}
-      {showModuleModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-[#12131a] border border-white/10 p-6 rounded-lg max-w-md w-full shadow-2xl">
-            <h3 className="text-xl font-outfit font-bold text-white mb-4">Novo Módulo</h3>
-            <div className="flex flex-col gap-4">
-              <div className="form-group mb-0">
-                <label className="form-label">Título do Módulo</label>
-                <input 
-                  type="text" 
-                  className="form-input" 
-                  value={newModuleTitle} 
-                  onChange={e => setNewModuleTitle(e.target.value)} 
-                  placeholder="Ex: Introdução ao Mercado"
-                  autoFocus
-                />
+  // ============================================================
+  // VIEW: Edit/Create Module (Full Page)
+  // ============================================================
+  const renderModuleEditor = () => (
+    <div className="flex flex-col gap-6 animate-fade-in max-w-3xl mx-auto w-full">
+      <div className="flex flex-col gap-1">
+        <div className="text-[10px] text-text-secondary font-bold uppercase tracking-widest flex items-center gap-2 mb-2">
+          <button onClick={() => setView('modules')} className="hover:text-text-base flex items-center gap-1 transition-colors">
+            <ArrowLeft size={12} /> VOLTAR
+          </button>
+          <span>/</span>
+          <span>MÓDULOS</span>
+        </div>
+        <h1 className="text-2xl font-extrabold text-text-base">{moduleEditId ? 'Editar Módulo' : 'Novo Módulo'}</h1>
+        <p className="text-xs text-text-secondary">Configure título, descrição e thumbnail do módulo.</p>
+      </div>
+
+      <div className="glass-panel p-8 flex flex-col gap-6">
+        <FormField label="Título do Módulo *">
+          <input type="text" className={inputClass} value={moduleForm.title} onChange={e => setModuleForm({...moduleForm, title: e.target.value})} placeholder="Ex: Funis de Vendas e Aquisição de Clientes" />
+        </FormField>
+
+        <FormField label="Descrição">
+          <textarea className={`${inputClass} min-h-[100px] resize-y`} value={moduleForm.description} onChange={e => setModuleForm({...moduleForm, description: e.target.value})} placeholder="Breve descrição do conteúdo abordado neste módulo..." />
+        </FormField>
+
+        <FormField label="Imagem de Capa (Thumbnail)">
+          {moduleForm.cover_image_url ? (
+            <div className="relative w-full h-[200px] rounded-lg border border-[var(--color-glass-border)] overflow-hidden">
+              <img src={moduleForm.cover_image_url} alt="Capa" className="w-full h-full object-cover" />
+              <button onClick={() => setModuleForm({...moduleForm, cover_image_url: ''})} className="absolute top-3 right-3 w-8 h-8 rounded bg-black/60 border border-white/10 flex items-center justify-center text-red-400 hover:bg-red-400/20 transition-colors">
+                <Trash2 size={14} />
+              </button>
+            </div>
+          ) : null}
+          <label className="mt-2 border border-dashed border-[var(--color-input-border)] rounded-lg p-6 flex flex-col items-center justify-center gap-2 hover:bg-[var(--color-glass-hover-bg)] transition-colors cursor-pointer text-text-secondary hover:text-text-base">
+            <Upload size={24} />
+            <span className="text-xs font-bold">Arraste ou clique para subir a imagem</span>
+            <input type="file" className="hidden" accept="image/*" onChange={e => {
+              const file = e.target.files?.[0];
+              if (file) setModuleForm({...moduleForm, cover_image_url: URL.createObjectURL(file)});
+            }} />
+          </label>
+        </FormField>
+
+        <FormField label="Status de Publicação">
+          <div className="relative">
+            <select className={selectClass}>
+              <option>Publicado</option>
+              <option>Rascunho</option>
+            </select>
+            <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-text-secondary pointer-events-none" />
+          </div>
+        </FormField>
+
+        <div className="flex items-center gap-4 mt-6 pt-6 border-t border-[var(--color-glass-border)]">
+          <button onClick={() => setView('modules')} className="flex-1 glass-panel text-text-base text-xs font-bold uppercase tracking-widest py-4 rounded transition-colors text-center hover:bg-[var(--color-glass-hover-bg)]">
+            Cancelar
+          </button>
+          <button onClick={handleSaveModule} disabled={!moduleForm.title.trim()} className="flex-1 btn-primary text-xs font-bold uppercase tracking-widest py-4 rounded disabled:opacity-40">
+            {moduleEditId ? 'Salvar Alterações' : 'Criar Módulo'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  // ============================================================
+  // VIEW: Lesson Editor (Full Page)
+  // ============================================================
+  const renderLessonEditor = () => (
+    <div className="flex flex-col gap-6 animate-fade-in max-w-4xl mx-auto w-full">
+      <div className="flex flex-col gap-1">
+        <div className="text-[10px] text-text-secondary font-bold uppercase tracking-widest flex items-center gap-2 mb-2">
+          <button onClick={() => setView('modules')} className="hover:text-text-base flex items-center gap-1 transition-colors">
+            <ArrowLeft size={12} /> PAINEL DE CONTROLE
+          </button>
+          <span>/</span>
+          <span>GESTÃO E ESTRUTURAÇÃO</span>
+          <span>/</span>
+          <span>AULA</span>
+        </div>
+        <h1 className="text-2xl font-extrabold text-text-base">Administrar Aula</h1>
+        <p className="text-xs text-text-secondary">Edite informações básicas, faça upload de vídeos, insira a capa e anexe arquivos de apoio para os alunos.</p>
+      </div>
+
+      <div className="glass-panel p-8 flex flex-col gap-6">
+        <FormField label="Título da Aula">
+          <input type="text" className={inputClass} value={lessonForm.title} onChange={e => setLessonForm({...lessonForm, title: e.target.value})} placeholder="Ex: Introdução" />
+        </FormField>
+
+        <FormField label="Descrição / Conteúdo">
+          <textarea className={`${inputClass} min-h-[120px] resize-y`} value={lessonForm.description || ''} onChange={e => setLessonForm({...lessonForm, description: e.target.value})} placeholder="Descreva o que será abordado nesta aula..." />
+        </FormField>
+
+        <FormField label="Vídeo da Aula">
+          <div className="border border-[var(--color-input-border)] rounded-md p-4 flex items-center justify-between bg-[var(--color-input-bg)]">
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded bg-[#C1FF07]/10 flex items-center justify-center text-[#C1FF07]">
+                <Video size={20} />
               </div>
-              <div className="form-group mb-0">
-                <label className="form-label">Descrição (Opcional)</label>
-                <textarea 
-                  className="form-input" 
-                  value={newModuleDesc} 
-                  onChange={e => setNewModuleDesc(e.target.value)} 
-                  placeholder="Descreva o que será ensinado neste módulo..."
-                  rows={3}
-                />
+              <div className="flex flex-col">
+                <span className="text-sm font-bold text-text-base">Vídeo Mux Ativo</span>
+                <span className="text-[10px] text-text-secondary">Playback ID: {lessonForm.video_url || 'Tbg2ci48M5K4saY...'}</span>
               </div>
             </div>
-            <div className="flex justify-end gap-3 mt-6">
-              <button onClick={() => setShowModuleModal(false)} className="outline-btn text-sm">Cancelar</button>
-              <button onClick={handleCreateModule} className="btn-primary text-sm">Salvar Módulo</button>
+            <button className="outline-btn text-[10px] font-bold uppercase tracking-widest px-4 py-2.5 flex items-center gap-2">
+              <Trash2 size={12} /> Substituir Vídeo
+            </button>
+          </div>
+        </FormField>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <FormField label="Status de Publicação">
+            <div className="relative">
+              <select className={selectClass}>
+                <option>Publicado</option>
+                <option>Rascunho</option>
+              </select>
+              <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-text-secondary pointer-events-none" />
             </div>
+          </FormField>
+          
+          <FormField label="Instrutor">
+            <div className="relative">
+              <select className={selectClass} value={lessonForm.instructor_name} onChange={e => setLessonForm({...lessonForm, instructor_name: e.target.value})}>
+                <option>Eng. Magno Santos</option>
+                <option>Gabriel Evangelista</option>
+              </select>
+              <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-text-secondary pointer-events-none" />
+            </div>
+          </FormField>
+        </div>
+
+        <FormField label="Imagem de Capa (Thumbnail)">
+          <div className="relative w-full h-[200px] rounded-lg border border-[var(--color-glass-border)] overflow-hidden bg-black/40 group">
+            <img src={lessonForm.cover_image_url || 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&q=80'} alt="Capa" className="w-full h-full object-cover opacity-60" />
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <h2 className="text-4xl font-extrabold text-white uppercase tracking-tight">{lessonForm.title || 'INTRODUÇÃO'}</h2>
+            </div>
+            <button onClick={() => setLessonForm({...lessonForm, cover_image_url: ''})} className="absolute top-4 right-4 w-8 h-8 rounded bg-black/60 border border-white/10 flex items-center justify-center text-red-400 hover:bg-red-400/20 transition-colors">
+              <Trash2 size={14} />
+            </button>
+          </div>
+          
+          <label className="mt-2 border border-dashed border-[var(--color-input-border)] rounded-lg p-6 flex flex-col items-center justify-center gap-2 hover:bg-[var(--color-glass-hover-bg)] transition-colors cursor-pointer text-text-secondary hover:text-text-base">
+            <ImageIcon size={24} />
+            <span className="text-xs font-bold">Arraste ou clique para subir a imagem de capa</span>
+            <input type="file" className="hidden" accept="image/*" onChange={e => {
+              const file = e.target.files?.[0];
+              if (file) setLessonForm({...lessonForm, cover_image_url: URL.createObjectURL(file)});
+            }} />
+          </label>
+        </FormField>
+
+        <div className="flex flex-col gap-3 mt-4">
+          <div className="flex justify-between items-center border-b border-[var(--color-glass-border)] pb-3">
+            <label className="text-[10px] font-bold text-text-secondary uppercase tracking-widest">Recursos Anexados (Arquivos / Planilhas)</label>
+            <button className="outline-btn text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 flex items-center gap-1.5">
+              <Plus size={12} /> Anexar Novo Recurso
+            </button>
+          </div>
+          <div className="glass-panel p-8 flex items-center justify-center text-xs text-text-secondary">
+            Nenhum arquivo ou recurso de apoio anexado a esta aula.
           </div>
         </div>
-      )}
 
-      {/* Lesson Modal */}
-      {showLessonModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-[#12131a] border border-white/10 p-6 rounded-lg max-w-lg w-full shadow-2xl">
-            <h3 className="text-xl font-outfit font-bold text-white mb-4">Nova Aula</h3>
-            <div className="flex flex-col gap-4">
-              <div className="form-group mb-0">
-                <label className="form-label">Título da Aula</label>
-                <input 
-                  type="text" 
-                  className="form-input" 
-                  value={newLessonData.title} 
-                  onChange={e => setNewLessonData({...newLessonData, title: e.target.value})} 
-                  placeholder="Ex: Aula 1 - O Mindset Vencedor"
-                  autoFocus
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="form-group mb-0">
-                  <label className="form-label">Duração</label>
-                  <input 
-                    type="text" 
-                    className="form-input" 
-                    value={newLessonData.duration} 
-                    onChange={e => setNewLessonData({...newLessonData, duration: e.target.value})} 
-                    placeholder="Ex: 15:30"
-                  />
-                </div>
-                <div className="form-group mb-0">
-                  <label className="form-label">Nome do Instrutor</label>
-                  <input 
-                    type="text" 
-                    className="form-input" 
-                    value={newLessonData.instructor_name} 
-                    onChange={e => setNewLessonData({...newLessonData, instructor_name: e.target.value})} 
-                    placeholder="Ex: João Silva"
-                  />
-                </div>
-              </div>
-              <div className="form-group mb-0">
-                <label className="form-label">URL do Vídeo</label>
-                <input 
-                  type="text" 
-                  className="form-input" 
-                  value={newLessonData.video_url} 
-                  onChange={e => setNewLessonData({...newLessonData, video_url: e.target.value})} 
-                  placeholder="https://vimeo.com/..."
-                />
-              </div>
-            </div>
-            <div className="flex justify-end gap-3 mt-6">
-              <button onClick={() => setShowLessonModal(false)} className="outline-btn text-sm">Cancelar</button>
-              <button onClick={handleCreateLesson} className="btn-primary text-sm">Salvar Aula</button>
-            </div>
-          </div>
+        <div className="flex items-center gap-4 mt-6 pt-6 border-t border-[var(--color-glass-border)]">
+          <button onClick={() => setView('modules')} className="flex-1 glass-panel text-text-base text-xs font-bold uppercase tracking-widest py-4 rounded transition-colors text-center hover:bg-[var(--color-glass-hover-bg)]">
+            Cancelar
+          </button>
+          <button onClick={handleSaveLesson} className="flex-1 btn-primary text-xs font-bold uppercase tracking-widest py-4 rounded">
+            Salvar Alterações
+          </button>
         </div>
-      )}
+      </div>
+    </div>
+  );
 
-      {/* Resource Modal */}
-      {showResourceModal && (
-        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-[#12131a] border border-white/10 rounded-lg max-w-2xl w-full flex flex-col max-h-[85vh]">
-            <div className="flex justify-between items-center p-6 border-b border-white/10">
-              <h3 className="text-xl font-outfit font-bold text-white flex items-center gap-2"><Paperclip size={20}/> Recursos da Aula</h3>
-              <button onClick={() => setShowResourceModal(false)} className="text-white/50 hover:text-white transition-colors"><X size={20}/></button>
+  // ============================================================
+  // MAIN RENDER
+  // ============================================================
+  return (
+    <div className="flex flex-col w-full">
+      {/* Top Admin Navigation Tabs */}
+      <div>
+        <h1 className="text-2xl font-bold mb-2">Painel Administrativo</h1>
+        <p className="text-sm text-text-secondary mb-6">Gerencie as masterclasses, faça upload de recursos/planilhas e agende mentorias.</p>
+        
+        <div className="flex items-center gap-6 border-b border-[var(--color-glass-border)] overflow-x-auto scrollbar-none">
+          <button className="text-text-base border-b-2 border-primary-lemon pb-3 -mb-[2px] text-[10px] font-bold uppercase tracking-widest flex items-center gap-2">
+            <GraduationCap size={14} /> Masterclasses
+          </button>
+          <Link href="/admin/membros" className="text-text-secondary hover:text-text-base pb-3 text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 transition-colors">
+            <Users size={14} /> Mentorados
+          </Link>
+          <button className="text-text-secondary hover:text-text-base pb-3 text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 transition-colors">
+            <MessageSquare size={14} /> Comentários
+          </button>
+          <button className="text-text-secondary hover:text-text-base pb-3 text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 transition-colors">
+            <UserPlus size={14} /> Cadastrar Usuário
+          </button>
+          <Link href="/admin/ecossistema" className="text-text-secondary hover:text-text-base pb-3 text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 transition-colors">
+            <Box size={14} /> Ecossistema
+          </Link>
+        </div>
+      </div>
+
+      <div className="mt-6">
+        {isLoading ? (
+          <div className="flex items-center justify-center py-20 text-text-secondary">Carregando conteúdos...</div>
+        ) : (
+          <>
+            {view === 'masterclasses' && renderMasterclassesView()}
+            {view === 'editCourse' && renderCourseEditor()}
+            {view === 'modules' && renderModulesView()}
+            {view === 'editModule' && renderModuleEditor()}
+            {view === 'lesson' && renderLessonEditor()}
+          </>
+        )}
+      </div>
+
+      {/* Custom Confirm Dialog */}
+      {confirmDialog && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-5" onClick={() => setConfirmDialog(null)}>
+          <div className="modal-card max-w-[420px] w-full p-6 flex flex-col gap-5" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-red-400/10 flex items-center justify-center text-red-400 flex-shrink-0">
+                <AlertTriangle size={20} />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-text-base">Confirmar Exclusão</h3>
+                <p className="text-xs text-text-secondary mt-1">{confirmDialog.message}</p>
+              </div>
             </div>
-            
-            <div className="p-6 overflow-y-auto flex-grow flex flex-col gap-6">
-              {/* Add form */}
-              <div className="bg-white/5 p-4 rounded-lg border border-white/10 flex flex-col gap-4">
-                <h4 className="text-sm font-bold text-white uppercase tracking-wider">Adicionar Novo Recurso</h4>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="form-group mb-0">
-                    <label className="form-label text-xs">Título / Nome</label>
-                    <input 
-                      type="text" 
-                      className="form-input text-sm" 
-                      value={newResourceData.title} 
-                      onChange={e => setNewResourceData({...newResourceData, title: e.target.value})} 
-                      placeholder="Ex: Planilha de Apoio"
-                    />
-                  </div>
-                  <div className="form-group mb-0">
-                    <label className="form-label text-xs">Tipo</label>
-                    <select 
-                      className="form-input text-sm bg-[#12131a]" 
-                      value={newResourceData.category}
-                      onChange={e => setNewResourceData({...newResourceData, category: e.target.value as any})}
-                    >
-                      <option value="document">Documento (PDF/Doc)</option>
-                      <option value="spreadsheet">Planilha</option>
-                      <option value="presentation">Apresentação</option>
-                      <option value="other">Outro Link</option>
-                    </select>
-                  </div>
-                </div>
-                <div className="form-group mb-0">
-                  <label className="form-label text-xs">URL / Link do Arquivo</label>
-                  <div className="flex gap-2">
-                    <input 
-                      type="text" 
-                      className="form-input text-sm flex-grow" 
-                      value={newResourceData.file_url} 
-                      onChange={e => setNewResourceData({...newResourceData, file_url: e.target.value})} 
-                      placeholder="https://..."
-                    />
-                    <button onClick={handleCreateResource} className="btn-primary text-sm whitespace-nowrap">Adicionar</button>
-                  </div>
-                </div>
-              </div>
-
-              {/* List */}
-              <div className="flex flex-col gap-2">
-                <h4 className="text-sm font-bold text-white uppercase tracking-wider mb-2">Recursos Atuais ({lessonResources.length})</h4>
-                {lessonResources.length === 0 ? (
-                  <div className="text-sm text-white/50 text-center p-4 border border-white/5 rounded-lg border-dashed">
-                    Nenhum recurso cadastrado nesta aula.
-                  </div>
-                ) : (
-                  lessonResources.map(r => (
-                    <div key={r.id} className="flex justify-between items-center p-3 bg-white/5 border border-white/5 rounded">
-                      <div className="flex flex-col">
-                        <span className="text-sm font-semibold text-white">{r.title}</span>
-                        <span className="text-xs text-white/40">{r.category === 'document' ? 'Documento' : r.category === 'spreadsheet' ? 'Planilha' : r.category === 'presentation' ? 'Apresentação' : 'Outro'} • <a href={r.file_url} target="_blank" className="hover:underline">{r.file_url}</a></span>
-                      </div>
-                      <button onClick={() => handleDeleteResource(r.id)} className="p-2 text-red-400 hover:text-red-300 hover:bg-red-400/10 rounded transition-colors" title="Excluir recurso">
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  ))
-                )}
-              </div>
+            <div className="flex items-center gap-3 pt-2">
+              <button onClick={() => setConfirmDialog(null)} className="flex-1 glass-panel text-text-base text-xs font-bold uppercase tracking-widest py-3 rounded transition-colors text-center hover:bg-[var(--color-glass-hover-bg)]">
+                Cancelar
+              </button>
+              <button onClick={confirmDialog.onConfirm} className="flex-1 bg-red-500 hover:bg-red-600 text-white text-xs font-bold uppercase tracking-widest py-3 rounded transition-colors">
+                Excluir
+              </button>
             </div>
           </div>
         </div>

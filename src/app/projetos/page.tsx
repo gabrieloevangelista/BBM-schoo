@@ -108,14 +108,14 @@ export default function ProjetosPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-3xl font-extrabold text-white tracking-tight font-outfit">Simulador de ROI & Templates</h1>
+      <h1 className="text-3xl font-extrabold text-text-base tracking-tight font-outfit">Simulador de ROI & Templates</h1>
       <p className="text-text-secondary text-sm font-medium leading-normal -mt-3 max-w-2xl">
         Acesse ferramentas de prospecção e simule o escalonamento do seu faturamento mensal com base nas métricas de conversão do seu funil.
       </p>
 
       {/* Simulator Section */}
       <section className="glass-panel p-6 md:p-8 flex flex-col gap-5 bg-gradient-to-br from-primary-lemon/2 to-transparent">
-        <h2 className="text-lg font-bold text-white flex items-center gap-2.5 font-outfit">
+        <h2 className="text-lg font-bold text-text-base flex items-center gap-2.5 font-outfit">
           <Calculator size={22} className="text-primary-lemon" />
           <span>Simulador de Escalonamento e Vendas B2B</span>
         </h2>
@@ -126,7 +126,7 @@ export default function ProjetosPage() {
             <div className="flex flex-col gap-2">
               <label className="text-xs text-text-secondary font-medium font-outfit flex justify-between">
                 <span>Verba de Tráfego Mensal</span>
-                <span className="text-white font-semibold">{formatCurrency(verbaTrafego)}</span>
+                <span className="text-text-base font-semibold">{formatCurrency(verbaTrafego)}</span>
               </label>
               <input 
                 type="range" 
@@ -146,7 +146,7 @@ export default function ProjetosPage() {
             <div className="flex flex-col gap-2">
               <label className="text-xs text-text-secondary font-medium font-outfit flex justify-between">
                 <span>Ticket Médio do Produto/Serviço</span>
-                <span className="text-white font-semibold">{formatCurrency(ticketMedio)}</span>
+                <span className="text-text-base font-semibold">{formatCurrency(ticketMedio)}</span>
               </label>
               <input 
                 type="range" 
@@ -166,7 +166,7 @@ export default function ProjetosPage() {
             <div className="flex flex-col gap-2">
               <label className="text-xs text-text-secondary font-medium font-outfit flex justify-between">
                 <span>Custo por Lead Qualificado (CPL)</span>
-                <span className="text-white font-semibold">{formatCurrency(custoLead)}</span>
+                <span className="text-text-base font-semibold">{formatCurrency(custoLead)}</span>
               </label>
               <input 
                 type="range" 
@@ -194,11 +194,11 @@ export default function ProjetosPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-[10px] text-text-secondary uppercase tracking-wider">Leads Qualificados</p>
-                  <h4 className="text-lg font-bold text-white mt-0.5">{leadsGerados} leads</h4>
+                  <h4 className="text-lg font-bold text-text-base mt-0.5">{leadsGerados} leads</h4>
                 </div>
                 <div>
                   <p className="text-[10px] text-text-secondary uppercase tracking-wider">ROI Estimado</p>
-                  <h4 className="text-lg font-bold text-white mt-0.5">{roiClub.toFixed(1)}x</h4>
+                  <h4 className="text-lg font-bold text-text-base mt-0.5">{roiClub.toFixed(1)}x</h4>
                 </div>
               </div>
 
@@ -244,7 +244,7 @@ export default function ProjetosPage() {
       </section>
 
       {/* Blueprint Library Section */}
-      <h2 className="text-lg font-bold text-white mb-2 font-outfit mt-4">
+      <h2 className="text-lg font-bold text-text-base mb-2 font-outfit mt-4">
         Playbooks e Templates de Marketing & Vendas
       </h2>
 
@@ -270,7 +270,7 @@ export default function ProjetosPage() {
 
               <div className="p-5 flex-grow flex flex-col justify-between">
                 <div>
-                  <h3 className="text-base font-bold text-white mb-2">{project.title}</h3>
+                  <h3 className="text-base font-bold text-text-base mb-2">{project.title}</h3>
                   <p className="text-text-secondary text-xs leading-relaxed mb-4">
                     {project.description}
                   </p>

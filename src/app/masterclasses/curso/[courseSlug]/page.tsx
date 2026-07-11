@@ -125,7 +125,7 @@ export default function CourseModulesPage() {
       >
         <span className="badge badge-gold" style={{ marginBottom: '10px' }}>Curso Masterclass</span>
         <h1 style={{ fontSize: '2.2rem', color: '#fff', marginBottom: '12px', fontFamily: 'var(--font-outfit)' }}>{course.title}</h1>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', maxWidth: '600px', lineHeight: 1.6 }}>{course.description}</p>
+        <p style={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '1rem', maxWidth: '600px', lineHeight: 1.6 }}>{course.description}</p>
       </section>
 
       {/* Modules List */}
@@ -147,7 +147,7 @@ export default function CourseModulesPage() {
                     <span className="text-[10px] font-extrabold text-[#C1FF07] uppercase tracking-wider font-outfit">
                       Módulo {idx + 1}
                     </span>
-                    <h3 className="text-xl font-extrabold text-white font-outfit tracking-tight mt-1 flex items-center gap-2">
+                    <h3 className="text-xl font-extrabold font-outfit tracking-tight mt-1 flex items-center gap-2 text-text-base">
                       {m.title}
                       {m.status === 'agendado' && (
                         <span className="badge badge-red flex items-center gap-1 text-[9px] py-0.5 px-1.5 uppercase font-bold tracking-wider">
@@ -157,7 +157,7 @@ export default function CourseModulesPage() {
                     </h3>
                     <p className="text-xs text-text-secondary mt-1 max-w-xl leading-relaxed">{m.description}</p>
                   </div>
-                  <span className="text-[11px] font-bold text-white/30 uppercase font-outfit tracking-wider">
+                  <span className="text-[11px] font-bold text-text-secondary uppercase font-outfit tracking-wider">
                     {moduleLessons.length} {moduleLessons.length === 1 ? 'aula' : 'aulas'}
                   </span>
                 </div>
@@ -229,11 +229,11 @@ export default function CourseModulesPage() {
                           {/* Info & Content */}
                           <div className="p-4 flex flex-col justify-between flex-grow gap-4">
                             <div className="flex flex-col gap-1.5">
-                              <h4 className="text-sm font-extrabold text-white tracking-tight leading-snug group-hover:text-[#C1FF07] transition duration-150 text-ellipsis overflow-hidden line-clamp-1">
+                              <h4 className="text-sm font-extrabold text-text-base tracking-tight leading-snug group-hover:text-[#C1FF07] transition duration-150 text-ellipsis overflow-hidden line-clamp-1">
                                 {lesson.title}
                               </h4>
                               {lesson.description && (
-                                <p className="text-[11px] text-white/50 line-clamp-2 leading-relaxed">
+                                <p className="text-[11px] text-text-secondary line-clamp-2 leading-relaxed">
                                   {lesson.description}
                                 </p>
                               )}

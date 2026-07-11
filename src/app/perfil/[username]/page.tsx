@@ -441,7 +441,7 @@ export default function MemberProfilePage() {
         {/* Info Column */}
         <div className="flex-grow">
           <div className="flex items-center gap-3 flex-wrap">
-            <h1 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight font-outfit m-0">{profile.name}</h1>
+            <h1 className="text-2xl md:text-3xl font-extrabold text-text-base tracking-tight font-outfit m-0">{profile.name}</h1>
             <span className="badge badge-lemon text-[10px] font-bold uppercase tracking-wider">
               {profile.member_type === 'admin' ? 'Admin' : profile.member_type === 'master' ? 'Mestre' : 'Membro'}
             </span>
@@ -527,7 +527,7 @@ export default function MemberProfilePage() {
       {/* Edit Form Toggle */}
       {isEditing && isOwnProfile && (
         <section className="glass-panel p-8 mb-8">
-          <h3 className="text-lg font-bold text-white mb-6 font-outfit">Editar Minhas Informações</h3>
+          <h3 className="text-lg font-bold text-text-base mb-6 font-outfit">Editar Minhas Informações</h3>
           
           <form onSubmit={handleSaveProfile} className="flex flex-col gap-5">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -623,7 +623,7 @@ export default function MemberProfilePage() {
         <button 
           onClick={() => setActiveTab('info')} 
           className={`bg-transparent border-0 border-b-2 py-2 px-1 cursor-pointer font-semibold text-sm font-outfit transition-all duration-200 ${
-            activeTab === 'info' ? 'border-primary-lemon text-primary-lemon' : 'border-transparent text-text-secondary hover:text-white'
+            activeTab === 'info' ? 'border-primary-lemon text-primary-lemon' : 'border-transparent text-text-secondary hover:text-text-base'
           }`}
         >
           Informações
@@ -631,7 +631,7 @@ export default function MemberProfilePage() {
         <button 
           onClick={() => setActiveTab('conexoes')} 
           className={`bg-transparent border-0 border-b-2 py-2 px-1 cursor-pointer font-semibold text-sm font-outfit transition-all duration-200 ${
-            activeTab === 'conexoes' ? 'border-primary-lemon text-primary-lemon' : 'border-transparent text-text-secondary hover:text-white'
+            activeTab === 'conexoes' ? 'border-primary-lemon text-primary-lemon' : 'border-transparent text-text-secondary hover:text-text-base'
           }`}
         >
           Rede ({connections.length})
@@ -640,7 +640,7 @@ export default function MemberProfilePage() {
           <button 
             onClick={() => setActiveTab('descobrir')} 
             className={`bg-transparent border-0 border-b-2 py-2 px-1 cursor-pointer font-semibold text-sm font-outfit transition-all duration-200 ${
-              activeTab === 'descobrir' ? 'border-primary-lemon text-primary-lemon' : 'border-transparent text-text-secondary hover:text-white'
+              activeTab === 'descobrir' ? 'border-primary-lemon text-primary-lemon' : 'border-transparent text-text-secondary hover:text-text-base'
             }`}
           >
             Descobrir Membros
@@ -657,7 +657,7 @@ export default function MemberProfilePage() {
             
             {/* Bio Card */}
             <div className="glass-panel" style={{ padding: '24px' }}>
-              <h3 style={{ color: '#fff', fontSize: '1.1rem', marginBottom: '12px' }}>Sobre Mim</h3>
+              <h3 style={{ color: 'var(--color-text-base)', fontSize: '1.1rem', marginBottom: '12px' }}>Sobre Mim</h3>
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.6 }}>
                 {profile.bio || 'Este membro ainda não preencheu a biografia.'}
               </p>
@@ -665,14 +665,14 @@ export default function MemberProfilePage() {
 
             {/* Career & Sector Card */}
             <div className="glass-panel" style={{ padding: '24px' }}>
-              <h3 style={{ color: '#fff', fontSize: '1.1rem', marginBottom: '16px' }}>Atuação Profissional</h3>
+              <h3 style={{ color: 'var(--color-text-base)', fontSize: '1.1rem', marginBottom: '16px' }}>Atuação Profissional</h3>
               
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                   <div style={{ color: '#C1FF07' }}><Building size={18} /></div>
                   <div>
                     <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Empresa / Organização</p>
-                    <p style={{ fontSize: '0.85rem', color: '#fff', fontWeight: 600 }}>{profile.company || 'Não informada'}</p>
+                    <p style={{ fontSize: '0.85rem', color: 'var(--color-text-base)', fontWeight: 600 }}>{profile.company || 'Não informada'}</p>
                   </div>
                 </div>
 
@@ -680,7 +680,7 @@ export default function MemberProfilePage() {
                   <div style={{ color: '#C1FF07' }}><Compass size={18} /></div>
                   <div>
                     <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Setor / Indústria</p>
-                    <p style={{ fontSize: '0.85rem', color: '#fff', fontWeight: 600 }}>{profile.industry || 'Não informada'}</p>
+                    <p style={{ fontSize: '0.85rem', color: 'var(--color-text-base)', fontWeight: 600 }}>{profile.industry || 'Não informada'}</p>
                   </div>
                 </div>
 
@@ -738,7 +738,7 @@ export default function MemberProfilePage() {
                   )}
 
                   <div style={{ overflow: 'hidden' }}>
-                    <h4 style={{ color: '#fff', fontSize: '0.85rem', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{conn.name}</h4>
+                    <h4 style={{ color: 'var(--color-text-base)', fontSize: '0.85rem', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{conn.name}</h4>
                     <p style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {conn.role}
                     </p>
@@ -798,7 +798,7 @@ export default function MemberProfilePage() {
                         )}
 
                         <div style={{ overflow: 'hidden' }}>
-                          <h4 style={{ color: '#fff', fontSize: '0.85rem', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{member.name}</h4>
+                          <h4 style={{ color: 'var(--color-text-base)', fontSize: '0.85rem', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{member.name}</h4>
                           <p style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                             {member.role || 'Membro Elite'} em {member.company || 'BBM'}
                           </p>

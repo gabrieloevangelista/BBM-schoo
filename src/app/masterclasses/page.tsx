@@ -79,10 +79,10 @@ export default function MasterclassesPage() {
             <span className="badge badge-lemon self-start uppercase tracking-wider text-[10px] font-bold">
               Destaque BBM
             </span>
-            <h1 className="text-2xl md:text-4xl font-extrabold tracking-tight font-outfit m-0 leading-tight">
+            <h1 className="text-2xl md:text-4xl font-extrabold tracking-tight font-outfit m-0 leading-tight text-white">
               {featuredCourse.title}
             </h1>
-            <p className="text-text-secondary text-xs md:text-sm leading-relaxed max-md:hidden">
+            <p className="text-white/70 text-xs md:text-sm leading-relaxed max-md:hidden">
               {featuredCourse.description}
             </p>
 
@@ -121,7 +121,7 @@ export default function MasterclassesPage() {
               
               <div className="absolute bottom-3 left-3 right-3 z-20 flex flex-col gap-1">
                 <span className="text-[9px] text-primary-lemon font-bold uppercase tracking-wider">Curso Completo</span>
-                <h3 className="text-sm font-bold m-0 font-outfit leading-tight group-hover:text-primary-lemon transition-colors">
+                <h3 className="text-sm font-bold m-0 font-outfit leading-tight group-hover:text-primary-lemon transition-colors text-white">
                   {course.title}
                 </h3>
               </div>
@@ -169,10 +169,10 @@ export default function MasterclassesPage() {
                       <Clock size={10} />
                       <span>{lesson.duration}</span>
                     </div>
-                    <h3 className="text-xs font-bold m-0 leading-tight">
+                    <h3 className="text-xs font-bold m-0 leading-tight text-white">
                       {lesson.title}
                     </h3>
-                    <span className="text-[9px] text-text-muted mt-0.5">Instrutor: {lesson.instructor_name}</span>
+                    <span className="text-[9px] text-white/70 mt-0.5">Instrutor: {lesson.instructor_name}</span>
                   </div>
                 </Link>
               );
@@ -200,10 +200,10 @@ export default function MasterclassesPage() {
                 
                 <div className="absolute bottom-3 left-3 right-3 z-20 flex flex-col gap-1">
                   <span className="badge badge-gray text-[9px] self-start py-0.5 px-1.5">Capítulo</span>
-                  <h3 className="text-xs font-bold m-0 leading-tight mt-1 font-outfit">
+                  <h3 className="text-xs font-bold m-0 leading-tight mt-1 font-outfit text-white">
                     {mod.title}
                   </h3>
-                  <p className="text-[9px] text-text-secondary leading-normal line-clamp-2 mt-0.5">
+                  <p className="text-[9px] text-white/70 leading-normal line-clamp-2 mt-0.5">
                     {mod.description}
                   </p>
                 </div>

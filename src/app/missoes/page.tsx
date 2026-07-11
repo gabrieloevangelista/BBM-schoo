@@ -282,7 +282,7 @@ export default function StudentMissionsPage() {
               >
                 <div>
                   <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>Missão {idx + 1}</span>
-                  <h3 style={{ fontSize: '1.1rem', color: '#fff' }}>{mission.title}</h3>
+                  <h3 style={{ fontSize: '1.1rem', color: 'var(--color-text-base)' }}>{mission.title}</h3>
                 </div>
                 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
@@ -293,7 +293,7 @@ export default function StudentMissionsPage() {
 
               {/* Accordion Content Panel */}
               {isOpen && (
-                <div style={{ padding: '24px', borderTop: '1px solid rgba(255,255,255,0.05)', background: 'rgba(0,0,0,0.2)' }}>
+                <div style={{ padding: '24px', borderTop: '1px solid var(--color-glass-border)', background: 'var(--color-glass-bg)' }}>
                   <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.6, marginBottom: '24px' }}>
                     {mission.description}
                   </p>
@@ -310,7 +310,7 @@ export default function StudentMissionsPage() {
                         marginBottom: '24px'
                       }}
                     >
-                      <h4 style={{ fontSize: '0.85rem', color: '#fff', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <h4 style={{ fontSize: '0.85rem', color: 'var(--color-text-base)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
                         {submission.status === 'approved' ? 'Entrega Aprovada' : submission.status === 'rejected' ? 'Revisão Necessária' : 'Aguardando Correção'}
                       </h4>
 
@@ -334,7 +334,7 @@ export default function StudentMissionsPage() {
                   {/* Submit Form Area (Hidden if submission is approved or pending and not unlocked) */}
                   {(!submission || submission.status === 'rejected') ? (
                     <div>
-                      <h4 style={{ fontSize: '0.95rem', color: '#fff', marginBottom: '16px', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '8px' }}>
+                      <h4 style={{ fontSize: '0.95rem', color: 'var(--color-text-base)', marginBottom: '16px', borderBottom: '1px solid var(--color-glass-border)', paddingBottom: '8px' }}>
                         Enviar Minha Entrega
                       </h4>
 
@@ -423,12 +423,12 @@ export default function StudentMissionsPage() {
                   ) : (
                     // Display current submitted values for pending/approved
                     <div style={{ fontSize: '0.85rem' }}>
-                      <h4 style={{ color: '#fff', fontSize: '0.9rem', marginBottom: '12px' }}>Conteúdo da Entrega:</h4>
+                      <h4 style={{ color: 'var(--color-text-base)', fontSize: '0.9rem', marginBottom: '12px' }}>Conteúdo da Entrega:</h4>
                       
                       {submission.text_answer && (
                         <div style={{ marginBottom: '12px' }}>
                           <p style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>Resposta Textual:</p>
-                          <p style={{ color: '#fff', background: 'rgba(255,255,255,0.01)', padding: '10px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.03)', marginTop: '4px' }}>
+                          <p style={{ color: 'var(--color-text-base)', background: 'var(--color-glass-bg)', padding: '10px', borderRadius: '6px', border: '1px solid var(--color-glass-border)', marginTop: '4px' }}>
                             {submission.text_answer}
                           </p>
                         </div>

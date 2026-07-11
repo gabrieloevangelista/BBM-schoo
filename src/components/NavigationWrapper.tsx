@@ -148,7 +148,7 @@ export default function NavigationWrapper({ children }: { children: React.ReactN
     
     // Admin Settings Pages
     { label: 'Gerenciar Membros', path: '/admin/membros', icon: Users, role: 'admin' },
-    { label: 'Reordenar Conteúdo', path: '/admin/reordenacao', icon: Layers, role: 'admin' },
+    { label: 'Gerenciar Masterclasses', path: '/admin/reordenacao', icon: Layers, role: 'admin' },
     { label: 'Gerenciar Banners', path: '/admin/ecossistema', icon: Settings, role: 'admin' },
     { label: 'Gerenciar Missões', path: '/admin/missoes', icon: ClipboardList, role: 'admin' },
     
@@ -266,10 +266,10 @@ export default function NavigationWrapper({ children }: { children: React.ReactN
           )}
 
           {/* Group 2: Administration (if admin and contains admin links) */}
-          {user.member_type === 'admin' && filteredItems.some(item => ['Gerenciar Membros', 'Reordenar Conteúdo', 'Gerenciar Banners', 'Gerenciar Missões'].includes(item.label)) && (
+          {user.member_type === 'admin' && filteredItems.some(item => ['Gerenciar Membros', 'Gerenciar Masterclasses', 'Gerenciar Banners', 'Gerenciar Missões'].includes(item.label)) && (
             <div className={`pt-3 border-t flex flex-col gap-1.5 ${theme === 'light' ? 'border-black/8' : 'border-white/8'}`}>
               {sidebarExpanded && <span className={`text-[10px] font-bold tracking-wider px-3 mb-1.5 uppercase font-outfit ${theme === 'light' ? 'text-gray-400' : 'text-gray-500'}`}>Administração</span>}
-              {filteredItems.filter(item => ['Gerenciar Membros', 'Reordenar Conteúdo', 'Gerenciar Banners', 'Gerenciar Missões'].includes(item.label)).map(item => {
+              {filteredItems.filter(item => ['Gerenciar Membros', 'Gerenciar Masterclasses', 'Gerenciar Banners', 'Gerenciar Missões'].includes(item.label)).map(item => {
                 const Icon = item.icon;
                 const isActive = pathname === item.path || pathname.startsWith(item.path + '/');
                 return (

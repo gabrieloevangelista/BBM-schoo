@@ -76,7 +76,7 @@ export default function OportunidadesPage() {
     <div className="relative flex flex-col gap-6">
       
       {/* Page Header */}
-      <h1 className="text-3xl font-extrabold text-white tracking-tight font-outfit">Consultorias & Programas Avançados</h1>
+      <h1 className="text-3xl font-extrabold text-text-base tracking-tight font-outfit">Consultorias & Programas Avançados</h1>
       <p className="text-text-secondary text-sm font-medium leading-normal -mt-3 max-w-2xl">
         Acesso restrito para mentorados. Candidate-se para os programas avançados de aceleração comercial, marketing digital de performance e estruturação empresarial.
       </p>
@@ -106,7 +106,7 @@ export default function OportunidadesPage() {
                   <span className="text-[10px] text-primary-lemon font-bold uppercase tracking-wider">
                     {opp.category_label || opp.category}
                   </span>
-                  <h3 className="text-base font-bold text-white font-outfit">{opp.title}</h3>
+                  <h3 className="text-base font-bold text-text-base font-outfit">{opp.title}</h3>
                   <p className="text-text-secondary text-xs leading-relaxed mb-6">
                     {opp.description}
                   </p>
@@ -124,7 +124,7 @@ export default function OportunidadesPage() {
                     </div>
                     <div>
                       <span className="text-[9px] text-text-muted uppercase tracking-wider">Investimento</span>
-                      <p className="text-white text-sm font-bold flex items-center gap-0.5 mt-0.5">
+                      <p className="text-text-base text-sm font-bold flex items-center gap-0.5 mt-0.5">
                         <DollarSign size={14} className="text-accent-green" />
                         <span>{opp.min_investment}</span>
                       </p>
@@ -156,7 +156,7 @@ export default function OportunidadesPage() {
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-5">
           <div className="modal-card max-w-[620px] w-full max-h-[90vh] overflow-y-auto p-6 md:p-8 relative flex flex-col gap-5">
             <div className="flex justify-between items-center">
-              <h3 className="text-base font-bold text-white font-outfit">
+              <h3 className="text-base font-bold text-text-base font-outfit">
                 Diligência do Programa de Escala
               </h3>
               <button 
@@ -180,7 +180,7 @@ export default function OportunidadesPage() {
                 {selectedOpp.category_label || selectedOpp.category}
               </span>
               
-              <h2 className="text-xl font-bold text-white font-outfit mt-1">
+              <h2 className="text-xl font-bold text-text-base font-outfit mt-1">
                 {selectedOpp.title}
               </h2>
 
@@ -198,11 +198,11 @@ export default function OportunidadesPage() {
               <div className="grid grid-cols-2 gap-4 text-xs">
                 <div>
                   <p className="text-text-muted">Duração do Programa:</p>
-                  <p className="text-white font-semibold mt-0.5">6 meses (Encontros semanais)</p>
+                  <p className="text-text-base font-semibold mt-0.5">6 meses (Encontros semanais)</p>
                 </div>
                 <div>
                   <p className="text-text-muted">Vagas Disponíveis:</p>
-                  <p className="text-white font-semibold mt-0.5">5 empresas por trimestre</p>
+                  <p className="text-text-base font-semibold mt-0.5">5 empresas por trimestre</p>
                 </div>
                 <div>
                   <p className="text-text-muted">Foco Principal:</p>
@@ -210,7 +210,7 @@ export default function OportunidadesPage() {
                 </div>
                 <div>
                   <p className="text-text-muted">Investimento do Programa:</p>
-                  <p className="text-white font-semibold mt-0.5">{selectedOpp.min_investment}</p>
+                  <p className="text-text-base font-semibold mt-0.5">{selectedOpp.min_investment}</p>
                 </div>
               </div>
             </div>
