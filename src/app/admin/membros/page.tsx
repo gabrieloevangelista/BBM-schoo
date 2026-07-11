@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
+import { useSearchParams } from 'next/navigation';
 import { 
   Plus, 
   Trash2, 
@@ -16,6 +17,7 @@ import { customConfirm } from '@/components/CustomConfirm';
 
 export default function MembrosAdminPage() {
   const { user } = useAuth();
+  const searchParams = useSearchParams();
   const [members, setMembers] = useState<Member[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -43,8 +45,13 @@ export default function MembrosAdminPage() {
   useEffect(() => {
     if (user) {
       fetchMembers();
+      
+      const action = searchParams.get('action');
+      if (action === 'new') {
+        openCreateModal();
+      }
     }
-  }, [user]);
+  }, [user, searchParams]);
 
   // Toggle Member Status (Ativo / Inativo)
   const handleToggleStatus = async (id: string, currentStatus: string) => {
