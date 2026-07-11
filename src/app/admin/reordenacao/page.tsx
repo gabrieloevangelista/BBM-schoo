@@ -592,7 +592,7 @@ export default function AdminContentManager() {
         <p className="text-sm text-text-secondary mb-6">Gerencie as masterclasses, faça upload de recursos/planilhas e agende mentorias.</p>
         
         <div className="flex items-center gap-6 border-b border-[var(--color-glass-border)] overflow-x-auto scrollbar-none">
-          <button className="text-text-base border-b-2 border-primary-lemon pb-3 -mb-[2px] text-[10px] font-bold uppercase tracking-widest flex items-center gap-2">
+          <button onClick={() => setView('masterclasses')} className="text-text-base border-b-2 border-primary-lemon pb-3 -mb-[2px] text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 cursor-pointer">
             <GraduationCap size={14} /> Masterclasses
           </button>
           <Link href="/admin/membros" className="text-text-secondary hover:text-text-base pb-3 text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 transition-colors">
