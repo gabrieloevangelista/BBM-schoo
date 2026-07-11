@@ -18,9 +18,10 @@ import {
   Link as LinkIcon,
   Folder
 } from 'lucide-react';
-import { customConfirm } from '@/components/CustomConfirm';
+
 import { Mission, MissionSubmission, Member } from '@/lib/db';
 import { AdminSkeleton } from '@/components/SkeletonLoaders';
+import { customAlert, customConfirm } from '@/components/CustomConfirm';
 
 export default function MissoesAdminPage() {
   const { user } = useAuth();
@@ -89,7 +90,7 @@ export default function MissoesAdminPage() {
   const handleCreateMission = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title || !description) {
-      alert('Preencha os campos obrigatórios.');
+      customAlert('Preencha os campos obrigatórios.');
       return;
     }
 

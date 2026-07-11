@@ -27,6 +27,7 @@ import {
   Star,
   Check
 } from 'lucide-react';
+import { customAlert } from '@/components/CustomConfirm';
 import { LessonDetailSkeleton } from '@/components/SkeletonLoaders';
 import { Lesson, Resource, LessonComment, Course, Module } from '@/lib/db';
 import MuxPlayer from '@mux/mux-player-react';
@@ -265,7 +266,7 @@ export default function LessonDetailPage() {
 
     } catch (zipErr) {
       console.error('Error generating zip:', zipErr);
-      alert('Erro ao compactar arquivos. Experimente baixar um a um.');
+      customAlert('Erro ao compactar arquivos. Experimente baixar um a um.');
     } finally {
       setZipLoading(false);
     }

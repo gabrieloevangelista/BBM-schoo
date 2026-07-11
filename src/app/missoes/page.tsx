@@ -15,7 +15,8 @@ import {
   FileText
 } from 'lucide-react';
 import { MissoesSkeleton } from '@/components/SkeletonLoaders';
-import { Mission, MissionSubmission } from '@/lib/db';
+import { getMissions, getMissionSubmissions, addMissionSubmission, Mission, MissionSubmission } from '@/lib/db';
+import { customAlert } from '@/components/CustomConfirm';
 
 export default function StudentMissionsPage() {
   const { user } = useAuth();
@@ -69,7 +70,7 @@ export default function StudentMissionsPage() {
 
     // Check size limit: 100MB
     if (file.size > 100 * 1024 * 1024) {
-      alert('O arquivo excede o limite máximo de 100MB.');
+      customAlert('O arquivo excede o limite máximo de 100MB.');
       return;
     }
 
@@ -94,7 +95,7 @@ export default function StudentMissionsPage() {
         [missionId]: { url: data.file_url, name: data.file_name } 
       }));
     } catch (err: any) {
-      alert(err.message || 'Erro ao realizar upload do arquivo.');
+      customAlert(err.message || 'Erro ao realizar upload do arquivo.');
     } finally {
       setUploadingState(prev => ({ ...prev, [missionId]: false }));
     }
@@ -108,15 +109,15 @@ export default function StudentMissionsPage() {
 
     // Validations
     if (mission.has_text_question && !textAnswer.trim()) {
-      alert('Por favor, preencha a resposta textual.');
+      customAlert('Por favor, preencha a resposta textual.');
       return;
     }
     if (mission.has_form_link && !formLink.trim()) {
-      alert('Por favor, insira o link do formulário entregue.');
+      customAlert('Por favor, insira o link do formulário entregue.');
       return;
     }
     if (mission.has_file_upload && !file) {
-      alert('Por favor, anexe o arquivo solicitado.');
+      customAlert('Por favor, anexe o arquivo solicitado.');
       return;
     }
 
@@ -130,7 +131,7 @@ export default function StudentMissionsPage() {
           (s: any) => s.mission_id === mission.id && s.student_id === user?.id
         );
         if (existing && existing.status === 'approved') {
-          alert('Esta missão já foi aprovada e não pode ser reenviada.');
+          customAlert('Esta missão já foi aprovada e não pode ser reenviada.');
           return;
         }
 

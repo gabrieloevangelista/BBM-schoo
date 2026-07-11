@@ -15,8 +15,10 @@ import {
   Clock, 
   User,
   X,
-  RefreshCw
+  RefreshCw,
+  Link as LinkIcon
 } from 'lucide-react';
+import { customAlert, customConfirm } from '@/components/CustomConfirm';
 import { CalendarEvent } from '@/lib/db';
 
 export default function CalendarioPage() {
@@ -100,7 +102,7 @@ export default function CalendarioPage() {
   const handleAddEvent = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTitle || !selectedDateStr || !newStartTime || !newEndTime) {
-      alert('Preencha os campos obrigatórios.');
+      customAlert('Preencha os campos obrigatórios.');
       return;
     }
 

@@ -15,7 +15,7 @@ import {
   CheckCircle,
   ExternalLink
 } from 'lucide-react';
-import { customConfirm } from '@/components/CustomConfirm';
+import { customConfirm, customAlert } from '@/components/CustomConfirm';
 import { EcosystemBanner } from '@/lib/db';
 import Switch from '@/components/Switch';
 import { AdminSkeleton } from '@/components/SkeletonLoaders';
@@ -208,7 +208,7 @@ export default function EcossistemaBannersAdminPage() {
   const handleSaveBanner = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title || !image || !ctaText || !ctaLink) {
-      alert('Por favor, preencha os campos obrigatórios.');
+      customAlert('Por favor, preencha os campos obrigatórios.');
       return;
     }
 

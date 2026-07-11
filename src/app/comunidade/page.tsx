@@ -23,6 +23,7 @@ import {
   HelpCircle
 } from 'lucide-react';
 import { CommunityPost, CommunityComment, CommentReply, Member, MemberConnection } from '@/lib/db';
+import { customAlert } from '@/components/CustomConfirm';
 import { ComunidadeSkeleton } from '@/components/SkeletonLoaders';
 
 export default function ComunidadePage() {
@@ -570,7 +571,7 @@ export default function ComunidadePage() {
                 setContent('');
                 setMediaUrl('');
                 // Alert user to use creator below
-                alert('Escreva o conteúdo no publicador abaixo e selecione "Status / Story" para criar!');
+                customAlert('Escreva o conteúdo no publicador abaixo e selecione "Status / Story" para criar!');
               }}
             >
               <div style={{ width: '56px', height: '56px', borderRadius: '50%', border: '2px dashed var(--color-text-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-secondary)' }}>

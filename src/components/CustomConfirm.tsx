@@ -8,7 +8,7 @@ interface ConfirmModalProps {
   title: string;
   message: string;
   onConfirm: () => void;
-  onCancel: () => void;
+  onCancel?: () => void; // Optional for alerts
 }
 
 function ConfirmModal({ title, message, onConfirm, onCancel }: ConfirmModalProps) {
@@ -39,13 +39,15 @@ function ConfirmModal({ title, message, onConfirm, onCancel }: ConfirmModalProps
               {title}
             </h3>
           </div>
-          <button 
-            onClick={onCancel}
-            className="p-1 bg-transparent border-0 text-white/40 hover:text-white cursor-pointer transition duration-150"
-            style={{ minWidth: 'auto' }}
-          >
-            <X size={16} />
-          </button>
+          {onCancel && (
+            <button 
+              onClick={onCancel}
+              className="p-1 bg-transparent border-0 text-white/40 hover:text-white cursor-pointer transition duration-150"
+              style={{ minWidth: 'auto' }}
+            >
+              <X size={16} />
+            </button>
+          )}
         </div>
 
         {/* Message body */}
@@ -55,13 +57,15 @@ function ConfirmModal({ title, message, onConfirm, onCancel }: ConfirmModalProps
 
         {/* Action Buttons */}
         <div className="flex justify-end gap-3 pt-2 border-t border-white/[0.04]">
-          <button
-            onClick={onCancel}
-            className="outline-btn text-[10px] font-extrabold uppercase tracking-wider"
-            style={{ padding: '8px 16px', minWidth: 'auto' }}
-          >
-            Cancelar
-          </button>
+          {onCancel && (
+            <button
+              onClick={onCancel}
+              className="outline-btn text-[10px] font-extrabold uppercase tracking-wider"
+              style={{ padding: '8px 16px', minWidth: 'auto' }}
+            >
+              Cancelar
+            </button>
+          )}
           
           <button
             onClick={onConfirm}
@@ -111,6 +115,33 @@ export function customConfirm(message: string, title: string = 'Aviso de Seguran
         message={message}
         onConfirm={() => handleClose(true)}
         onCancel={() => handleClose(false)}
+      />
+    );
+  });
+}
+
+export function customAlert(message: string, title: string = 'Aviso'): Promise<void> {
+  return new Promise((resolve) => {
+    if (typeof window === 'undefined') {
+      resolve();
+      return;
+    }
+
+    const container = document.createElement('div');
+    document.body.appendChild(container);
+    const root = createRoot(container);
+
+    const handleClose = () => {
+      root.unmount();
+      container.remove();
+      resolve();
+    };
+
+    root.render(
+      <ConfirmModal 
+        title={title}
+        message={message}
+        onConfirm={handleClose}
       />
     );
   });

@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Member } from '@/lib/db';
+import { customAlert } from '@/components/CustomConfirm';
 import { UserPlus, ArrowLeft } from 'lucide-react';
 
 const FormField = ({ label, children }: { label: string; children: React.ReactNode }) => (
@@ -28,7 +29,7 @@ export default function CadastrarUsuarioPage() {
   const handleSaveMember = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !email) {
-      alert('Por favor, preencha nome e e-mail.');
+      customAlert('Por favor, preencha nome e e-mail.');
       return;
     }
 

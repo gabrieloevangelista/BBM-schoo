@@ -19,7 +19,7 @@ import {
   CheckSquare,
   Square
 } from 'lucide-react';
-import { customConfirm } from '@/components/CustomConfirm';
+import { customConfirm, customAlert } from '@/components/CustomConfirm';
 import { Resource, Lesson } from '@/lib/db';
 
 export default function RecursosPage() {
@@ -97,7 +97,7 @@ export default function RecursosPage() {
   const handleAddResource = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTitle || !newFileUrl || !newLessonId) {
-      alert('Por favor, preencha todos os campos obrigatórios.');
+      customAlert('Por favor, preencha todos os campos obrigatórios.');
       return;
     }
 

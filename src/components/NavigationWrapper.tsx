@@ -176,9 +176,9 @@ export default function NavigationWrapper({ children }: { children: React.ReactN
         <div className={`h-[70px] flex items-center justify-between px-5 border-b ${theme === 'light' ? 'border-black/8' : 'border-white/10'}`}>
           <Link href="/dashboard" className="flex items-center no-underline">
             {sidebarExpanded ? (
-              <img src="/logo_BBM school H cópia.png" alt="BBM School" className="h-8 object-contain" />
+              <img src="/logo_BBM school H cópia.png" alt="BBM School" className="h-8 w-auto object-contain" width={160} height={32} />
             ) : (
-              <img src="/logo_Icon BBM school cópia.png" alt="BBM School" className="h-8 w-8 object-contain" />
+              <img src="/logo_Icon BBM school cópia.png" alt="BBM School" className="h-8 w-8 object-contain" width={32} height={32} />
             )}
           </Link>
           {sidebarExpanded ? (
