@@ -723,7 +723,6 @@ export default function AdminContentManager() {
           <FormField label="Instrutor">
             <div className="relative">
               <select className={selectClass} value={lessonForm.instructor_name} onChange={e => setLessonForm({...lessonForm, instructor_name: e.target.value})}>
-                <option>Eng. Magno Santos</option>
                 <option>Gabriel Evangelista</option>
               </select>
               <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-text-secondary pointer-events-none" />

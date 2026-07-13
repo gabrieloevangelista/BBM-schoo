@@ -16,7 +16,8 @@ import {
   User,
   X,
   RefreshCw,
-  Link as LinkIcon
+  Link as LinkIcon,
+  Edit2
 } from 'lucide-react';
 import { customAlert, customConfirm } from '@/components/CustomConfirm';
 import { CalendarEvent } from '@/lib/db';
@@ -25,7 +26,7 @@ export default function CalendarioPage() {
   const { user } = useAuth();
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [filterType, setFilterType] = useState<'all' | 'mentoria' | 'atualizacao'>('all');
+  const [filterType, setFilterType] = useState<'all' | 'mentoria'>('all');
   const [currentDate, setCurrentDate] = useState(new Date()); // Controls month shown
   const [isLoading, setIsLoading] = useState(true);
 
@@ -42,11 +43,13 @@ export default function CalendarioPage() {
     return `${today.getFullYear()}-${formattedMonth}-${formattedDay}`;
   });
   const [newTitle, setNewTitle] = useState('');
-  const [newEventType, setNewEventType] = useState<'mentoria' | 'atualizacao'>('mentoria');
+  const [newEventType, setNewEventType] = useState<'mentoria'>('mentoria');
   const [newStartTime, setNewStartTime] = useState('19:00');
   const [newEndTime, setNewEndTime] = useState('20:00');
   const [newTopic, setNewTopic] = useState('');
   const [newZoomLink, setNewZoomLink] = useState('https://zoom.us/j/123456');
+
+  const [editingEventId, setEditingEventId] = useState<string | null>(null);
 
   // Delete confirmation
   const [deletingEventId, setDeletingEventId] = useState<string | null>(null);
@@ -98,7 +101,7 @@ export default function CalendarioPage() {
     }, 1500);
   };
 
-  // Add Event handler
+  // Add or Edit Event handler
   const handleAddEvent = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTitle || !selectedDateStr || !newStartTime || !newEndTime) {
@@ -111,36 +114,56 @@ export default function CalendarioPage() {
       if (response.ok) {
         const db = await response.json();
         
-        const newEventId = `event-${Date.now()}`;
-        const newEvent: CalendarEvent = {
-          id: newEventId,
-          title: newTitle,
-          event_type: newEventType,
-          event_date: selectedDateStr,
-          start_time: newStartTime + ':00',
-          end_time: newEndTime + ':00',
-          mentor_name: user?.name || 'Gabriel Evangelista',
-          mentor_role: user?.role || 'CEO & Fundador',
-          mentor_avatar: user?.img || '',
-          topic: newTopic,
-          zoom_link: newZoomLink,
-          created_at: new Date().toISOString()
-        };
+        if (editingEventId) {
+          // Edit existing event
+          db.calendar_events = db.calendar_events.map((ev: CalendarEvent) => {
+            if (ev.id === editingEventId) {
+              return {
+                ...ev,
+                title: newTitle,
+                event_type: newEventType,
+                event_date: selectedDateStr,
+                start_time: newStartTime.length === 5 ? newStartTime + ':00' : newStartTime,
+                end_time: newEndTime.length === 5 ? newEndTime + ':00' : newEndTime,
+                topic: newTopic,
+                zoom_link: newZoomLink
+              };
+            }
+            return ev;
+          });
+        } else {
+          // Create new event
+          const newEventId = `event-${Date.now()}`;
+          const newEvent: CalendarEvent = {
+            id: newEventId,
+            title: newTitle,
+            event_type: newEventType,
+            event_date: selectedDateStr,
+            start_time: newStartTime + ':00',
+            end_time: newEndTime + ':00',
+            mentor_name: user?.name || 'Gabriel Evangelista',
+            mentor_role: user?.role || 'CEO & Fundador',
+            mentor_avatar: user?.img || '',
+            topic: newTopic,
+            zoom_link: newZoomLink,
+            created_at: new Date().toISOString()
+          };
 
-        db.calendar_events.push(newEvent);
+          db.calendar_events.push(newEvent);
 
-        // Add associated global notification
-        const notification = {
-          id: `notification-${Date.now()}`,
-          user_id: null,
-          title: 'Novo Encontro Agendado',
-          description: `${newTitle} foi marcado para dia ${selectedDateStr.split('-').reverse().join('/')} às ${newStartTime}.`,
-          type: newEventType,
-          link: '/calendario',
-          is_read: false,
-          created_at: new Date().toISOString()
-        };
-        db.notifications.unshift(notification);
+          // Add associated global notification
+          const notification = {
+            id: `notification-${Date.now()}`,
+            user_id: null,
+            title: 'Novo Encontro Agendado',
+            description: `${newTitle} foi marcado para dia ${selectedDateStr.split('-').reverse().join('/')} às ${newStartTime}.`,
+            type: newEventType,
+            link: '/calendario',
+            is_read: false,
+            created_at: new Date().toISOString()
+          };
+          db.notifications.unshift(notification);
+        }
 
         await fetch('/api/db', {
           method: 'POST',
@@ -149,6 +172,7 @@ export default function CalendarioPage() {
         });
 
         // Reset
+        setEditingEventId(null);
         setNewTitle('');
         setNewTopic('');
         setShowAddModal(false);
@@ -287,6 +311,12 @@ export default function CalendarioPage() {
               onClick={() => {
                 const todayStr = new Date().toISOString().split('T')[0];
                 setSelectedDateStr(todayStr);
+                setEditingEventId(null);
+                setNewTitle('');
+                setNewTopic('');
+                setNewZoomLink('');
+                setNewStartTime('19:00');
+                setNewEndTime('20:00');
                 setShowAddModal(true);
               }} 
               className="btn-primary text-xs py-2 px-3 flex items-center gap-1"
@@ -323,17 +353,6 @@ export default function CalendarioPage() {
             style={{ background: filterType === 'mentoria' ? undefined : 'transparent' }}
           >
             Mentorias
-          </button>
-          <button 
-            onClick={() => setFilterType('atualizacao')} 
-            className={`px-3 py-1.5 rounded text-[10px] font-extrabold uppercase tracking-wider cursor-pointer border transition-all duration-200 ${
-              filterType === 'atualizacao' 
-                ? 'bg-primary-lemon/10 text-primary-lemon border-primary-lemon/30' 
-                : 'border-transparent text-text-secondary hover:text-text-base'
-            }`}
-            style={{ background: filterType === 'atualizacao' ? undefined : 'transparent' }}
-          >
-            Atualizações
           </button>
         </div>
 
@@ -482,9 +501,28 @@ export default function CalendarioPage() {
                         <span>Google Agenda</span>
                       </a>
                       {canManage && (
-                        <button onClick={() => setDeletingEventId(event.id)} className="outline-btn border-0 text-red-500 hover:text-red-400 p-1.5 cursor-pointer" style={{ minWidth: 'auto' }}>
-                          <Trash2 size={14} />
-                        </button>
+                        <div className="flex items-center">
+                          <button 
+                            onClick={() => {
+                              setEditingEventId(event.id);
+                              setNewTitle(event.title);
+                              setNewEventType(event.event_type as 'mentoria' | 'atualizacao');
+                              setSelectedDateStr(event.event_date);
+                              setNewStartTime(event.start_time.substring(0, 5));
+                              setNewEndTime(event.end_time.substring(0, 5));
+                              setNewTopic(event.topic || '');
+                              setNewZoomLink(event.zoom_link || '');
+                              setShowAddModal(true);
+                            }} 
+                            className="outline-btn border-0 text-text-secondary hover:text-text-base p-1.5 cursor-pointer" 
+                            style={{ minWidth: 'auto' }}
+                          >
+                            <Edit2 size={14} />
+                          </button>
+                          <button onClick={() => setDeletingEventId(event.id)} className="outline-btn border-0 text-red-500 hover:text-red-400 p-1.5 cursor-pointer" style={{ minWidth: 'auto' }}>
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -515,13 +553,32 @@ export default function CalendarioPage() {
                         {event.event_type === 'mentoria' ? 'Mentoria' : 'Atualização'}
                       </span>
                       {canManage && (
-                        <button 
-                          onClick={() => setDeletingEventId(event.id)}
-                          className="outline-btn border-0 p-0 text-red-500 hover:text-red-400 cursor-pointer"
-                          style={{ minWidth: 'auto' }}
-                        >
-                          <Trash2 size={12} />
-                        </button>
+                        <div className="flex items-center">
+                          <button 
+                            onClick={() => {
+                              setEditingEventId(event.id);
+                              setNewTitle(event.title);
+                              setNewEventType(event.event_type as 'mentoria' | 'atualizacao');
+                              setSelectedDateStr(event.event_date);
+                              setNewStartTime(event.start_time.substring(0, 5));
+                              setNewEndTime(event.end_time.substring(0, 5));
+                              setNewTopic(event.topic || '');
+                              setNewZoomLink(event.zoom_link || '');
+                              setShowAddModal(true);
+                            }}
+                            className="outline-btn border-0 p-0 text-text-secondary hover:text-text-base cursor-pointer mr-2"
+                            style={{ minWidth: 'auto' }}
+                          >
+                            <Edit2 size={12} />
+                          </button>
+                          <button 
+                            onClick={() => setDeletingEventId(event.id)}
+                            className="outline-btn border-0 p-0 text-red-500 hover:text-red-400 cursor-pointer"
+                            style={{ minWidth: 'auto' }}
+                          >
+                            <Trash2 size={12} />
+                          </button>
+                        </div>
                       )}
                     </div>
                     <h4 className="text-xs font-bold text-text-base font-outfit m-0 leading-snug">{event.title}</h4>
@@ -644,9 +701,11 @@ export default function CalendarioPage() {
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-              <h3 style={{ fontSize: '1.2rem', color: 'var(--color-text-base)' }}>Agendar Novo Encontro</h3>
+              <h3 style={{ fontSize: '1.2rem', color: 'var(--color-text-base)' }}>
+                {editingEventId ? 'Editar Evento' : 'Agendar Novo Encontro'}
+              </h3>
               <button 
-                onClick={() => setShowAddModal(false)}
+                onClick={() => { setShowAddModal(false); setEditingEventId(null); }}
                 className="outline-btn border-0 p-1 text-gray-400 hover:text-text-base"
                 style={{ minWidth: 'auto' }}
               >
@@ -667,19 +726,6 @@ export default function CalendarioPage() {
                 />
               </div>
 
-              <div className="form-group">
-                <label className="form-label">Tipo de Compromisso *</label>
-                <select 
-                  className="form-input"
-                  value={newEventType}
-                  onChange={(e: any) => setNewEventType(e.target.value)}
-                  required
-                  style={{ background: 'rgba(1,1,5,0.95)' }}
-                >
-                  <option value="mentoria">Mentoria Coletiva</option>
-                  <option value="atualizacao">Atualização de Obras</option>
-                </select>
-              </div>
 
               <div className="form-group">
                 <label className="form-label">Data Agendada *</label>
@@ -741,7 +787,7 @@ export default function CalendarioPage() {
                 className="gold-glow-btn w-full" 
                 style={{ padding: '12px', marginTop: '10px', width: '100%' }}
               >
-                Criar Evento no Calendário
+                {editingEventId ? 'Salvar Alterações' : 'Criar Evento no Calendário'}
               </button>
             </form>
           </div>
