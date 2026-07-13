@@ -552,7 +552,7 @@ export default function ComunidadePage() {
           }`}
           style={{ background: 'transparent' }}
         >
-          Reels CLS
+          Vídeos Curtos
         </button>
       </div>
 
