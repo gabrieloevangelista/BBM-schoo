@@ -23,7 +23,7 @@ import {
   HelpCircle
 } from 'lucide-react';
 import { CommunityPost, CommunityComment, CommentReply, Member, MemberConnection } from '@/lib/db';
-import { customAlert } from '@/components/CustomConfirm';
+import { customAlert, customConfirm } from '@/components/CustomConfirm';
 import { ComunidadeSkeleton } from '@/components/SkeletonLoaders';
 
 export default function ComunidadePage() {
@@ -154,6 +154,32 @@ export default function ComunidadePage() {
       setAttachedFile(file);
       const localUrl = URL.createObjectURL(file);
       setAttachedPreview(localUrl);
+
+      if (file.type.startsWith('image/')) {
+        setPostType('standard');
+      } else if (file.type.startsWith('video/')) {
+        const video = document.createElement('video');
+        video.preload = 'metadata';
+        video.onloadedmetadata = async () => {
+          const duration = video.duration;
+          if (duration > 180) {
+            setPostType('standard');
+          } else if (duration >= 60 && duration <= 180) {
+            setPostType('reels');
+          } else {
+            const isStatus = await customConfirm(
+              'Este vídeo tem menos de 1 minuto. Deseja postá-lo como um Story (Status)?\nClique em [Confirmar] para Story, ou [Cancelar] para postá-lo como Vídeo Curto normal.',
+              'Formato do Vídeo'
+            );
+            if (isStatus) {
+              setPostType('status');
+            } else {
+              setPostType('reels');
+            }
+          }
+        };
+        video.src = localUrl;
+      }
     }
   };
 
@@ -190,7 +216,7 @@ export default function ComunidadePage() {
           liked_by_users: [],
           saved_by_users: [],
           comments: [],
-          post_type: isVideo ? 'reels' : postType,
+          post_type: postType,
           created_at: new Date().toISOString()
         };
 
