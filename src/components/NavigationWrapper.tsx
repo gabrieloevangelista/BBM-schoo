@@ -137,7 +137,7 @@ export default function NavigationWrapper({ children }: { children: React.ReactN
 
   // Navigation Links definition
   const menuItems = [
-    { label: 'Painel', path: '/dashboard', icon: LayoutDashboard, role: 'all' },
+    { label: 'Visão geral', path: '/dashboard', icon: LayoutDashboard, role: 'all' },
     { label: 'Comunidade', path: '/comunidade', icon: MessageSquare, role: 'all' },
     { label: 'Masterclasses', path: '/masterclasses', icon: GraduationCap, role: 'all' },
     { label: 'Recursos', path: '/recursos', icon: Download, role: 'all' },
@@ -148,7 +148,7 @@ export default function NavigationWrapper({ children }: { children: React.ReactN
     
     // Admin Settings Pages
     { label: 'Gerenciar Membros', path: '/admin/membros', icon: Users, role: 'admin' },
-    { label: 'Gerenciar Masterclasses', path: '/admin/reordenacao', icon: Layers, role: 'admin' },
+    { label: 'Gerenciar Masterclasses', path: '/admin/reordenacao', icon: Layers, role: 'mentor' },
     { label: 'Gerenciar Banners', path: '/admin/ecossistema', icon: Settings, role: 'admin' },
     { label: 'Gerenciar Missões', path: '/admin/missoes', icon: ClipboardList, role: 'admin' },
     
@@ -156,9 +156,12 @@ export default function NavigationWrapper({ children }: { children: React.ReactN
     { label: 'Meu Perfil', path: `/perfil/${user.username}`, icon: User, role: 'all' },
   ];
 
-  const filteredItems = menuItems.filter(item => 
-    item.role === 'all' || (item.role === 'admin' && user.member_type === 'admin')
-  );
+  const filteredItems = menuItems.filter(item => {
+    if (item.role === 'all') return true;
+    if (user.member_type === 'admin') return true;
+    if (item.role === 'mentor' && user.member_type === 'mentor') return true;
+    return false;
+  });
 
   // Unread notification count
   const unreadCount = notifications.filter(n => !n.is_read).length;
@@ -196,7 +199,7 @@ export default function NavigationWrapper({ children }: { children: React.ReactN
         <nav className="flex-grow py-5 px-3.5 flex flex-col gap-4 overflow-y-auto scrollbar-none">
           {/* Group 1: Principal */}
           <div className="flex flex-col gap-1.5">
-            {filteredItems.filter(item => ['Painel', 'Comunidade', 'Masterclasses', 'Recursos', 'Calendário', 'Missões', 'Oportunidades', 'Projetos'].includes(item.label)).map(item => {
+            {filteredItems.filter(item => ['Visão geral', 'Comunidade', 'Masterclasses', 'Recursos', 'Calendário', 'Missões', 'Oportunidades', 'Projetos'].includes(item.label)).map(item => {
               const Icon = item.icon;
               const isBreve = item.badge === 'BREVE';
               const isActive = pathname === item.path || (item.path !== '#' && pathname.startsWith(item.path + '/'));
@@ -265,8 +268,8 @@ export default function NavigationWrapper({ children }: { children: React.ReactN
             </div>
           )}
 
-          {/* Group 2: Administration (if admin and contains admin links) */}
-          {user.member_type === 'admin' && filteredItems.some(item => ['Gerenciar Membros', 'Gerenciar Masterclasses', 'Gerenciar Banners', 'Gerenciar Missões'].includes(item.label)) && (
+          {/* Group 2: Administration (if admin/mentor and contains admin links) */}
+          {(user.member_type === 'admin' || user.member_type === 'mentor') && filteredItems.some(item => ['Gerenciar Membros', 'Gerenciar Masterclasses', 'Gerenciar Banners', 'Gerenciar Missões'].includes(item.label)) && (
             <div className={`pt-3 border-t flex flex-col gap-1.5 ${theme === 'light' ? 'border-black/8' : 'border-white/8'}`}>
               {sidebarExpanded && <span className={`text-[10px] font-bold tracking-wider px-3 mb-1.5 uppercase font-outfit ${theme === 'light' ? 'text-gray-400' : 'text-gray-500'}`}>Administração</span>}
               {filteredItems.filter(item => ['Gerenciar Membros', 'Gerenciar Masterclasses', 'Gerenciar Banners', 'Gerenciar Missões'].includes(item.label)).map(item => {
@@ -354,7 +357,7 @@ export default function NavigationWrapper({ children }: { children: React.ReactN
         <header className={`h-[70px] sticky top-0 backdrop-blur-xl border-b flex items-center justify-between px-6 md:px-10 z-40 ${theme === 'light' ? 'bg-white/80 border-black/8 shadow-sm' : 'bg-[#020205]/60 border-white/10'}`}>
           <div>
             <h2 className={`text-lg font-bold tracking-tight font-outfit ${theme === 'light' ? 'text-gray-900' : 'text-white'}`}>
-              {pathname === '/dashboard' && 'Dashboard'}
+              {pathname === '/dashboard' && 'Visão geral'}
               {pathname.startsWith('/masterclasses') && 'Masterclasses'}
               {pathname === '/recursos' && 'Central de Recursos'}
               {pathname === '/calendario' && 'Calendário de Eventos'}

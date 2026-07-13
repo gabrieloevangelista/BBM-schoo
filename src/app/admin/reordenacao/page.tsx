@@ -9,11 +9,12 @@ import {
   Minimize2, Search, Filter, AlertTriangle, Upload
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import Switch from '@/components/Switch';
 
 // Types
 interface Course { id: string; title: string; slug: string; description: string; is_published?: boolean; cover_image_url?: string; }
 interface Module { id: string; course_id: string; title: string; description?: string; is_published?: boolean; cover_image_url?: string; }
-interface Lesson { id: string; module_id: string; title: string; duration: string; instructor_name: string; video_url: string; cover_image_url: string; sequence_order: number; is_published?: boolean; description?: string; }
+interface Lesson { id: string; module_id: string; title: string; duration: string; instructor_name: string; video_url: string; cover_image_url: string; sequence_order: number; is_published?: boolean; status?: 'published'|'rascunho'|'agendado'; scheduled_at?: string; description?: string; }
 interface Resource { id: string; lesson_id: string; title: string; category: string; file_url: string; }
 
 type ViewType = 'masterclasses' | 'modules' | 'lesson' | 'editCourse' | 'editModule';
@@ -28,6 +29,70 @@ const FormField = ({ label, children }: { label: string; children: React.ReactNo
 
 const inputClass = "bg-[var(--color-input-bg)] border border-[var(--color-input-border)] rounded-md p-3 text-sm text-text-base focus:border-[var(--color-input-border-focus)] outline-none transition-colors w-full";
 const selectClass = "bg-[var(--color-input-bg)] border border-[var(--color-input-border)] rounded-md p-3 w-full text-sm text-text-base appearance-none outline-none";
+
+const CustomDateTimePicker = ({ value, onChange }: { value: string, onChange: (val: string) => void }) => {
+  const parseValue = (val: string) => {
+    if (!val) return new Date();
+    const d = new Date(val);
+    return isNaN(d.getTime()) ? new Date() : d;
+  };
+
+  const d = parseValue(value);
+  const day = String(d.getDate()).padStart(2, '0');
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const year = String(d.getFullYear());
+  const hours = String(d.getHours()).padStart(2, '0');
+  const minutes = String(d.getMinutes()).padStart(2, '0');
+
+  const handleChange = (type: 'day'|'month'|'year'|'hours'|'minutes', val: string) => {
+    let newD = day, newM = month, newY = year, newH = hours, newMin = minutes;
+    if (type === 'day') newD = val;
+    if (type === 'month') newM = val;
+    if (type === 'year') newY = val;
+    if (type === 'hours') newH = val;
+    if (type === 'minutes') newMin = val;
+    
+    onChange(`${newY}-${newM}-${newD}T${newH}:${newMin}:00`);
+  };
+
+  return (
+    <>
+      <div className="md:hidden">
+        <input 
+          type="datetime-local" 
+          className={inputClass} 
+          value={value ? value.slice(0, 16) : ''} 
+          onChange={(e) => onChange(e.target.value)}
+        />
+      </div>
+      <div className="hidden md:flex items-center gap-2">
+        <div className="flex gap-1">
+          <select className={`${selectClass} px-2 py-2 min-w-[60px]`} value={day} onChange={e => handleChange('day', e.target.value)}>
+            {Array.from({length: 31}, (_, i) => <option key={i+1} value={String(i+1).padStart(2,'0')}>{String(i+1).padStart(2,'0')}</option>)}
+          </select>
+          <span className="text-text-secondary self-center">/</span>
+          <select className={`${selectClass} px-2 py-2 min-w-[60px]`} value={month} onChange={e => handleChange('month', e.target.value)}>
+            {Array.from({length: 12}, (_, i) => <option key={i+1} value={String(i+1).padStart(2,'0')}>{String(i+1).padStart(2,'0')}</option>)}
+          </select>
+          <span className="text-text-secondary self-center">/</span>
+          <select className={`${selectClass} px-2 py-2 min-w-[80px]`} value={year} onChange={e => handleChange('year', e.target.value)}>
+            {Array.from({length: 5}, (_, i) => <option key={i} value={String(new Date().getFullYear() + i)}>{new Date().getFullYear() + i}</option>)}
+          </select>
+        </div>
+        <span className="text-text-secondary text-xs uppercase font-bold mx-1">às</span>
+        <div className="flex gap-1">
+          <select className={`${selectClass} px-2 py-2 min-w-[60px]`} value={hours} onChange={e => handleChange('hours', e.target.value)}>
+            {Array.from({length: 24}, (_, i) => <option key={i} value={String(i).padStart(2,'0')}>{String(i).padStart(2,'0')}</option>)}
+          </select>
+          <span className="text-text-secondary self-center">:</span>
+          <select className={`${selectClass} px-2 py-2 min-w-[60px]`} value={minutes} onChange={e => handleChange('minutes', e.target.value)}>
+            {Array.from({length: 60}, (_, i) => <option key={i} value={String(i).padStart(2,'0')}>{String(i).padStart(2,'0')}</option>)}
+          </select>
+        </div>
+      </div>
+    </>
+  );
+};
 
 export default function AdminContentManager() {
   const { user } = useAuth();
@@ -59,7 +124,7 @@ export default function AdminContentManager() {
   const [moduleEditId, setModuleEditId] = useState<string | null>(null);
   
   // Form states for lesson editor
-  const [lessonForm, setLessonForm] = useState<Lesson>({ id: '', module_id: '', title: '', duration: '', instructor_name: '', video_url: '', cover_image_url: '', sequence_order: 0, is_published: false, description: '' });
+  const [lessonForm, setLessonForm] = useState<Lesson>({ id: '', module_id: '', title: '', duration: '', instructor_name: '', video_url: '', cover_image_url: '', sequence_order: 0, is_published: false, status: 'rascunho', scheduled_at: '', description: '' });
 
   // Inline title editing
   const [editingTitle, setEditingTitle] = useState<{id: string, type: 'course'|'module'|'lesson', title: string} | null>(null);
@@ -102,8 +167,8 @@ export default function AdminContentManager() {
     }
   };
 
-  if (!user || user.member_type !== 'admin') {
-    return <div className="p-10 text-center">Acesso Negado. Você precisa ser administrador.</div>;
+  if (!user || (user.member_type !== 'admin' && user.member_type !== 'mentor')) {
+    return <div className="p-10 text-center">Acesso Negado. Você precisa ser administrador ou mentor.</div>;
   }
 
   // --- Custom Confirm Dialog ---
@@ -486,7 +551,7 @@ export default function AdminContentManager() {
                   <div className="p-3 px-6 border-t border-[var(--color-glass-border)]">
                     <button 
                       onClick={() => {
-                        setLessonForm({ id: crypto.randomUUID(), module_id: module.id, title: '', duration: '', instructor_name: '', video_url: '', cover_image_url: '', sequence_order: moduleLessons.length, is_published: false, description: '' });
+                        setLessonForm({ id: crypto.randomUUID(), module_id: module.id, title: '', duration: '', instructor_name: '', video_url: '', cover_image_url: '', sequence_order: moduleLessons.length, is_published: false, status: 'rascunho', scheduled_at: '', description: '' });
                         setView('lesson');
                       }}
                       className="w-6 h-6 rounded-full border border-[var(--color-input-border)] flex items-center justify-center text-text-secondary hover:text-text-base hover:border-text-base transition-all ml-12"
@@ -599,32 +664,61 @@ export default function AdminContentManager() {
         </FormField>
 
         <FormField label="Vídeo da Aula">
-          <div className="border border-[var(--color-input-border)] rounded-md p-4 flex items-center justify-between bg-[var(--color-input-bg)]">
+          <div className="border border-[var(--color-input-border)] rounded-md p-4 flex flex-col md:flex-row items-start md:items-center justify-between bg-[var(--color-input-bg)] gap-4">
             <div className="flex items-center gap-4">
               <div className="w-10 h-10 rounded bg-[#C1FF07]/10 flex items-center justify-center text-[#C1FF07]">
                 <Video size={20} />
               </div>
               <div className="flex flex-col">
-                <span className="text-sm font-bold text-text-base">Vídeo Mux Ativo</span>
-                <span className="text-[10px] text-text-secondary">Playback ID: {lessonForm.video_url || 'Tbg2ci48M5K4saY...'}</span>
+                <span className="text-sm font-bold text-text-base">
+                  {lessonForm.video_url ? 'Upload Concluído' : 'Nenhum vídeo enviado'}
+                </span>
+                <span className="text-[10px] text-text-secondary">
+                  {lessonForm.video_url ? 'O vídeo está pronto para ser assistido' : 'Suba um arquivo de vídeo do seu dispositivo'}
+                </span>
               </div>
             </div>
-            <button className="outline-btn text-[10px] font-bold uppercase tracking-widest px-4 py-2.5 flex items-center gap-2">
-              <Trash2 size={12} /> Substituir Vídeo
-            </button>
+            <label className="outline-btn text-[10px] font-bold uppercase tracking-widest px-4 py-2.5 flex items-center gap-2 cursor-pointer whitespace-nowrap">
+              <Upload size={14} /> Substituir Aula
+              <input type="file" className="hidden" accept="video/*" onChange={e => {
+                const file = e.target.files?.[0];
+                if (file) setLessonForm({...lessonForm, video_url: URL.createObjectURL(file)});
+              }} />
+            </label>
           </div>
         </FormField>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <FormField label="Status de Publicação">
-            <div className="relative">
-              <select className={selectClass}>
-                <option>Publicado</option>
-                <option>Rascunho</option>
-              </select>
-              <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-text-secondary pointer-events-none" />
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center justify-between bg-[var(--color-glass-bg)] border border-[var(--color-glass-border)] rounded-md p-4">
+              <div className="flex flex-col">
+                <span className="text-[10px] font-bold text-text-secondary uppercase tracking-widest">Ativar Aula</span>
+                <span className="text-[10px] text-text-secondary mt-0.5">Disponibilizar aula imediatamente</span>
+              </div>
+              <Switch 
+                checked={lessonForm.status === 'published' || (!lessonForm.status && lessonForm.is_published === true)} 
+                onChange={checked => setLessonForm({...lessonForm, status: checked ? 'published' : 'rascunho', is_published: checked})} 
+              />
             </div>
-          </FormField>
+
+            {lessonForm.status !== 'published' && (!lessonForm.status && lessonForm.is_published === true ? false : true) && (
+              <div className="flex flex-col gap-2 p-4 bg-[var(--color-glass-bg)] border border-[var(--color-glass-border)] rounded-md animate-fade-in">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[10px] font-bold text-text-secondary uppercase tracking-widest">Agendar Publicação</span>
+                  <Switch 
+                    checked={lessonForm.status === 'agendado'} 
+                    onChange={checked => setLessonForm({...lessonForm, status: checked ? 'agendado' : 'rascunho'})} 
+                  />
+                </div>
+                {lessonForm.status === 'agendado' && (
+                  <CustomDateTimePicker 
+                    value={lessonForm.scheduled_at || ''} 
+                    onChange={val => setLessonForm({...lessonForm, scheduled_at: val})} 
+                  />
+                )}
+              </div>
+            )}
+          </div>
           
           <FormField label="Instrutor">
             <div className="relative">

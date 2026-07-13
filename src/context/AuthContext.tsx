@@ -74,8 +74,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Admin & Exclusive page restrictions
     const isAdminRoute = pathname.startsWith('/admin') || pathname === '/oportunidades' || pathname === '/projetos';
-    if (isAdminRoute && user.member_type !== 'admin') {
-      router.push('/sem-permissao');
+    
+    if (isAdminRoute) {
+      if (user.member_type === 'admin') {
+        // Admin has full access, do nothing
+      } else if (user.member_type === 'mentor') {
+        // Mentor can only access specific administrative routes like registering classes
+        if (!pathname.startsWith('/admin/reordenacao')) {
+          router.push('/sem-permissao');
+        }
+      } else {
+        // Mentorado has no access to admin routes
+        router.push('/sem-permissao');
+      }
     }
   }, [user, pathname, isLoading, router]);
 

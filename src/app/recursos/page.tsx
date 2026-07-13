@@ -43,6 +43,7 @@ export default function RecursosPage() {
   const [newFileUrl, setNewFileUrl] = useState('');
   const [newLessonId, setNewLessonId] = useState('');
   const [newAvailableAt, setNewAvailableAt] = useState('');
+  const [uploadMethod, setUploadMethod] = useState<'upload' | 'link'>('upload');
 
   const fetchResourcesData = async () => {
     try {
@@ -153,6 +154,7 @@ export default function RecursosPage() {
         setNewFileUrl('');
         setNewLessonId('');
         setNewAvailableAt('');
+        setUploadMethod('upload');
         setShowAddModal(false);
         fetchResourcesData();
       }
@@ -554,18 +556,67 @@ export default function RecursosPage() {
               </div>
 
               <div className="form-group">
-                <label className="form-label">URL do Arquivo (Simulado) *</label>
-                <input 
-                  type="text" 
-                  className="form-input" 
-                  placeholder="Ex: /resources/modelo.xlsx"
-                  value={newFileUrl}
-                  onChange={(e) => setNewFileUrl(e.target.value)}
-                  required
-                />
-                <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'block', marginTop: '4px' }}>
-                  A extensão da URL determina a categoria automaticamente (.xlsx, .pdf, .pptx, etc.)
-                </span>
+                <label className="form-label">Fonte do Arquivo *</label>
+                <div className="flex gap-4 mb-3">
+                  <label className="flex items-center gap-2 cursor-pointer text-sm text-text-secondary hover:text-white transition-colors">
+                    <input 
+                      type="radio" 
+                      name="uploadMethod" 
+                      checked={uploadMethod === 'upload'} 
+                      onChange={() => { setUploadMethod('upload'); setNewFileUrl(''); }} 
+                      className="accent-[#C1FF07]"
+                    />
+                    Upload de Arquivo
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer text-sm text-text-secondary hover:text-white transition-colors">
+                    <input 
+                      type="radio" 
+                      name="uploadMethod" 
+                      checked={uploadMethod === 'link'} 
+                      onChange={() => { setUploadMethod('link'); setNewFileUrl(''); }} 
+                      className="accent-[#C1FF07]"
+                    />
+                    Link na Nuvem
+                  </label>
+                </div>
+
+                {uploadMethod === 'upload' ? (
+                  <div className="border border-[var(--color-input-border)] rounded-md p-4 flex flex-col md:flex-row items-start md:items-center justify-between bg-[#0a0a0f] gap-4">
+                    <div className="flex flex-col">
+                      <span className="text-sm font-bold text-text-base">
+                        {newFileUrl ? 'Arquivo Selecionado' : 'Nenhum arquivo selecionado'}
+                      </span>
+                      {newFileUrl && (
+                        <span className="text-[10px] text-text-secondary mt-0.5 break-all">{newFileUrl}</span>
+                      )}
+                    </div>
+                    <label className="outline-btn text-[10px] font-bold uppercase tracking-widest px-4 py-2 flex items-center gap-2 cursor-pointer whitespace-nowrap">
+                      Selecionar Arquivo
+                      <input 
+                        type="file" 
+                        className="hidden" 
+                        onChange={e => {
+                          const file = e.target.files?.[0];
+                          if (file) setNewFileUrl(file.name);
+                        }} 
+                      />
+                    </label>
+                  </div>
+                ) : (
+                  <>
+                    <input 
+                      type="url" 
+                      className="form-input" 
+                      placeholder="Ex: https://drive.google.com/..."
+                      value={newFileUrl}
+                      onChange={(e) => setNewFileUrl(e.target.value)}
+                      required={uploadMethod === 'link'}
+                    />
+                    <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'block', marginTop: '4px' }}>
+                      Insira o link de compartilhamento (Google Drive, OneDrive, Dropbox, etc.)
+                    </span>
+                  </>
+                )}
               </div>
 
               <div className="form-group">
