@@ -922,14 +922,15 @@ export default function ComunidadePage() {
             
             {/* Search Input */}
             <div className="relative">
+              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted z-10 pointer-events-none" />
               <input
                 type="text"
                 placeholder="Buscar Master..."
-                className="form-input text-xs w-full pl-9 pr-4 py-2"
+                className="form-input text-xs w-full pr-4 py-2"
+                style={{ paddingLeft: '32px' }}
                 value={memberSearch}
                 onChange={(e) => setMemberSearch(e.target.value)}
               />
-              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted z-10 pointer-events-none" />
             </div>
 
             {/* Members List */}
