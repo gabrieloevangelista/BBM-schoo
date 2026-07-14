@@ -34,7 +34,7 @@ export async function POST(req: Request) {
           : 'https://api.sightengine.com/1.0/check.json';
         
         const params = new URLSearchParams({
-          models: 'nudity-2.0,wad,offensive',
+          models: 'nudity-2.0,wad,offensive,gore,tobacco,gambling,scam',
           api_user: apiUser,
           api_secret: apiSecret,
           url: mediaUrl
@@ -47,30 +47,38 @@ export async function POST(req: Request) {
 
         if (aiData.status === 'success') {
           // Analisando retorno da IA
+          const checkViolation = (data: any) => {
+            if (!data) return false;
+            return (
+              (data.nudity?.suggestive > 0.8) ||
+              (data.nudity?.sexual_activity > 0.8) ||
+              (data.nudity?.sexual_display > 0.8) ||
+              (data.nudity?.erotica > 0.8) ||
+              (data.weapon > 0.8) ||
+              (data.alcohol > 0.8) ||
+              (data.drugs > 0.8) ||
+              (data.offensive?.prob > 0.8) ||
+              (data.gore?.prob > 0.8) ||
+              (data.tobacco?.prob > 0.8) ||
+              (data.gambling?.prob > 0.8) ||
+              (data.scam?.prob > 0.8)
+            );
+          };
+
           if (isVideo) {
-            // Lógica simples para vídeo: checa os frames principais
             if (aiData.data && aiData.data.frames) {
               for (const frame of aiData.data.frames) {
-                if (
-                  (frame.nudity && frame.nudity.none < 0.8) || 
-                  frame.weapon > 0.8 || 
-                  frame.offensive?.prob > 0.8
-                ) {
+                if (checkViolation(frame)) {
                   isSafe = false;
-                  reason = 'Nossa IA identificou conteúdo visual impróprio (nudez, roupas de banho/lingerie, armas ou ofensivo) neste vídeo.';
+                  reason = 'Sua imagem viola nossa política de conteúdo e foi removida automaticamente.';
                   break;
                 }
               }
             }
           } else {
-            // Lógica para imagem
-            if (
-              (aiData.nudity && aiData.nudity.none < 0.8) || 
-              aiData.weapon > 0.8 || 
-              aiData.offensive?.prob > 0.8
-            ) {
+            if (checkViolation(aiData)) {
               isSafe = false;
-              reason = 'Nossa IA identificou conteúdo visual impróprio (nudez, roupas de banho/lingerie, armas ou ofensivo) nesta imagem.';
+              reason = 'Sua imagem viola nossa política de conteúdo e foi removida automaticamente.';
             }
           }
         } else {

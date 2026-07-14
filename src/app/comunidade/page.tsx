@@ -759,7 +759,12 @@ export default function ComunidadePage() {
                 <span className="text-[10px] text-text-secondary mt-1.5 font-medium">Seu Story</span>
               </div>
 
-            {(showArchived ? archivedStories : stories).map(story => (
+            {(showArchived ? archivedStories : stories)
+              .filter((story, index, self) => 
+                // Group by user_id, keeping only the first (newest) story for each user
+                index === self.findIndex((s) => s.user_id === story.user_id)
+              )
+              .map(story => (
               <div 
                 key={story.id} 
                 onClick={() => handleOpenStory(story)}
