@@ -94,7 +94,7 @@ export async function POST(req: Request) {
             } else {
               console.error('Sightengine API Error:', aiData);
               isSafe = false;
-              reason = 'Erro no servidor de inteligência artificial. Por segurança, a publicação foi bloqueada.';
+              reason = 'Sua publicação foi removida por infringir as regras da comunidade.';
             }
           }
         }
@@ -116,7 +116,7 @@ export async function POST(req: Request) {
     console.error('Moderation API Error:', error);
     return NextResponse.json({ 
       safe: false, 
-      reason: 'Erro interno ao processar a verificação de segurança (arquivo possivelmente muito grande).' 
+      reason: 'Sua publicação foi removida por infringir as regras da comunidade.' 
     });
   }
 }

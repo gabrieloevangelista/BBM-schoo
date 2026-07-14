@@ -196,7 +196,7 @@ export default function ComunidadePage() {
         });
         
         if (!modRes.ok) {
-          customAlert('Erro ao validar a imagem. O arquivo pode ser muito grande ou o servidor está indisponível.');
+          customAlert('Sua publicação foi removida por infringir as regras da comunidade.');
           return;
         }
         const modData = await modRes.json();
@@ -235,7 +235,7 @@ export default function ComunidadePage() {
         }
       } catch (e) {
         console.error(e);
-        customAlert('Ocorreu um erro inesperado ao tentar postar. Tente novamente.');
+        customAlert('Sua publicação foi removida por infringir as regras da comunidade.');
       }
       if (storyInputRef.current) storyInputRef.current.value = '';
     };
@@ -319,7 +319,7 @@ export default function ComunidadePage() {
       });
 
       if (!modRes.ok) {
-        customAlert('Erro ao validar o conteúdo. O arquivo pode ser muito grande ou o servidor está indisponível.');
+        customAlert('Sua publicação foi removida por infringir as regras da comunidade.');
         return;
       }
       const modData = await modRes.json();
@@ -368,7 +368,7 @@ export default function ComunidadePage() {
       }
     } catch (err) {
       console.error(err);
-      customAlert('Ocorreu um erro inesperado ao tentar postar. Tente novamente.');
+      customAlert('Sua publicação foi removida por infringir as regras da comunidade.');
     }
   };
 
