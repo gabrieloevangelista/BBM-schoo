@@ -36,7 +36,9 @@ export default function ComunidadePage() {
   // Stories (status posts)
   const [stories, setStories] = useState<CommunityPost[]>([]);
   const [archivedStories, setArchivedStories] = useState<CommunityPost[]>([]);
-  const [activeStory, setActiveStory] = useState<CommunityPost | null>(null);
+  const [activeUserStories, setActiveUserStories] = useState<CommunityPost[]>([]);
+  const [currentStoryIndex, setCurrentStoryIndex] = useState(0);
+  const activeStory = activeUserStories.length > 0 ? activeUserStories[currentStoryIndex] : null;
   const [storyViewers, setStoryViewers] = useState<any[]>([]);
   const [showArchived, setShowArchived] = useState(false);
   const storyInputRef = React.useRef<HTMLInputElement>(null);
@@ -387,7 +389,8 @@ export default function ComunidadePage() {
         });
         
         if (activeStory && activeStory.id === postId) {
-          setActiveStory(null);
+          if (activeUserStories.length <= 1) setActiveUserStories([]);
+          else fetchFeedData(); // Let it re-evaluate or we can handle nextStory
         }
         if (lightboxPost?.id === postId) setLightboxPost(null);
         fetchFeedData();
@@ -479,8 +482,23 @@ export default function ComunidadePage() {
 
   // Story views logger
   const handleOpenStory = async (story: CommunityPost) => {
-    setActiveStory(story);
+    const listToUse = showArchived ? archivedStories : stories;
+    const userStories = listToUse.filter((s: CommunityPost) => s.user_id === story.user_id);
+    
+    // Reverse the order so the oldest story plays first, just like Instagram
+    const sortedUserStories = [...userStories].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+    
+    // Se clicou em um story específico (para arquivados ou caso genérico), tentamos achar o índice dele
+    // Mas para o feed normal, sempre começamos do primeiro não visto ou do início
+    let startIndex = sortedUserStories.findIndex(s => s.id === story.id);
+    if (startIndex === -1) startIndex = 0;
+    
+    setActiveUserStories(sortedUserStories);
+    setCurrentStoryIndex(startIndex);
+
     if (!user) return;
+    
+    const currentStory = sortedUserStories[startIndex];
 
     try {
       const response = await fetch('/api/db');
@@ -489,12 +507,12 @@ export default function ComunidadePage() {
         
         // Log view in story_views table
         const exists = db.story_views.some(
-          (v: any) => v.story_id === story.id && v.viewer_id === user.id
+          (v: any) => v.story_id === currentStory.id && v.viewer_id === user.id
         );
         if (!exists) {
           db.story_views.push({
             id: `view-${Date.now()}`,
-            story_id: story.id,
+            story_id: currentStory.id,
             viewer_id: user.id,
             created_at: new Date().toISOString()
           });
@@ -508,7 +526,7 @@ export default function ComunidadePage() {
 
         // Load viewer profiles
         const viewersList = db.story_views
-          .filter((v: any) => v.story_id === story.id)
+          .filter((v: any) => v.story_id === currentStory.id)
           .map((v: any) => {
             const member = db.members.find((m: any) => m.id === v.viewer_id);
             return member ? member.name : 'Membro';
@@ -695,6 +713,20 @@ export default function ComunidadePage() {
     if (activeTab === 'all') return true;
     return post.post_type === 'reels';
   });
+
+  const nextStory = () => {
+    if (currentStoryIndex < activeUserStories.length - 1) {
+      setCurrentStoryIndex(prev => prev + 1);
+    } else {
+      setActiveUserStories([]);
+    }
+  };
+
+  const prevStory = () => {
+    if (currentStoryIndex > 0) {
+      setCurrentStoryIndex(prev => prev - 1);
+    }
+  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -1189,6 +1221,10 @@ export default function ComunidadePage() {
             padding: '20px'
           }}
         >
+          {/* Navigation Click Areas (Desktop) */}
+          <div onClick={prevStory} style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '30%', zIndex: 2010, cursor: 'pointer' }} />
+          <div onClick={nextStory} style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: '30%', zIndex: 2010, cursor: 'pointer' }} />
+
           <div 
             style={{
               maxWidth: '400px',
@@ -1200,9 +1236,20 @@ export default function ComunidadePage() {
               overflow: 'hidden',
               background: '#111',
               display: 'flex',
-              flexDirection: 'column'
+              flexDirection: 'column',
+              zIndex: 2020 // Above click areas so buttons still work
             }}
           >
+            {/* Nav Arrows inside Modal for Mobile/Clarity */}
+            {currentStoryIndex > 0 && (
+              <button onClick={prevStory} className="absolute left-2 top-1/2 -translate-y-1/2 z-50 bg-black/40 text-white rounded-full p-2 border border-white/20 hover:bg-black/80">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+              </button>
+            )}
+            <button onClick={nextStory} className="absolute right-2 top-1/2 -translate-y-1/2 z-50 bg-black/40 text-white rounded-full p-2 border border-white/20 hover:bg-black/80">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </button>
+
             {/* Story Media */}
             <div style={{ flex: 1, position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
               {activeStory.image_url && (
@@ -1239,9 +1286,21 @@ export default function ComunidadePage() {
 
             {/* Top Bar (Progress & Header) */}
             <div style={{ position: 'absolute', top: '10px', left: '10px', right: '10px', zIndex: 20, display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {/* Progress Bar */}
-              <div style={{ height: '2px', background: 'rgba(255,255,255,0.3)', borderRadius: '2px', overflow: 'hidden' }}>
-                <div style={{ width: '100%', height: '100%', background: '#fff' }} />
+              
+              {/* Progress Pills */}
+              <div style={{ display: 'flex', gap: '4px', width: '100%' }}>
+                {activeUserStories.map((_, idx) => (
+                  <div key={idx} style={{ flex: 1, height: '2px', background: 'rgba(255,255,255,0.3)', borderRadius: '2px', overflow: 'hidden' }}>
+                    <div 
+                      style={{ 
+                        width: idx < currentStoryIndex ? '100%' : (idx === currentStoryIndex ? '100%' : '0%'), 
+                        height: '100%', 
+                        background: '#fff',
+                        transition: 'width 0.1s linear'
+                      }} 
+                    />
+                  </div>
+                ))}
               </div>
 
               {/* Author & Controls */}
@@ -1267,7 +1326,10 @@ export default function ComunidadePage() {
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                   {(activeStory.user_id === user?.id || user?.member_type === 'admin') && (
                     <button 
-                      onClick={() => handleDeletePost(activeStory.id)}
+                      onClick={() => {
+                        handleDeletePost(activeStory.id);
+                        if (activeUserStories.length === 1) setActiveUserStories([]);
+                      }}
                       className="border-0 bg-transparent text-white cursor-pointer hover:text-red-400 p-1"
                       title="Excluir Story"
                     >
@@ -1275,7 +1337,7 @@ export default function ComunidadePage() {
                     </button>
                   )}
                   <button 
-                    onClick={() => setActiveStory(null)}
+                    onClick={() => setActiveUserStories([])}
                     className="border-0 bg-transparent text-white cursor-pointer hover:text-gray-300 p-1"
                   >
                     <X size={22} />
