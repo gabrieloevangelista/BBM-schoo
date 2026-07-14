@@ -316,8 +316,18 @@ export default function LessonDetailPage() {
           setNewCommentText('');
         }
       }
-import { customConfirm } from '@/components/ui/CustomConfirm';
-{{ ... }}
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleDeleteComment = async (commentId: string) => {
+    const isConfirmed = await customConfirm('Deseja excluir este comentário permanentemente?', 'Excluir Comentário');
+    if (!isConfirmed) return;
+    try {
+      const response = await fetch('/api/db');
+      if (response.ok) {
+        const db = await response.json();
         db.lesson_comments = db.lesson_comments.filter((c: any) => c.id !== commentId && c.parent_id !== commentId);
         
         await fetch('/api/db', {
