@@ -174,6 +174,18 @@ export default function ComunidadePage() {
 
     const doUpload = async (mediaUrl: string, type: 'status' | 'reels' = 'status') => {
       try {
+        // Moderation Check
+        const modRes = await fetch('/api/moderate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: '', mediaUrl, type })
+        });
+        const modData = await modRes.json();
+        if (!modData.safe) {
+          customAlert(modData.reason || 'Conteúdo bloqueado pelos nossos filtros de segurança.');
+          return;
+        }
+
         const response = await fetch('/api/db');
         if (response.ok) {
           const db = await response.json();
@@ -274,6 +286,18 @@ export default function ComunidadePage() {
     if (!content.trim() && !attachedPreview) return;
 
     try {
+      // Moderation Check
+      const modRes = await fetch('/api/moderate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: content.trim(), mediaUrl: attachedPreview || undefined, type: postType })
+      });
+      const modData = await modRes.json();
+      if (!modData.safe) {
+        customAlert(modData.reason || 'Conteúdo bloqueado pelos nossos filtros de segurança.');
+        return;
+      }
+
       const response = await fetch('/api/db');
       if (response.ok) {
         const db = await response.json();
@@ -473,6 +497,18 @@ export default function ComunidadePage() {
     if (!text || !text.trim() || !user) return;
 
     try {
+      // Moderation Check
+      const modRes = await fetch('/api/moderate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: text.trim(), type: 'comment' })
+      });
+      const modData = await modRes.json();
+      if (!modData.safe) {
+        customAlert(modData.reason || 'Conteúdo bloqueado pelos nossos filtros de segurança.');
+        return;
+      }
+
       const response = await fetch('/api/db');
       if (response.ok) {
         const db = await response.json();
@@ -1134,12 +1170,26 @@ export default function ComunidadePage() {
             }}
           >
             {/* Story Media */}
-            <div style={{ flex: 1, position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ flex: 1, position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
               {activeStory.image_url && (
-                <img src={activeStory.image_url} alt="Story" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <>
+                  <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+                    <img src={activeStory.image_url} alt="Story BG" style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'blur(24px)', transform: 'scale(1.15)', opacity: 0.5 }} />
+                  </div>
+                  <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
+                    <img src={activeStory.image_url} alt="Story" style={{ width: '100%', height: 'auto', maxHeight: '100%', objectFit: 'contain' }} />
+                  </div>
+                </>
               )}
               {activeStory.video_url && (
-                <video src={activeStory.video_url} autoPlay controls playsInline loop style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <>
+                  <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+                    <video src={activeStory.video_url} autoPlay muted playsInline loop style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'blur(24px)', transform: 'scale(1.15)', opacity: 0.5 }} />
+                  </div>
+                  <div className="absolute inset-0 z-10 flex items-center justify-center">
+                    <video src={activeStory.video_url} autoPlay controls playsInline loop style={{ width: '100%', height: 'auto', maxHeight: '100%', objectFit: 'contain' }} />
+                  </div>
+                </>
               )}
               {(!activeStory.image_url && !activeStory.video_url) && (
                 <div style={{ padding: '30px', textAlign: 'center' }}>
