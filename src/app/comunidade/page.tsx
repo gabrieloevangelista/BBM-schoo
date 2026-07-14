@@ -20,7 +20,9 @@ import {
   Search,
   UserPlus,
   Check,
-  HelpCircle
+  HelpCircle,
+  Archive,
+  MoreHorizontal
 } from 'lucide-react';
 import { CommunityPost, CommunityComment, CommentReply, Member, MemberConnection } from '@/lib/db';
 import { customAlert, customConfirm } from '@/components/CustomConfirm';
@@ -33,8 +35,11 @@ export default function ComunidadePage() {
 
   // Stories (status posts)
   const [stories, setStories] = useState<CommunityPost[]>([]);
+  const [archivedStories, setArchivedStories] = useState<CommunityPost[]>([]);
   const [activeStory, setActiveStory] = useState<CommunityPost | null>(null);
   const [storyViewers, setStoryViewers] = useState<any[]>([]);
+  const [showArchived, setShowArchived] = useState(false);
+  const storyInputRef = React.useRef<HTMLInputElement>(null);
 
   // Post Creator states
   const [postType, setPostType] = useState<'standard' | 'status' | 'reels'>('standard');
@@ -77,6 +82,17 @@ export default function ComunidadePage() {
         });
         storyList.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
         setStories(storyList);
+
+        // 2.5 Archived stories: user's status posts older than 24 hours
+        if (user) {
+          let archivedList = db.community_posts.filter((p: CommunityPost) => {
+            if (p.post_type !== 'status' || p.user_id !== user.id) return false;
+            const postTime = new Date(p.created_at).getTime();
+            return (nowTime - postTime) >= 24 * 60 * 60 * 1000;
+          });
+          archivedList.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+          setArchivedStories(archivedList);
+        }
 
         // 3. Set members and connections
         setMembers(db.members || []);
@@ -147,6 +163,67 @@ export default function ComunidadePage() {
       fetchFeedData();
     }
   }, [user]);
+
+  // Direct Story Upload Logic
+  const handleDirectStoryUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const localUrl = URL.createObjectURL(file);
+    const isVideo = file.type.startsWith('video');
+
+    const doUpload = async (mediaUrl: string, type: 'status' | 'reels' = 'status') => {
+      try {
+        const response = await fetch('/api/db');
+        if (response.ok) {
+          const db = await response.json();
+          const newPost: CommunityPost = {
+            id: `post-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+            user_id: user?.id,
+            author_name: user?.name || 'Membro BBM',
+            author_avatar: user?.img || '',
+            author_role: user?.role || 'Mentorado',
+            content: '',
+            image_url: !isVideo ? mediaUrl : undefined,
+            video_url: isVideo ? mediaUrl : undefined,
+            likes_count: 0,
+            liked_by_users: [],
+            saved_by_users: [],
+            comments: [],
+            post_type: type,
+            created_at: new Date().toISOString()
+          };
+          if (!db.community_posts) db.community_posts = [];
+          db.community_posts.unshift(newPost);
+          await fetch('/api/db', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(db)
+          });
+          fetchFeedData();
+        }
+      } catch (e) {
+        console.error(e);
+      }
+      if (storyInputRef.current) storyInputRef.current.value = '';
+    };
+
+    if (isVideo) {
+      const video = document.createElement('video');
+      video.preload = 'metadata';
+      video.onloadedmetadata = async () => {
+        if (video.duration <= 60) {
+          const isStatus = await customConfirm('Postar como Story?', 'Confirmar');
+          doUpload(localUrl, isStatus ? 'status' : 'reels');
+        } else {
+          customAlert('Para Stories ou Reels, o vídeo deve ter 1 minuto ou menos.');
+        }
+      };
+      video.src = localUrl;
+    } else {
+      doUpload(localUrl, 'status');
+    }
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -255,6 +332,9 @@ export default function ComunidadePage() {
           body: JSON.stringify(db)
         });
         
+        if (activeStory && activeStory.id === postId) {
+          setActiveStory(null);
+        }
         if (lightboxPost?.id === postId) setLightboxPost(null);
         fetchFeedData();
       }
@@ -588,25 +668,49 @@ export default function ComunidadePage() {
         {/* Left column - Feed */}
         <div className="lg:col-span-8 flex flex-col gap-6">
           {/* Stories Bar */}
-          <section className="glass-panel p-4 flex gap-4 overflow-x-auto scrollbar-none items-center">
-            {/* Novo Status Story Circle */}
-            <div 
-              style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', flexShrink: 0 }}
-              onClick={() => {
-                setPostType('status');
-                setContent('');
-                setMediaUrl('');
-                // Alert user to use creator below
-                customAlert('Escreva o conteúdo no publicador abaixo e selecione "Status / Story" para criar!');
-              }}
-            >
-              <div style={{ width: '56px', height: '56px', borderRadius: '50%', border: '2px dashed var(--color-text-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-secondary)' }}>
-                <Plus size={20} />
-              </div>
-              <span className="text-[10px] text-text-secondary mt-1.5 font-medium">Novo Status</span>
+          <section className="glass-panel p-4 flex flex-col gap-2">
+            <div className="flex justify-between items-center w-full px-1">
+              <span className="text-xs font-bold text-text-secondary uppercase tracking-wider">Stories</span>
+              {archivedStories.length > 0 && (
+                <button 
+                  onClick={() => setShowArchived(!showArchived)}
+                  className="flex items-center gap-1 text-[10px] font-bold text-primary-lemon bg-transparent border-0 cursor-pointer"
+                >
+                  <Archive size={12} />
+                  <span>{showArchived ? 'Ocultar Arquivados' : 'Ver Arquivados'}</span>
+                </button>
+              )}
             </div>
 
-            {stories.map(story => (
+            <div className="flex gap-4 overflow-x-auto scrollbar-none items-center mt-2">
+              <input 
+                type="file" 
+                ref={storyInputRef} 
+                onChange={handleDirectStoryUpload}
+                accept="image/*,video/*"
+                style={{ display: 'none' }}
+              />
+              {/* Novo Status Story Circle */}
+              <div 
+                style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', flexShrink: 0, position: 'relative' }}
+                onClick={() => storyInputRef.current?.click()}
+              >
+                <div style={{ width: '56px', height: '56px', borderRadius: '50%', padding: '2px', border: '2px dashed var(--color-primary-lemon)', background: 'var(--bg-deep)' }}>
+                  {user?.img ? (
+                    <img src={user.img} alt="Me" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                  ) : (
+                    <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', color: '#C1FF07', fontSize: '0.85rem', fontWeight: 600 }} className="flex-center">
+                      {user?.name?.substring(0, 2).toUpperCase() || 'US'}
+                    </div>
+                  )}
+                </div>
+                <div className="absolute bg-primary-lemon text-black rounded-full flex-center" style={{ width: '16px', height: '16px', bottom: '16px', right: '0' }}>
+                  <Plus size={10} strokeWidth={4} />
+                </div>
+                <span className="text-[10px] text-text-secondary mt-1.5 font-medium">Seu Story</span>
+              </div>
+
+            {(showArchived ? archivedStories : stories).map(story => (
               <div 
                 key={story.id} 
                 onClick={() => handleOpenStory(story)}
@@ -615,7 +719,8 @@ export default function ComunidadePage() {
                   flexDirection: 'column', 
                   alignItems: 'center', 
                   cursor: 'pointer',
-                  flexShrink: 0
+                  flexShrink: 0,
+                  opacity: showArchived ? 0.7 : 1
                 }}
               >
                 <div 
@@ -624,14 +729,14 @@ export default function ComunidadePage() {
                     height: '56px', 
                     borderRadius: '50%', 
                     padding: '2px', 
-                    border: '2px solid #C1FF07',
+                    border: showArchived ? '2px solid var(--color-text-muted)' : '2px solid #C1FF07',
                     background: 'var(--bg-deep)'
                   }}
                 >
                   {story.author_avatar ? (
                     <img src={story.author_avatar} alt={story.author_name} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
                   ) : (
-                    <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', color: '#C1FF07', fontSize: '0.85rem', fontWeight: 600 }} className="flex-center">
+                    <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', color: showArchived ? 'var(--color-text-muted)' : '#C1FF07', fontSize: '0.85rem', fontWeight: 600 }} className="flex-center">
                       {story.author_name.substring(0, 2).toUpperCase()}
                     </div>
                   )}
@@ -642,9 +747,10 @@ export default function ComunidadePage() {
               </div>
             ))}
 
-            {stories.length === 0 && (
-              <span className="text-xs text-text-muted italic ml-2">Nenhum status ativo</span>
+            {stories.length === 0 && !showArchived && (
+              <span className="text-xs text-text-muted italic ml-2">Nenhum story ativo</span>
             )}
+            </div>
           </section>
 
           {/* Post Creator Panel */}
@@ -983,7 +1089,7 @@ export default function ComunidadePage() {
         </aside>
       </div>
 
-      {/* Story Viewer Modal */}
+      {/* Story Viewer Lightbox (Instagram Style) */}
       {activeStory && (
         <div 
           style={{
@@ -1001,65 +1107,86 @@ export default function ComunidadePage() {
           }}
         >
           <div 
-            className="modal-card"
             style={{
-              maxWidth: '420px',
+              maxWidth: '400px',
               width: '100%',
-              padding: '24px',
-              position: 'relative'
+              height: '90vh',
+              maxHeight: '800px',
+              position: 'relative',
+              borderRadius: '16px',
+              overflow: 'hidden',
+              background: '#111',
+              display: 'flex',
+              flexDirection: 'column'
             }}
           >
-            <button 
-              onClick={() => setActiveStory(null)}
-              className="outline-btn border-0 p-1 text-gray-400 hover:text-white"
-              style={{ minWidth: 'auto', position: 'absolute', top: '15px', right: '15px' }}
-            >
-              <X size={20} />
-            </button>
+            {/* Story Media */}
+            <div style={{ flex: 1, position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              {activeStory.image_url && (
+                <img src={activeStory.image_url} alt="Story" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              )}
+              {activeStory.video_url && (
+                <video src={activeStory.video_url} autoPlay controls playsInline loop style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              )}
+              {(!activeStory.image_url && !activeStory.video_url) && (
+                <div style={{ padding: '30px', textAlign: 'center' }}>
+                  <p style={{ color: '#fff', fontSize: '1.25rem', fontFamily: 'var(--font-outfit)', fontWeight: 'bold' }}>
+                    "{activeStory.content}"
+                  </p>
+                </div>
+              )}
+            </div>
 
-            {/* Story Header */}
-            <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '20px' }}>
-              <div style={{ width: '40px', height: '40px', borderRadius: '50%', padding: '1px', border: '1px solid #C1FF07' }}>
-                <img src={activeStory.author_avatar} alt="Author" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+            {/* Dark Gradient Overlay for Top Info */}
+            <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '120px', background: 'linear-gradient(180deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%)', zIndex: 10 }}></div>
+
+            {/* Top Bar (Progress & Header) */}
+            <div style={{ position: 'absolute', top: '10px', left: '10px', right: '10px', zIndex: 20, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {/* Progress Bar */}
+              <div style={{ height: '2px', background: 'rgba(255,255,255,0.3)', borderRadius: '2px', overflow: 'hidden' }}>
+                <div style={{ width: '100%', height: '100%', background: '#fff' }} />
               </div>
-              <div>
-                <h4 style={{ color: '#fff', fontSize: '0.9rem', fontWeight: 600 }}>{activeStory.author_name}</h4>
-                <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>Status publicado hoje</span>
+
+              {/* Author & Controls */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <div style={{ width: '32px', height: '32px', borderRadius: '50%', padding: '1px', border: '1px solid rgba(255,255,255,0.5)', overflow: 'hidden' }}>
+                    {activeStory.author_avatar ? (
+                       <img src={activeStory.author_avatar} alt="Author" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    ) : (
+                       <div style={{ width: '100%', height: '100%', background: '#222', color: '#fff', fontSize: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                         {activeStory.author_name.substring(0, 2).toUpperCase()}
+                       </div>
+                    )}
+                  </div>
+                  <div>
+                    <h4 style={{ color: '#fff', fontSize: '0.85rem', fontWeight: 600, textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>{activeStory.author_name}</h4>
+                    <span style={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.8)', textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>
+                      {new Date().getTime() - new Date(activeStory.created_at).getTime() > 24 * 60 * 60 * 1000 ? 'Arquivado' : 'Hoje'}
+                    </span>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  {(activeStory.user_id === user?.id || user?.member_type === 'admin') && (
+                    <button 
+                      onClick={() => handleDeletePost(activeStory.id)}
+                      className="border-0 bg-transparent text-white cursor-pointer hover:text-red-400 p-1"
+                      title="Excluir Story"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  )}
+                  <button 
+                    onClick={() => setActiveStory(null)}
+                    className="border-0 bg-transparent text-white cursor-pointer hover:text-gray-300 p-1"
+                  >
+                    <X size={22} />
+                  </button>
+                </div>
               </div>
             </div>
 
-            {/* Story Message */}
-            <div 
-              style={{ 
-                minHeight: '200px', 
-                background: 'rgba(255,255,255,0.01)', 
-                border: '1px solid rgba(255,255,255,0.03)',
-                borderRadius: '12px',
-                padding: '20px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                textAlign: 'center',
-                marginBottom: '20px'
-              }}
-            >
-              <p style={{ color: '#fff', fontSize: '1.15rem', fontStyle: 'italic', fontFamily: 'var(--font-outfit)' }}>
-                "{activeStory.content}"
-              </p>
-            </div>
-
-            {/* Story Viewers list */}
-            {user?.member_type === 'admin' && (
-              <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '12px' }}>
-                <h5 style={{ fontSize: '0.75rem', color: 'var(--color-primary-lemon)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <Eye size={12} />
-                  <span>Visualizações ({storyViewers.length})</span>
-                </h5>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '0.7rem', marginTop: '4px' }}>
-                  {storyViewers.length > 0 ? storyViewers.join(', ') : 'Nenhuma visualização registrada.'}
-                </p>
-              </div>
-            )}
           </div>
         </div>
       )}
