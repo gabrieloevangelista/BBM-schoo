@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { Member } from '@/lib/db';
+import { supabase } from '@/lib/supabase';
 
 interface AuthContextType {
   user: Member | null;
@@ -22,14 +23,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const fetchUser = async (storedUserId: string) => {
     try {
-      const response = await fetch('/api/db');
-      if (response.ok) {
-        const db = await response.json();
-        const found = db.members.find((m: Member) => m.id === storedUserId);
-        if (found) {
-          setUser(found);
-          return found;
-        }
+      const { data, error } = await supabase.from('members').select('*').eq('id', storedUserId).single();
+      if (data) {
+        setUser(data);
+        return data;
       }
     } catch (error) {
       console.error('Error fetching user details:', error);
@@ -93,16 +90,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (email: string): Promise<boolean> => {
     setIsLoading(true);
     try {
-      const response = await fetch('/api/db');
-      if (!response.ok) throw new Error('Could not fetch database');
-      const db = await response.json();
+      const { data, error } = await supabase.from('members').select('*').ilike('email', email).maybeSingle();
       
-      const found = db.members.find((m: Member) => m.email.toLowerCase() === email.toLowerCase());
-      if (found) {
-        setUser(found);
-        localStorage.setItem('bbm_user_id', found.id);
+      if (data) {
+        setUser(data);
+        localStorage.setItem('bbm_user_id', data.id);
         
-        if (found.status !== 'Ativo') {
+        if (data.status !== 'Ativo') {
           router.push('/sem-permissao');
         } else {
           router.push('/dashboard');

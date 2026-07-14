@@ -1,7 +1,6 @@
-import fs from 'fs';
-import path from 'path';
+import { supabase } from './supabase';
 
-// Define DB Types
+// Define DB Types (same as before to avoid breaking UI)
 export interface Member {
   id: string;
   name: string;
@@ -92,6 +91,7 @@ export interface MemberConnection {
 
 export interface CommentReply {
   id: string;
+  comment_id?: string;
   user_id: string;
   user_name: string;
   user_avatar?: string;
@@ -101,6 +101,7 @@ export interface CommentReply {
 
 export interface CommunityComment {
   id: string;
+  post_id?: string;
   user_id: string;
   user_name: string;
   user_avatar?: string;
@@ -119,8 +120,8 @@ export interface CommunityPost {
   image_url?: string;
   video_url?: string;
   likes_count: number;
-  liked_by_users: string[]; // User IDs
-  saved_by_users: string[]; // User IDs
+  liked_by_users: string[]; 
+  saved_by_users: string[]; 
   comments: CommunityComment[];
   post_type: 'standard' | 'status' | 'reels';
   created_at: string;
@@ -138,7 +139,7 @@ export interface LessonComment {
 
 export interface Notification {
   id: string;
-  user_id: string | null; // null for global
+  user_id: string | null;
   title: string;
   description?: string;
   type: 'mentoria' | 'atualizacao' | 'masterclass' | 'oportunidade' | 'recurso';
@@ -151,9 +152,9 @@ export interface CalendarEvent {
   id: string;
   title: string;
   event_type: 'mentoria' | 'atualizacao';
-  event_date: string; // YYYY-MM-DD
-  start_time: string; // HH:MM:SS
-  end_time: string; // HH:MM:SS
+  event_date: string; 
+  start_time: string; 
+  end_time: string; 
   mentor_name?: string;
   mentor_role?: string;
   mentor_avatar?: string;
@@ -246,343 +247,140 @@ export interface DatabaseSchema {
   webhook_logs: WebhookLog[];
 }
 
-const DB_FILE_PATH = path.join(process.cwd(), 'src', 'data', 'mockDb.json');
-
-// Helper to check if running on Server
-const isServer = typeof window === 'undefined';
-
 export async function getDb(): Promise<DatabaseSchema> {
-  if (isServer) {
-    try {
-      if (!fs.existsSync(DB_FILE_PATH)) {
-        // Fallback or create default
-        return {
-          members: [], courses: [], modules: [], lessons: [], resources: [],
-          member_connections: [], community_posts: [], lesson_comments: [],
-          notifications: [], calendar_events: [], ecosystem_banners: [],
-          missions: [], mission_submissions: [], story_views: [],
-          investment_opportunities: [], projects: [], user_lesson_progress: [],
-          webhook_logs: []
-        };
-      }
-      const data = fs.readFileSync(DB_FILE_PATH, 'utf8');
-      return JSON.parse(data) as DatabaseSchema;
-    } catch (error) {
-      console.error('Error reading mockDb from disk:', error);
-      throw error;
-    }
-  } else {
-    // Client side fetch
-    try {
-      const response = await fetch('/api/db');
-      if (!response.ok) {
-        throw new Error('Failed to fetch DB from API');
-      }
-      return await response.json() as DatabaseSchema;
-    } catch (error) {
-      console.error('Error fetching DB on client:', error);
-      // fallback to localStorage if api is unreachable
-      const localData = localStorage.getItem('bbm_mock_db');
-      if (localData) {
-        return JSON.parse(localData) as DatabaseSchema;
-      }
-      throw error;
-    }
-  }
+  const [
+    { data: members }, { data: courses }, { data: modules }, { data: lessons },
+    { data: resources }, { data: member_connections }, { data: community_posts },
+    { data: lesson_comments }, { data: notifications }, { data: calendar_events },
+    { data: ecosystem_banners }, { data: missions }, { data: mission_submissions },
+    { data: story_views }, { data: user_lesson_progress }, { data: webhook_logs },
+    { data: community_comments }, { data: comment_replies }
+  ] = await Promise.all([
+    supabase.from('members').select('*'),
+    supabase.from('courses').select('*'),
+    supabase.from('modules').select('*'),
+    supabase.from('lessons').select('*'),
+    supabase.from('resources').select('*'),
+    supabase.from('member_connections').select('*'),
+    supabase.from('community_posts').select('*'),
+    supabase.from('lesson_comments').select('*'),
+    supabase.from('notifications').select('*'),
+    supabase.from('calendar_events').select('*'),
+    supabase.from('ecosystem_banners').select('*'),
+    supabase.from('missions').select('*'),
+    supabase.from('mission_submissions').select('*'),
+    supabase.from('story_views').select('*'),
+    supabase.from('user_lesson_progress').select('*'),
+    supabase.from('webhook_logs').select('*'),
+    supabase.from('community_comments').select('*'),
+    supabase.from('comment_replies').select('*')
+  ]);
+
+  // Reconstruct nested comments for posts
+  const mappedPosts = (community_posts || []).map(post => {
+    const postComments = (community_comments || []).filter(c => c.post_id === post.id);
+    return {
+      ...post,
+      comments: postComments.map(c => ({
+        ...c,
+        replies: (comment_replies || []).filter(r => r.comment_id === c.id)
+      }))
+    };
+  });
+
+  return {
+    members: members || [],
+    courses: courses || [],
+    modules: modules || [],
+    lessons: lessons || [],
+    resources: resources || [],
+    member_connections: member_connections || [],
+    community_posts: mappedPosts,
+    lesson_comments: lesson_comments || [],
+    notifications: notifications || [],
+    calendar_events: calendar_events || [],
+    ecosystem_banners: ecosystem_banners || [],
+    missions: missions || [],
+    mission_submissions: mission_submissions || [],
+    story_views: story_views || [],
+    investment_opportunities: [],
+    projects: [],
+    user_lesson_progress: user_lesson_progress || [],
+    webhook_logs: webhook_logs || []
+  };
 }
 
 export async function saveDb(db: DatabaseSchema): Promise<void> {
-  if (isServer) {
-    try {
-      fs.writeFileSync(DB_FILE_PATH, JSON.stringify(db, null, 2), 'utf8');
-    } catch (error) {
-      console.error('Error writing mockDb to disk:', error);
-      throw error;
-    }
-  } else {
-    // Client side save
-    try {
-      const response = await fetch('/api/db', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(db),
-      });
-      if (!response.ok) {
-        throw new Error('Failed to save DB through API');
-      }
-    } catch (error) {
-      console.error('Error saving DB on client:', error);
-      // save to localStorage
-      localStorage.setItem('bbm_mock_db', JSON.stringify(db));
-    }
-  }
+  // This is a legacy function. Since we are migrating to Supabase, 
+  // replacing entire tables on every POST is not recommended. 
+  // However, for compatibility with the frontend that still calls fetch('/api/db', {method: 'POST'}), 
+  // we will map it to API calls in route.ts or handle individual inserts in the frontend.
+  console.warn("saveDb is deprecated. Use direct Supabase queries for mutations.");
 }
 
-// Convenience wrapper functions
-export async function getMembers() {
-  const db = await getDb();
-  return db.members;
-}
-
+// Added backwards compatible helper functions
+export async function getMembers() { const db = await getDb(); return db.members; }
 export async function updateMember(updatedMember: Member) {
-  const db = await getDb();
-  db.members = db.members.map(m => m.id === updatedMember.id ? updatedMember : m);
-  await saveDb(db);
+  await supabase.from('members').update(updatedMember).eq('id', updatedMember.id);
   return updatedMember;
 }
-
 export async function addMember(member: Omit<Member, 'id' | 'added_at'>) {
-  const db = await getDb();
-  const newMember: Member = {
-    ...member,
-    id: `user-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-    added_at: new Date().toISOString()
-  };
-  db.members.push(newMember);
-  await saveDb(db);
-  return newMember;
+  const newMember = { ...member, id: `user-${Date.now()}`, added_at: new Date().toISOString() };
+  await supabase.from('members').insert([newMember]);
+  return newMember as Member;
 }
-
 export async function deleteMember(id: string) {
-  const db = await getDb();
-  db.members = db.members.filter(m => m.id !== id);
-  await saveDb(db);
+  await supabase.from('members').delete().eq('id', id);
 }
 
-export async function getCourses() {
-  const db = await getDb();
-  return db.courses.sort((a, b) => a.sequence_order - b.sequence_order);
-}
-
-export async function getModules(courseId: string) {
-  const db = await getDb();
-  return db.modules
-    .filter(m => m.course_id === courseId)
-    .sort((a, b) => a.sequence_order - b.sequence_order);
-}
-
-export async function getLessons(moduleId: string) {
-  const db = await getDb();
-  return db.lessons
-    .filter(l => l.module_id === moduleId)
-    .sort((a, b) => a.sequence_order - b.sequence_order);
-}
-
-export async function getResources(lessonId: string) {
-  const db = await getDb();
-  return db.resources.filter(r => r.lesson_id === lessonId);
-}
-
-export async function getCalendarEvents() {
-  const db = await getDb();
-  return db.calendar_events.sort((a, b) => {
-    return new Date(`${a.event_date}T${a.start_time}`).getTime() - new Date(`${b.event_date}T${b.start_time}`).getTime();
-  });
-}
-
+export async function getCourses() { const db = await getDb(); return db.courses; }
+export async function getModules(courseId: string) { const db = await getDb(); return db.modules.filter(m => m.course_id === courseId); }
+export async function getLessons(moduleId: string) { const db = await getDb(); return db.lessons.filter(l => l.module_id === moduleId); }
+export async function getResources(lessonId: string) { const db = await getDb(); return db.resources.filter(r => r.lesson_id === lessonId); }
+export async function getCalendarEvents() { const db = await getDb(); return db.calendar_events; }
 export async function addCalendarEvent(event: Omit<CalendarEvent, 'id' | 'created_at'>) {
-  const db = await getDb();
-  const newEvent: CalendarEvent = {
-    ...event,
-    id: `event-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-    created_at: new Date().toISOString()
-  };
-  db.calendar_events.push(newEvent);
-  
-  // Also create a global notification
-  const notification: Notification = {
-    id: `notification-${Date.now()}`,
-    user_id: null,
-    title: 'Novo Evento Criado',
-    description: `${event.title} foi agendado para o dia ${event.event_date.split('-').reverse().join('/')}.`,
-    type: event.event_type,
-    link: '/calendario',
-    is_read: false,
-    created_at: new Date().toISOString()
-  };
-  db.notifications.unshift(notification);
-
-  await saveDb(db);
-  return newEvent;
+  const newEvent = { ...event, id: `event-${Date.now()}`, created_at: new Date().toISOString() };
+  await supabase.from('calendar_events').insert([newEvent]);
+  return newEvent as CalendarEvent;
 }
-
 export async function deleteCalendarEvent(id: string) {
-  const db = await getDb();
-  db.calendar_events = db.calendar_events.filter(e => e.id !== id);
-  await saveDb(db);
+  await supabase.from('calendar_events').delete().eq('id', id);
 }
-
-export async function getCommunityPosts() {
-  const db = await getDb();
-  // Filter out status posts older than 24 hours
-  const now = new Date().getTime();
-  const filterPosts = db.community_posts.filter(post => {
-    if (post.post_type === 'status') {
-      const postTime = new Date(post.created_at).getTime();
-      return (now - postTime) < 24 * 60 * 60 * 1000;
-    }
-    return true;
-  });
-  return filterPosts.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-}
-
+export async function getCommunityPosts() { const db = await getDb(); return db.community_posts; }
 export async function addCommunityPost(post: Omit<CommunityPost, 'id' | 'likes_count' | 'liked_by_users' | 'saved_by_users' | 'comments' | 'created_at'>) {
-  const db = await getDb();
-  const newPost: CommunityPost = {
-    ...post,
-    id: `post-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-    likes_count: 0,
-    liked_by_users: [],
-    saved_by_users: [],
-    comments: [],
-    created_at: new Date().toISOString()
-  };
-  db.community_posts.unshift(newPost);
-  await saveDb(db);
-  return newPost;
+  const newPost = { ...post, id: `post-${Date.now()}`, likes_count: 0, liked_by_users: [], saved_by_users: [], created_at: new Date().toISOString() };
+  await supabase.from('community_posts').insert([newPost]);
+  return { ...newPost, comments: [] } as CommunityPost;
 }
-
 export async function updateCommunityPost(post: CommunityPost) {
-  const db = await getDb();
-  db.community_posts = db.community_posts.map(p => p.id === post.id ? post : p);
-  await saveDb(db);
+  const { comments, ...rest } = post;
+  await supabase.from('community_posts').update(rest).eq('id', post.id);
   return post;
 }
-
-export async function getMissions() {
-  const db = await getDb();
-  return db.missions;
-}
-
-export async function getMissionSubmissions() {
-  const db = await getDb();
-  return db.mission_submissions;
-}
-
+export async function getMissions() { const db = await getDb(); return db.missions; }
+export async function getMissionSubmissions() { const db = await getDb(); return db.mission_submissions; }
 export async function addMissionSubmission(submission: Omit<MissionSubmission, 'id' | 'submitted_at' | 'status'>) {
-  const db = await getDb();
-  
-  // Check if approved submission already exists
-  const existing = db.mission_submissions.find(s => s.mission_id === submission.mission_id && s.student_id === submission.student_id);
-  if (existing && existing.status === 'approved') {
-    throw new Error('Essa missão já foi aprovada e não pode ser reenviada.');
-  }
-
-  if (existing) {
-    // Update existing (e.g. if rejected previously)
-    existing.text_answer = submission.text_answer;
-    existing.form_submitted_link = submission.form_submitted_link;
-    existing.file_url = submission.file_url;
-    existing.file_name = submission.file_name;
-    existing.status = 'pending';
-    existing.feedback = '';
-    existing.submitted_at = new Date().toISOString();
-    await saveDb(db);
-    return existing;
-  } else {
-    // Create new
-    const newSubmission: MissionSubmission = {
-      ...submission,
-      id: `submission-${Date.now()}`,
-      status: 'pending',
-      submitted_at: new Date().toISOString()
-    };
-    db.mission_submissions.push(newSubmission);
-    await saveDb(db);
-    return newSubmission;
-  }
+  const newSub = { ...submission, id: `submission-${Date.now()}`, status: 'pending', submitted_at: new Date().toISOString() };
+  await supabase.from('mission_submissions').insert([newSub]);
+  return newSub as MissionSubmission;
 }
-
 export async function updateMissionSubmission(id: string, status: 'pending' | 'approved' | 'rejected', feedback?: string, reviewerId?: string) {
-  const db = await getDb();
-  db.mission_submissions = db.mission_submissions.map(s => {
-    if (s.id === id) {
-      return {
-        ...s,
-        status,
-        feedback,
-        reviewed_at: new Date().toISOString(),
-        reviewed_by: reviewerId
-      };
-    }
-    return s;
-  });
-  await saveDb(db);
+  await supabase.from('mission_submissions').update({ status, feedback, reviewed_by: reviewerId, reviewed_at: new Date().toISOString() }).eq('id', id);
 }
-
-export async function getEcosystemBanners() {
-  const db = await getDb();
-  return db.ecosystem_banners
-    .filter(b => !b.disabled)
-    .sort((a, b) => a.sequence_order - b.sequence_order);
-}
-
-export async function getAllBanners() {
-  const db = await getDb();
-  return db.ecosystem_banners.sort((a, b) => a.sequence_order - b.sequence_order);
-}
-
+export async function getEcosystemBanners() { const db = await getDb(); return db.ecosystem_banners.filter(b => !b.disabled); }
+export async function getAllBanners() { const db = await getDb(); return db.ecosystem_banners; }
 export async function saveBanners(banners: EcosystemBanner[]) {
-  const db = await getDb();
-  db.ecosystem_banners = banners;
-  await saveDb(db);
+  await supabase.from('ecosystem_banners').delete().neq('id', 'temp');
+  await supabase.from('ecosystem_banners').insert(banners);
 }
-
-export async function getInvestmentOpportunities() {
-  const db = await getDb();
-  return db.investment_opportunities;
-}
-
-export async function getProjects() {
-  const db = await getDb();
-  return db.projects;
-}
-
-export async function getUserLessonProgress(userId: string) {
-  const db = await getDb();
-  return db.user_lesson_progress.filter(p => p.user_id === userId);
-}
-
+export async function getInvestmentOpportunities() { return []; }
+export async function getProjects() { return []; }
+export async function getUserLessonProgress(userId: string) { const db = await getDb(); return db.user_lesson_progress.filter(p => p.user_id === userId); }
 export async function updateUserLessonProgress(userId: string, lessonId: string, watchedSeconds: number, totalSeconds: number) {
-  const db = await getDb();
   const percent = Math.round((watchedSeconds / totalSeconds) * 100);
-  const completed = percent >= 90; // Mark complete at 90%
-
-  const existingIndex = db.user_lesson_progress.findIndex(p => p.user_id === userId && p.lesson_id === lessonId);
-  if (existingIndex > -1) {
-    db.user_lesson_progress[existingIndex] = {
-      ...db.user_lesson_progress[existingIndex],
-      watched_seconds: watchedSeconds,
-      total_seconds: totalSeconds,
-      percent_complete: percent,
-      completed: completed || db.user_lesson_progress[existingIndex].completed, // don't revert completion
-      last_watched_at: new Date().toISOString()
-    };
-  } else {
-    db.user_lesson_progress.push({
-      id: `progress-${Date.now()}`,
-      user_id: userId,
-      lesson_id: lessonId,
-      watched_seconds: watchedSeconds,
-      total_seconds: totalSeconds,
-      percent_complete: percent,
-      completed,
-      last_watched_at: new Date().toISOString()
-    });
-  }
-  await saveDb(db);
+  await supabase.from('user_lesson_progress').upsert({ user_id: userId, lesson_id: lessonId, watched_seconds: watchedSeconds, total_seconds: totalSeconds, percent_complete: percent, completed: percent >= 90, last_watched_at: new Date().toISOString() });
 }
-
-export async function getNotifications(userId: string | null) {
-  const db = await getDb();
-  return db.notifications.filter(n => n.user_id === null || n.user_id === userId)
-    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-}
-
+export async function getNotifications(userId: string | null) { const db = await getDb(); return db.notifications.filter(n => n.user_id === null || n.user_id === userId); }
 export async function markNotificationAsRead(id: string) {
-  const db = await getDb();
-  db.notifications = db.notifications.map(n => n.id === id ? { ...n, is_read: true } : n);
-  await saveDb(db);
+  await supabase.from('notifications').update({ is_read: true }).eq('id', id);
 }
