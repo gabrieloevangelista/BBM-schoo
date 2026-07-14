@@ -164,6 +164,13 @@ export default function ComunidadePage() {
     }
   }, [user]);
 
+  const fileToBase64 = (file: File) => new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+
   // Direct Story Upload Logic
   const handleDirectStoryUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -174,11 +181,16 @@ export default function ComunidadePage() {
 
     const doUpload = async (mediaUrl: string, type: 'status' | 'reels' = 'status') => {
       try {
+        let base64Media;
+        if (file) {
+          base64Media = await fileToBase64(file);
+        }
+
         // Moderation Check
         const modRes = await fetch('/api/moderate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text: '', mediaUrl, type })
+          body: JSON.stringify({ text: '', mediaUrl, base64Media, type })
         });
         const modData = await modRes.json();
         if (!modData.safe) {
@@ -286,11 +298,16 @@ export default function ComunidadePage() {
     if (!content.trim() && !attachedPreview) return;
 
     try {
+      let base64Media;
+      if (attachedFile) {
+        base64Media = await fileToBase64(attachedFile);
+      }
+
       // Moderation Check
       const modRes = await fetch('/api/moderate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: content.trim(), mediaUrl: attachedPreview || undefined, type: postType })
+        body: JSON.stringify({ text: content.trim(), mediaUrl: attachedPreview || undefined, base64Media, type: postType })
       });
       const modData = await modRes.json();
       if (!modData.safe) {
