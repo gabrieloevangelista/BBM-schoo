@@ -59,19 +59,22 @@ export async function POST(req: Request) {
             if (aiData.status === 'success') {
               const checkViolation = (data: any) => {
                 if (!data) return false;
+                
+                // Aumentando a tolerância: só bloqueia se tiver 90% a 95% de certeza.
+                // Isso evita "falsos positivos" em fotos normais.
                 return (
-                  (data.nudity?.suggestive > 0.8) ||
-                  (data.nudity?.sexual_activity > 0.8) ||
-                  (data.nudity?.sexual_display > 0.8) ||
-                  (data.nudity?.erotica > 0.8) ||
-                  (data.weapon > 0.8) ||
-                  (data.alcohol > 0.8) ||
-                  (data.drugs > 0.8) ||
-                  (data.offensive?.prob > 0.8) ||
-                  (data.gore?.prob > 0.8) ||
-                  (data.tobacco?.prob > 0.8) ||
-                  (data.gambling?.prob > 0.8) ||
-                  (data.scam?.prob > 0.8)
+                  (data.nudity?.suggestive > 0.95) ||
+                  (data.nudity?.sexual_activity > 0.9) ||
+                  (data.nudity?.sexual_display > 0.9) ||
+                  (data.nudity?.erotica > 0.9) ||
+                  (data.weapon > 0.95) ||
+                  (data.alcohol > 0.95) ||
+                  (data.drugs > 0.9) ||
+                  (data.offensive?.prob > 0.9) ||
+                  (data.gore?.prob > 0.9) ||
+                  (data.tobacco?.prob > 0.95) ||
+                  (data.gambling?.prob > 0.95) ||
+                  (data.scam?.prob > 0.9)
                 );
               };
 
@@ -79,6 +82,7 @@ export async function POST(req: Request) {
                 if (aiData.data && aiData.data.frames) {
                   for (const frame of aiData.data.frames) {
                     if (checkViolation(frame)) {
+                      console.log('Moderação visual bloqueou (vídeo):', frame);
                       isSafe = false;
                       reason = 'Sua imagem viola nossa política de conteúdo e foi removida automaticamente.';
                       break;
@@ -87,14 +91,16 @@ export async function POST(req: Request) {
                 }
               } else {
                 if (checkViolation(aiData)) {
+                  console.log('Moderação visual bloqueou (imagem):', aiData);
                   isSafe = false;
                   reason = 'Sua imagem viola nossa política de conteúdo e foi removida automaticamente.';
                 }
               }
             } else {
-              console.error('Sightengine API Error:', aiData);
-              isSafe = false;
-              reason = 'Sua publicação foi removida por infringir as regras da comunidade.';
+              // FAIL-OPEN: Se a API da Sightengine der erro (ex: limite de uso grátis atingido),
+              // nós permitimos a foto passar em vez de bloquear todas as fotos do usuário.
+              console.error('Sightengine API Error (permitindo por padrão):', aiData);
+              isSafe = true; 
             }
           }
         }

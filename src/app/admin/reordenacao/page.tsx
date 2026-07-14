@@ -119,6 +119,7 @@ export default function AdminContentManager() {
 
   // Inline title editing
   const [editingTitle, setEditingTitle] = useState<{id: string, type: 'course'|'module'|'lesson', title: string} | null>(null);
+  const [isSavingWithAi, setIsSavingWithAi] = useState(false);
 
   // Drag and drop state
   const [draggedModule, setDraggedModule] = useState<string | null>(null);
@@ -200,41 +201,81 @@ export default function AdminContentManager() {
   };
 
   const handleSaveCourse = async () => {
+    setIsSavingWithAi(true);
+    let finalCoverUrl = courseForm.cover_image_url;
+    
+    if (!finalCoverUrl && courseForm.title) {
+      try {
+        const res = await fetch('/api/generate-cover', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title: courseForm.title, type: 'curso' })
+        });
+        const data = await res.json();
+        if (data.url) finalCoverUrl = data.url;
+        else if (data.fallbackUrl) finalCoverUrl = data.fallbackUrl;
+      } catch (err) {
+        console.error('Erro na geração de IA:', err);
+      }
+    }
+
     const db = await (await fetch('/api/db')).json();
     if (courseEditId) {
       const idx = db.courses.findIndex((c: Course) => c.id === courseEditId);
       if (idx > -1) {
-        db.courses[idx] = { ...db.courses[idx], ...courseForm, slug: courseForm.title.toLowerCase().replace(/\s+/g, '-') };
+        db.courses[idx] = { ...db.courses[idx], ...courseForm, cover_image_url: finalCoverUrl, slug: courseForm.title.toLowerCase().replace(/\s+/g, '-') };
       }
     } else {
       db.courses.push({
         id: crypto.randomUUID(),
         ...courseForm,
+        cover_image_url: finalCoverUrl,
         slug: courseForm.title.toLowerCase().replace(/\s+/g, '-'),
         is_published: false
       });
     }
     await saveDb(db);
+    setIsSavingWithAi(false);
     setView('masterclasses');
   };
 
   const handleSaveModule = async () => {
     if (!selectedCourse) return;
+    setIsSavingWithAi(true);
+
+    let finalCoverUrl = moduleForm.cover_image_url;
+    if (!finalCoverUrl && moduleForm.title) {
+      try {
+        const res = await fetch('/api/generate-cover', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title: moduleForm.title, type: 'módulo' })
+        });
+        const data = await res.json();
+        if (data.url) finalCoverUrl = data.url;
+        else if (data.fallbackUrl) finalCoverUrl = data.fallbackUrl;
+      } catch (err) {
+        console.error('Erro na geração de IA:', err);
+      }
+    }
+
     const db = await (await fetch('/api/db')).json();
     if (moduleEditId) {
       const idx = db.modules.findIndex((m: Module) => m.id === moduleEditId);
       if (idx > -1) {
-        db.modules[idx] = { ...db.modules[idx], ...moduleForm };
+        db.modules[idx] = { ...db.modules[idx], ...moduleForm, cover_image_url: finalCoverUrl };
       }
     } else {
       db.modules.push({
         id: crypto.randomUUID(),
         course_id: selectedCourse.id,
         ...moduleForm,
+        cover_image_url: finalCoverUrl,
         is_published: false
       });
     }
     await saveDb(db);
+    setIsSavingWithAi(false);
     setView('modules');
   };
 
@@ -416,8 +457,8 @@ export default function AdminContentManager() {
           <button onClick={() => setView('masterclasses')} className="flex-1 glass-panel text-text-base text-xs font-bold uppercase tracking-widest py-4 rounded transition-colors text-center hover:bg-[var(--color-glass-hover-bg)]">
             Cancelar
           </button>
-          <button onClick={handleSaveCourse} disabled={!courseForm.title.trim()} className="flex-1 btn-primary text-xs font-bold uppercase tracking-widest py-4 rounded disabled:opacity-40">
-            {courseEditId ? 'Salvar Alterações' : 'Criar Masterclass'}
+          <button onClick={handleSaveCourse} disabled={!courseForm.title.trim() || isSavingWithAi} className="flex-1 btn-primary text-xs font-bold uppercase tracking-widest py-4 rounded disabled:opacity-40">
+            {isSavingWithAi ? 'Gerando Capa via IA...' : (courseEditId ? 'Salvar Alterações' : 'Criar Masterclass')}
           </button>
         </div>
       </div>
@@ -623,8 +664,8 @@ export default function AdminContentManager() {
           <button onClick={() => setView('modules')} className="flex-1 glass-panel text-text-base text-xs font-bold uppercase tracking-widest py-4 rounded transition-colors text-center hover:bg-[var(--color-glass-hover-bg)]">
             Cancelar
           </button>
-          <button onClick={handleSaveModule} disabled={!moduleForm.title.trim()} className="flex-1 btn-primary text-xs font-bold uppercase tracking-widest py-4 rounded disabled:opacity-40">
-            {moduleEditId ? 'Salvar Alterações' : 'Criar Módulo'}
+          <button onClick={handleSaveModule} disabled={!moduleForm.title.trim() || isSavingWithAi} className="flex-1 btn-primary text-xs font-bold uppercase tracking-widest py-4 rounded disabled:opacity-40">
+            {isSavingWithAi ? 'Gerando Capa via IA...' : (moduleEditId ? 'Salvar Alterações' : 'Criar Módulo')}
           </button>
         </div>
       </div>

@@ -117,7 +117,7 @@ export default function CourseModulesPage() {
         style={{ 
           padding: '30px', 
           marginBottom: '40px',
-          background: course.cover_image_url ? `linear-gradient(rgba(1,1,5,0.85), rgba(1,1,5,0.95)), url(${course.cover_image_url})` : 'var(--bg-card)',
+          background: course.cover_image_url ? `linear-gradient(rgba(1,1,5,0.85), rgba(1,1,5,0.95)), url('${course.cover_image_url}')` : 'var(--bg-card)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           borderColor: 'rgba(193,255,7,0.2)'

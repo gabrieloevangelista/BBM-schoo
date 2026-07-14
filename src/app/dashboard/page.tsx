@@ -338,20 +338,28 @@ export default function DashboardPage() {
               <Link 
                 key={course.id} 
                 href={`/masterclasses/curso/${course.slug}`} 
-                className="glass-panel glass-panel-hover p-0 overflow-hidden no-underline flex flex-col group"
+                className="relative overflow-hidden rounded-xl aspect-[16/10] w-full group no-underline flex flex-col justify-end border border-white/10"
+                style={{ 
+                  boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
+                }}
               >
-                <div className="relative aspect-video w-full overflow-hidden bg-black/40 border-b border-white/5">
+                <div className="absolute inset-0 z-0">
                   <img 
                     src={course.cover_image_url || 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=600&auto=format&fit=crop'} 
                     alt={course.title} 
-                    className="w-full h-full object-cover group-hover:scale-105 transition-all duration-300"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                   />
                 </div>
-                <div className="p-5 flex flex-col flex-grow">
-                  <h4 className="text-sm font-bold mb-2 leading-snug group-hover:text-primary-lemon transition duration-200 font-outfit">{course.title}</h4>
-                  <p className="text-xs text-text-secondary leading-relaxed line-clamp-2 mt-auto">
-                    {course.description || 'Uma visão detalhada e prática das diretrizes da BBM School.'}
-                  </p>
+                {/* Gradient overlay mimicking the uploaded image */}
+                <div className="absolute inset-0 z-10 bg-gradient-to-t from-[#0a0a0c] via-[#0a0a0c]/60 to-transparent opacity-90"></div>
+                
+                <div className="relative z-20 p-5 flex flex-col gap-1 mt-auto">
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#C1FF07] font-outfit drop-shadow-md">
+                    CURSO COMPLETO
+                  </span>
+                  <h3 className="text-white text-lg font-bold leading-tight font-outfit m-0 drop-shadow-lg">
+                    {course.title}
+                  </h3>
                 </div>
               </Link>
             ))

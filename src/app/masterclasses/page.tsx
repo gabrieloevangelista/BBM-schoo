@@ -69,7 +69,7 @@ export default function MasterclassesPage() {
       
       {/* Featured Netflix-style Hero Banner */}
       {featuredCourse && (
-        <section className="relative w-full h-[320px] md:h-[420px] rounded-2xl overflow-hidden bg-cover bg-center" style={{ backgroundImage: `url(${featuredCourse.cover_image_url})` }}>
+        <section className="relative w-full h-[320px] md:h-[420px] rounded-2xl overflow-hidden bg-cover bg-center" style={{ backgroundImage: `url('${featuredCourse.cover_image_url}')` }}>
           {/* Gradients to fade bottom and sides */}
           <div className="absolute inset-0 bg-gradient-to-r from-[#010103] via-[#010103]/70 to-transparent z-10" />
           <div className="absolute inset-0 bg-gradient-to-t from-[#010103] via-transparent to-transparent z-10" />
@@ -111,21 +111,26 @@ export default function MasterclassesPage() {
         <h2 className="text-lg font-bold font-outfit px-1">Programas de Mentoria (Cursos)</h2>
         <div className="flex gap-5 overflow-x-auto pb-4 scrollbar-none snap-x snap-mandatory px-1">
           {courses.map(course => (
-            <Link 
-              key={course.id} 
-              href={`/masterclasses/curso/${course.slug}`}
-              className="w-[280px] md:w-[320px] aspect-video rounded-xl overflow-hidden relative flex-shrink-0 snap-start group cursor-pointer no-underline border border-white/5"
-            >
-              <img src={course.cover_image_url} alt={course.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-80 z-10" />
-              
-              <div className="absolute bottom-3 left-3 right-3 z-20 flex flex-col gap-1">
-                <span className="text-[9px] text-primary-lemon font-bold uppercase tracking-wider">Curso Completo</span>
-                <h3 className="text-sm font-bold m-0 font-outfit leading-tight group-hover:text-primary-lemon transition-colors text-white">
-                  {course.title}
-                </h3>
-              </div>
-            </Link>
+              <Link 
+                key={course.id} 
+                href={`/masterclasses/curso/${course.slug}`}
+                className="w-[280px] md:w-[320px] aspect-[16/10] rounded-xl overflow-hidden relative flex-shrink-0 snap-start group cursor-pointer no-underline border border-white/10 flex flex-col justify-end"
+                style={{ boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}
+              >
+                <div className="absolute inset-0 z-0">
+                  <img src={course.cover_image_url} alt={course.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" />
+                </div>
+                <div className="absolute inset-0 z-10 bg-gradient-to-t from-[#0a0a0c] via-[#0a0a0c]/60 to-transparent opacity-90" />
+                
+                <div className="relative z-20 p-5 flex flex-col gap-1 mt-auto">
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#C1FF07] font-outfit drop-shadow-md">
+                    CURSO COMPLETO
+                  </span>
+                  <h3 className="text-white text-lg font-bold leading-tight font-outfit m-0 drop-shadow-lg">
+                    {course.title}
+                  </h3>
+                </div>
+              </Link>
           ))}
         </div>
       </div>
@@ -151,28 +156,30 @@ export default function MasterclassesPage() {
                 <Link 
                   key={lesson.id} 
                   href={linkUrl}
-                  className="w-[240px] md:w-[280px] aspect-video rounded-xl overflow-hidden relative flex-shrink-0 snap-start group cursor-pointer no-underline border border-white/5"
+                  className="w-[280px] md:w-[320px] aspect-[16/10] rounded-xl overflow-hidden relative flex-shrink-0 snap-start group cursor-pointer no-underline border border-white/10 flex flex-col justify-end"
+                  style={{ boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}
                 >
-                  <img src={lesson.cover_image_url || lesson.thumbnail_url} alt={lesson.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                  <div className="absolute inset-0 z-0">
+                    <img src={lesson.cover_image_url || lesson.thumbnail_url} alt={lesson.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" />
+                  </div>
                   
                   {/* Play icon overlay on hover */}
-                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
-                    <div className="w-10 h-10 rounded-full bg-primary-lemon text-bg-deep flex items-center justify-center shadow-lg">
-                      <Play size={18} fill="currentColor" className="ml-0.5" />
+                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-30">
+                    <div className="w-12 h-12 rounded-full bg-primary-lemon text-bg-deep flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform duration-300">
+                      <Play size={20} fill="currentColor" className="ml-1" />
                     </div>
                   </div>
 
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-80 z-10" />
+                  <div className="absolute inset-0 z-10 bg-gradient-to-t from-[#0a0a0c] via-[#0a0a0c]/60 to-transparent opacity-90" />
                   
-                  <div className="absolute bottom-3 left-3 right-3 z-15 flex flex-col gap-1">
-                    <div className="flex items-center gap-1.5 text-[9px] text-primary-lemon font-bold uppercase tracking-wider">
+                  <div className="relative z-20 p-5 flex flex-col gap-1 mt-auto">
+                    <div className="flex items-center gap-1.5 text-[10px] text-[#C1FF07] font-extrabold uppercase tracking-wider font-outfit drop-shadow-md">
                       <Clock size={10} />
-                      <span>{lesson.duration}</span>
+                      <span>{lesson.duration || '00:00'}</span>
                     </div>
-                    <h3 className="text-xs font-bold m-0 leading-tight text-white">
+                    <h3 className="text-white text-lg font-bold leading-tight font-outfit m-0 drop-shadow-lg">
                       {lesson.title}
                     </h3>
-                    <span className="text-[9px] text-white/70 mt-0.5">Instrutor: {lesson.instructor_name}</span>
                   </div>
                 </Link>
               );
@@ -193,19 +200,21 @@ export default function MasterclassesPage() {
               <Link 
                 key={mod.id} 
                 href={linkUrl}
-                className="w-[200px] md:w-[240px] aspect-[4/3] rounded-xl overflow-hidden relative flex-shrink-0 snap-start group cursor-pointer no-underline border border-white/5"
+                className="w-[280px] md:w-[320px] aspect-[16/10] rounded-xl overflow-hidden relative flex-shrink-0 snap-start group cursor-pointer no-underline border border-white/10 flex flex-col justify-end"
+                style={{ boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}
               >
-                <img src={mod.cover_image_url} alt={mod.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-85 z-10" />
+                <div className="absolute inset-0 z-0">
+                  <img src={mod.cover_image_url} alt={mod.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" />
+                </div>
+                <div className="absolute inset-0 z-10 bg-gradient-to-t from-[#0a0a0c] via-[#0a0a0c]/60 to-transparent opacity-90" />
                 
-                <div className="absolute bottom-3 left-3 right-3 z-20 flex flex-col gap-1">
-                  <span className="badge badge-gray text-[9px] self-start py-0.5 px-1.5">Capítulo</span>
-                  <h3 className="text-xs font-bold m-0 leading-tight mt-1 font-outfit text-white">
+                <div className="relative z-20 p-5 flex flex-col gap-1 mt-auto">
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#C1FF07] font-outfit drop-shadow-md">
+                    MÓDULO
+                  </span>
+                  <h3 className="text-white text-lg font-bold leading-tight mt-1 font-outfit drop-shadow-lg m-0">
                     {mod.title}
                   </h3>
-                  <p className="text-[9px] text-white/70 leading-normal line-clamp-2 mt-0.5">
-                    {mod.description}
-                  </p>
                 </div>
               </Link>
             );

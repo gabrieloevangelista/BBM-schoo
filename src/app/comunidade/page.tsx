@@ -39,9 +39,42 @@ export default function ComunidadePage() {
   const [activeUserStories, setActiveUserStories] = useState<CommunityPost[]>([]);
   const [currentStoryIndex, setCurrentStoryIndex] = useState(0);
   const activeStory = activeUserStories.length > 0 ? activeUserStories[currentStoryIndex] : null;
+  const [storyProgress, setStoryProgress] = useState(0);
   const [storyViewers, setStoryViewers] = useState<any[]>([]);
   const [showArchived, setShowArchived] = useState(false);
   const storyInputRef = React.useRef<HTMLInputElement>(null);
+
+  // Auto-advance logic for stories (15s for images/text)
+  useEffect(() => {
+    if (!activeStory) return;
+    
+    setStoryProgress(0);
+    
+    // For videos, progress is handled via onTimeUpdate event on the video element
+    if (activeStory.video_url) return;
+
+    const duration = 15000;
+    const interval = 100;
+    const step = (100 / (duration / interval));
+    let progress = 0;
+
+    const timer = setInterval(() => {
+      progress += step;
+      if (progress >= 100) {
+        clearInterval(timer);
+        setStoryProgress(100);
+        if (currentStoryIndex < activeUserStories.length - 1) {
+          setCurrentStoryIndex(prev => prev + 1);
+        } else {
+          setActiveUserStories([]);
+        }
+      } else {
+        setStoryProgress(progress);
+      }
+    }, interval);
+
+    return () => clearInterval(timer);
+  }, [activeStory, currentStoryIndex, activeUserStories.length]);
 
   // Post Creator states
   const [postType, setPostType] = useState<'standard' | 'status' | 'reels'>('standard');
@@ -1303,7 +1336,25 @@ export default function ComunidadePage() {
                     <video src={activeStory.video_url} autoPlay muted playsInline loop style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'blur(24px)', transform: 'scale(1.15)', opacity: 0.5 }} />
                   </div>
                   <div className="absolute inset-0 z-10 flex items-center justify-center">
-                    <video src={activeStory.video_url} autoPlay controls playsInline loop style={{ width: '100%', height: 'auto', maxHeight: '100%', objectFit: 'contain' }} />
+                    <video 
+                      src={activeStory.video_url} 
+                      autoPlay 
+                      playsInline 
+                      onTimeUpdate={(e) => {
+                        const video = e.currentTarget;
+                        if (video.duration) {
+                          setStoryProgress((video.currentTime / video.duration) * 100);
+                        }
+                      }}
+                      onEnded={() => {
+                        if (currentStoryIndex < activeUserStories.length - 1) {
+                          setCurrentStoryIndex(prev => prev + 1);
+                        } else {
+                          setActiveUserStories([]);
+                        }
+                      }}
+                      style={{ width: '100%', height: 'auto', maxHeight: '100%', objectFit: 'contain' }} 
+                    />
                   </div>
                 </>
               )}
@@ -1328,10 +1379,10 @@ export default function ComunidadePage() {
                   <div key={idx} style={{ flex: 1, height: '2px', background: 'rgba(255,255,255,0.3)', borderRadius: '2px', overflow: 'hidden' }}>
                     <div 
                       style={{ 
-                        width: idx < currentStoryIndex ? '100%' : (idx === currentStoryIndex ? '100%' : '0%'), 
+                        width: idx < currentStoryIndex ? '100%' : (idx === currentStoryIndex ? `${storyProgress}%` : '0%'), 
                         height: '100%', 
                         background: '#fff',
-                        transition: 'width 0.1s linear'
+                        transition: idx === currentStoryIndex ? 'width 0.1s linear' : 'none'
                       }} 
                     />
                   </div>
