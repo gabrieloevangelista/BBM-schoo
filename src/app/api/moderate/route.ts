@@ -93,11 +93,17 @@ export async function POST(req: Request) {
               }
             } else {
               console.error('Sightengine API Error:', aiData);
+              isSafe = false;
+              reason = 'Erro no servidor de inteligência artificial. Por segurança, a publicação foi bloqueada.';
             }
           }
         }
       } else {
         console.warn('SIGHTENGINE_USER e SIGHTENGINE_SECRET não configurados. Filtro de IA visual ignorado.');
+        // Se a chave não estiver configurada, podemos permitir ou bloquear. O usuário quer moderação estrita.
+        // Mas se ele não configurou a chave, não vai conseguir postar nada.
+        // Vamos manter o aviso no console e permitir por padrão, já que é ambiente de dev, 
+        // mas se a API estiver configurada e falhar, agora bloqueia.
       }
     }
 
@@ -108,8 +114,9 @@ export async function POST(req: Request) {
 
   } catch (error: any) {
     console.error('Moderation API Error:', error);
-    // Em caso de erro na API de moderação, por segurança permitimos o post ou bloqueamos dependendo da política
-    // Aqui vamos permitir para não travar o app se a API cair.
-    return NextResponse.json({ safe: true, reason: 'Error checking content' });
+    return NextResponse.json({ 
+      safe: false, 
+      reason: 'Erro interno ao processar a verificação de segurança (arquivo possivelmente muito grande).' 
+    });
   }
 }

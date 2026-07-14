@@ -192,6 +192,11 @@ export default function ComunidadePage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ text: '', mediaUrl, base64Media, type })
         });
+        
+        if (!modRes.ok) {
+          customAlert('Erro ao validar a imagem. O arquivo pode ser muito grande ou o servidor está indisponível.');
+          return;
+        }
         const modData = await modRes.json();
         if (!modData.safe) {
           customAlert(modData.reason || 'Conteúdo bloqueado pelos nossos filtros de segurança.');
@@ -228,6 +233,7 @@ export default function ComunidadePage() {
         }
       } catch (e) {
         console.error(e);
+        customAlert('Ocorreu um erro inesperado ao tentar postar. Tente novamente.');
       }
       if (storyInputRef.current) storyInputRef.current.value = '';
     };
@@ -309,6 +315,11 @@ export default function ComunidadePage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: content.trim(), mediaUrl: attachedPreview || undefined, base64Media, type: postType })
       });
+
+      if (!modRes.ok) {
+        customAlert('Erro ao validar o conteúdo. O arquivo pode ser muito grande ou o servidor está indisponível.');
+        return;
+      }
       const modData = await modRes.json();
       if (!modData.safe) {
         customAlert(modData.reason || 'Conteúdo bloqueado pelos nossos filtros de segurança.');
@@ -355,6 +366,7 @@ export default function ComunidadePage() {
       }
     } catch (err) {
       console.error(err);
+      customAlert('Ocorreu um erro inesperado ao tentar postar. Tente novamente.');
     }
   };
 
