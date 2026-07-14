@@ -196,12 +196,22 @@ export default function ComunidadePage() {
         });
         
         if (!modRes.ok) {
-          customAlert('Sua publicação foi removida por infringir as regras da comunidade.');
+          customAlert(
+            <div>
+              Sua publicação foi removida por infringir as regras da comunidade.{' '}
+              <a href="/regras" className="text-primary-lemon hover:underline font-bold">Leia as regras aqui</a>.
+            </div>
+          );
           return;
         }
         const modData = await modRes.json();
         if (!modData.safe) {
-          customAlert(modData.reason || 'Conteúdo bloqueado pelos nossos filtros de segurança.');
+          customAlert(
+            <div>
+              {modData.reason || 'Conteúdo bloqueado pelos nossos filtros de segurança.'}{' '}
+              <a href="/regras" className="text-primary-lemon hover:underline font-bold">Leia as regras aqui</a>.
+            </div>
+          );
           return;
         }
 
@@ -235,7 +245,12 @@ export default function ComunidadePage() {
         }
       } catch (e) {
         console.error(e);
-        customAlert('Sua publicação foi removida por infringir as regras da comunidade.');
+        customAlert(
+          <div>
+            Sua publicação foi removida por infringir as regras da comunidade.{' '}
+            <a href="/regras" className="text-primary-lemon hover:underline font-bold">Leia as regras aqui</a>.
+          </div>
+        );
       }
       if (storyInputRef.current) storyInputRef.current.value = '';
     };
@@ -319,12 +334,22 @@ export default function ComunidadePage() {
       });
 
       if (!modRes.ok) {
-        customAlert('Sua publicação foi removida por infringir as regras da comunidade.');
+        customAlert(
+          <div>
+            Sua publicação foi removida por infringir as regras da comunidade.{' '}
+            <a href="/regras" className="text-primary-lemon hover:underline font-bold">Leia as regras aqui</a>.
+          </div>
+        );
         return;
       }
       const modData = await modRes.json();
       if (!modData.safe) {
-        customAlert(modData.reason || 'Conteúdo bloqueado pelos nossos filtros de segurança.');
+        customAlert(
+          <div>
+            {modData.reason || 'Conteúdo bloqueado pelos nossos filtros de segurança.'}{' '}
+            <a href="/regras" className="text-primary-lemon hover:underline font-bold">Leia as regras aqui</a>.
+          </div>
+        );
         return;
       }
 
@@ -368,7 +393,12 @@ export default function ComunidadePage() {
       }
     } catch (err) {
       console.error(err);
-      customAlert('Sua publicação foi removida por infringir as regras da comunidade.');
+      customAlert(
+        <div>
+          Sua publicação foi removida por infringir as regras da comunidade.{' '}
+          <a href="/regras" className="text-primary-lemon hover:underline font-bold">Leia as regras aqui</a>.
+        </div>
+      );
     }
   };
 
@@ -552,7 +582,12 @@ export default function ComunidadePage() {
       });
       const modData = await modRes.json();
       if (!modData.safe) {
-        customAlert(modData.reason || 'Conteúdo bloqueado pelos nossos filtros de segurança.');
+        customAlert(
+          <div>
+            {modData.reason || 'Conteúdo bloqueado pelos nossos filtros de segurança.'}{' '}
+            <a href="/regras" className="text-primary-lemon hover:underline font-bold">Leia as regras aqui</a>.
+          </div>
+        );
         return;
       }
 

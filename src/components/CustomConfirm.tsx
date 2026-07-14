@@ -6,16 +6,17 @@ import { ShieldAlert, X } from 'lucide-react';
 
 interface ConfirmModalProps {
   title: string;
-  message: string;
+  message: React.ReactNode;
   onConfirm: () => void;
   onCancel?: () => void; // Optional for alerts
 }
 
 function ConfirmModal({ title, message, onConfirm, onCancel }: ConfirmModalProps) {
-  // Check if it looks like a delete action
-  const isDelete = message.toLowerCase().includes('excluir') || 
-                   message.toLowerCase().includes('remover') || 
-                   message.toLowerCase().includes('desfazer');
+  const isDelete = typeof message === 'string' && (
+    message.toLowerCase().includes('excluir') || 
+    message.toLowerCase().includes('remover') || 
+    message.toLowerCase().includes('desfazer')
+  );
 
   return (
     <div className="fixed inset-0 bg-[#010103]/85 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 animate-fade-in">
@@ -51,9 +52,9 @@ function ConfirmModal({ title, message, onConfirm, onCancel }: ConfirmModalProps
         </div>
 
         {/* Message body */}
-        <p className="text-xs text-text-secondary leading-relaxed m-0 font-medium">
+        <div className="text-xs text-text-secondary leading-relaxed m-0 font-medium">
           {message}
-        </p>
+        </div>
 
         {/* Action Buttons */}
         <div className="flex justify-end gap-3 pt-2 border-t border-white/[0.04]">
@@ -91,7 +92,7 @@ function ConfirmModal({ title, message, onConfirm, onCancel }: ConfirmModalProps
   );
 }
 
-export function customConfirm(message: string, title: string = 'Aviso de Segurança'): Promise<boolean> {
+export function customConfirm(message: React.ReactNode, title: string = 'Aviso de Segurança'): Promise<boolean> {
   return new Promise((resolve) => {
     // Prevent rendering during server-side build phase
     if (typeof window === 'undefined') {
@@ -120,7 +121,7 @@ export function customConfirm(message: string, title: string = 'Aviso de Seguran
   });
 }
 
-export function customAlert(message: string, title: string = 'Aviso'): Promise<void> {
+export function customAlert(message: React.ReactNode, title: string = 'Aviso'): Promise<void> {
   return new Promise((resolve) => {
     if (typeof window === 'undefined') {
       resolve();
