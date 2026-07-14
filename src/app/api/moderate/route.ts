@@ -52,12 +52,12 @@ export async function POST(req: Request) {
             if (aiData.data && aiData.data.frames) {
               for (const frame of aiData.data.frames) {
                 if (
-                  frame.nudity?.safe < 0.5 || 
+                  (frame.nudity && frame.nudity.none < 0.8) || 
                   frame.weapon > 0.8 || 
                   frame.offensive?.prob > 0.8
                 ) {
                   isSafe = false;
-                  reason = 'Nossa IA identificou conteúdo visual impróprio (nudez, armas ou ofensivo) neste vídeo.';
+                  reason = 'Nossa IA identificou conteúdo visual impróprio (nudez, roupas de banho/lingerie, armas ou ofensivo) neste vídeo.';
                   break;
                 }
               }
@@ -65,12 +65,12 @@ export async function POST(req: Request) {
           } else {
             // Lógica para imagem
             if (
-              aiData.nudity?.safe < 0.5 || 
+              (aiData.nudity && aiData.nudity.none < 0.8) || 
               aiData.weapon > 0.8 || 
               aiData.offensive?.prob > 0.8
             ) {
               isSafe = false;
-              reason = 'Nossa IA identificou conteúdo visual impróprio (nudez, armas ou ofensivo) nesta imagem.';
+              reason = 'Nossa IA identificou conteúdo visual impróprio (nudez, roupas de banho/lingerie, armas ou ofensivo) nesta imagem.';
             }
           }
         } else {
