@@ -38,6 +38,7 @@ export interface Module {
   id: string;
   course_id: string;
   title: string;
+  sequence_order?: number;
   description?: string;
   cover_image_url?: string;
   status: 'published' | 'rascunho' | 'agendado';

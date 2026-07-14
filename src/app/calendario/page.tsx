@@ -43,7 +43,7 @@ export default function CalendarioPage() {
     return `${today.getFullYear()}-${formattedMonth}-${formattedDay}`;
   });
   const [newTitle, setNewTitle] = useState('');
-  const [newEventType, setNewEventType] = useState<'mentoria'>('mentoria');
+  const [newEventType, setNewEventType] = useState<string>('mentoria');
   const [newStartTime, setNewStartTime] = useState('19:00');
   const [newEndTime, setNewEndTime] = useState('20:00');
   const [newTopic, setNewTopic] = useState('');
