@@ -12,6 +12,7 @@ import {
   Upload,
   CheckSquare
 } from 'lucide-react';
+import { CustomSelect } from '@/components/CustomSelect';
 import * as XLSX from 'xlsx';
 import { Member } from '@/lib/db';
 import Switch from '@/components/Switch';
@@ -301,37 +302,37 @@ export default function MembrosAdminPage() {
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               <span className="text-xs text-text-secondary">Alterar Perfil:</span>
-              <select 
-                className="form-input text-xs py-1 px-2"
-                onChange={(e) => {
-                  if (e.target.value) {
-                    handleBulkRole(e.target.value as 'admin' | 'mentor' | 'mentorado');
-                    e.target.value = "";
+              <CustomSelect 
+                value=""
+                onChange={(val) => {
+                  if (val) {
+                    handleBulkRole(val as 'admin' | 'mentor' | 'mentorado');
                   }
                 }}
-              >
-                <option value="">Selecione...</option>
-                <option value="admin">Administrador</option>
-                <option value="mentor">Mentor</option>
-                <option value="mentorado">Mentorado</option>
-              </select>
+                options={[
+                  { value: 'admin', label: 'Administrador' },
+                  { value: 'mentor', label: 'Mentor' },
+                  { value: 'mentorado', label: 'Mentorado' },
+                ]}
+                className="w-36 text-xs"
+              />
             </div>
             
             <div className="flex items-center gap-2">
               <span className="text-xs text-text-secondary">Alterar Status:</span>
-              <select 
-                className="form-input text-xs py-1 px-2"
-                onChange={(e) => {
-                  if (e.target.value) {
-                    handleBulkStatus(e.target.value as 'Ativo' | 'Inativo');
-                    e.target.value = "";
+              <CustomSelect 
+                value=""
+                onChange={(val) => {
+                  if (val) {
+                    handleBulkStatus(val as 'Ativo' | 'Inativo');
                   }
                 }}
-              >
-                <option value="">Selecione...</option>
-                <option value="Ativo">Ativar</option>
-                <option value="Inativo">Inativar</option>
-              </select>
+                options={[
+                  { value: 'Ativo', label: 'Ativar' },
+                  { value: 'Inativo', label: 'Inativar' },
+                ]}
+                className="w-32 text-xs"
+              />
             </div>
             
             <div className="h-6 w-px bg-white/10 mx-1"></div>

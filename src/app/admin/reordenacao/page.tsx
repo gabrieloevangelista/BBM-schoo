@@ -6,8 +6,9 @@ import {
   GraduationCap, Users, MessageSquare, UserPlus, Box,
   Edit2, Trash2, ChevronDown, ChevronUp, Image as ImageIcon,
   Play, Plus, ArrowLeft, GripVertical, Check, Video, Paperclip, X,
-  Minimize2, Search, Filter, AlertTriangle, Upload
+  Minimize2, Search, Filter, AlertTriangle, AlignLeft, Upload
 } from 'lucide-react';
+import { CustomSelect } from '@/components/CustomSelect';
 import { useAuth } from '@/context/AuthContext';
 import Switch from '@/components/Switch';
 
@@ -67,27 +68,17 @@ const CustomDateTimePicker = ({ value, onChange }: { value: string, onChange: (v
       </div>
       <div className="hidden md:flex items-center gap-2">
         <div className="flex gap-1">
-          <select className={`${selectClass} px-2 py-2 min-w-[60px]`} value={day} onChange={e => handleChange('day', e.target.value)}>
-            {Array.from({length: 31}, (_, i) => <option key={i+1} value={String(i+1).padStart(2,'0')}>{String(i+1).padStart(2,'0')}</option>)}
-          </select>
+          <CustomSelect className="min-w-[70px]" value={day} onChange={v => handleChange('day', v)} options={Array.from({length: 31}, (_, i) => ({value: String(i+1).padStart(2,'0'), label: String(i+1).padStart(2,'0')}))} />
           <span className="text-text-secondary self-center">/</span>
-          <select className={`${selectClass} px-2 py-2 min-w-[60px]`} value={month} onChange={e => handleChange('month', e.target.value)}>
-            {Array.from({length: 12}, (_, i) => <option key={i+1} value={String(i+1).padStart(2,'0')}>{String(i+1).padStart(2,'0')}</option>)}
-          </select>
+          <CustomSelect className="min-w-[70px]" value={month} onChange={v => handleChange('month', v)} options={Array.from({length: 12}, (_, i) => ({value: String(i+1).padStart(2,'0'), label: String(i+1).padStart(2,'0')}))} />
           <span className="text-text-secondary self-center">/</span>
-          <select className={`${selectClass} px-2 py-2 min-w-[80px]`} value={year} onChange={e => handleChange('year', e.target.value)}>
-            {Array.from({length: 5}, (_, i) => <option key={i} value={String(new Date().getFullYear() + i)}>{new Date().getFullYear() + i}</option>)}
-          </select>
+          <CustomSelect className="min-w-[90px]" value={year} onChange={v => handleChange('year', v)} options={Array.from({length: 5}, (_, i) => ({value: String(new Date().getFullYear() + i), label: String(new Date().getFullYear() + i)}))} />
         </div>
         <span className="text-text-secondary text-xs uppercase font-bold mx-1">às</span>
         <div className="flex gap-1">
-          <select className={`${selectClass} px-2 py-2 min-w-[60px]`} value={hours} onChange={e => handleChange('hours', e.target.value)}>
-            {Array.from({length: 24}, (_, i) => <option key={i} value={String(i).padStart(2,'0')}>{String(i).padStart(2,'0')}</option>)}
-          </select>
+          <CustomSelect className="min-w-[70px]" value={hours} onChange={v => handleChange('hours', v)} options={Array.from({length: 24}, (_, i) => ({value: String(i).padStart(2,'0'), label: String(i).padStart(2,'0')}))} />
           <span className="text-text-secondary self-center">:</span>
-          <select className={`${selectClass} px-2 py-2 min-w-[60px]`} value={minutes} onChange={e => handleChange('minutes', e.target.value)}>
-            {Array.from({length: 60}, (_, i) => <option key={i} value={String(i).padStart(2,'0')}>{String(i).padStart(2,'0')}</option>)}
-          </select>
+          <CustomSelect className="min-w-[70px]" value={minutes} onChange={v => handleChange('minutes', v)} options={Array.from({length: 60}, (_, i) => ({value: String(i).padStart(2,'0'), label: String(i).padStart(2,'0')}))} />
         </div>
       </div>
     </>
@@ -615,11 +606,16 @@ export default function AdminContentManager() {
 
         <FormField label="Status de Publicação">
           <div className="relative">
-            <select className={selectClass}>
-              <option>Publicado</option>
-              <option>Rascunho</option>
-            </select>
-            <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-text-secondary pointer-events-none" />
+            <CustomSelect 
+              value={moduleForm.status || 'published'}
+              onChange={val => setModuleForm({...moduleForm, status: val as any})}
+              options={[
+                { value: 'published', label: 'Publicado' },
+                { value: 'rascunho', label: 'Rascunho' },
+                { value: 'agendado', label: 'Agendado' }
+              ]}
+              className="w-full"
+            />
           </div>
         </FormField>
 
@@ -722,10 +718,14 @@ export default function AdminContentManager() {
           
           <FormField label="Instrutor">
             <div className="relative">
-              <select className={selectClass} value={lessonForm.instructor_name} onChange={e => setLessonForm({...lessonForm, instructor_name: e.target.value})}>
-                <option>Gabriel Evangelista</option>
-              </select>
-              <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-text-secondary pointer-events-none" />
+              <CustomSelect 
+                value={lessonForm.instructor_name || 'Gabriel Evangelista'}
+                onChange={val => setLessonForm({...lessonForm, instructor_name: val})}
+                options={[
+                  { value: 'Gabriel Evangelista', label: 'Gabriel Evangelista' }
+                ]}
+                className="w-full"
+              />
             </div>
           </FormField>
         </div>

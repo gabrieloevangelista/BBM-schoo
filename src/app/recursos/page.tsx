@@ -17,8 +17,11 @@ import {
   FileQuestion,
   X,
   CheckSquare,
-  Square
+  Square,
+  Video,
+  Database
 } from 'lucide-react';
+import { CustomSelect } from '@/components/CustomSelect';
 import { customConfirm, customAlert } from '@/components/CustomConfirm';
 import { Resource, Lesson } from '@/lib/db';
 
@@ -621,18 +624,15 @@ export default function RecursosPage() {
 
               <div className="form-group">
                 <label className="form-label">Vincular à Aula *</label>
-                <select 
-                  className="form-input"
+                <CustomSelect
                   value={newLessonId}
-                  onChange={(e) => setNewLessonId(e.target.value)}
-                  required
-                  style={{ background: 'rgba(1,1,5,0.95)' }}
-                >
-                  <option value="">Selecione uma aula...</option>
-                  {lessons.map(les => (
-                    <option key={les.id} value={les.id}>{les.title}</option>
-                  ))}
-                </select>
+                  onChange={(val) => setNewLessonId(val)}
+                  options={[
+                    { value: '', label: 'Selecione uma aula...' },
+                    ...lessons.map(les => ({ value: les.id, label: les.title }))
+                  ]}
+                  className="w-full text-sm"
+                />
               </div>
 
               <div className="form-group">

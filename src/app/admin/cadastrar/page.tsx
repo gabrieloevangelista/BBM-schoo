@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Member } from '@/lib/db';
 import { customAlert } from '@/components/CustomConfirm';
 import { UserPlus, ArrowLeft } from 'lucide-react';
+import { CustomSelect } from '@/components/CustomSelect';
 
 const FormField = ({ label, children }: { label: string; children: React.ReactNode }) => (
   <div className="flex flex-col gap-1.5">
@@ -124,15 +125,16 @@ export default function CadastrarUsuarioPage() {
 
             <FormField label="Tipo de Perfil">
               <div className="relative">
-                <select 
-                  className={selectClass} 
-                  value={memberType} 
-                  onChange={e => setMemberType(e.target.value as any)}
-                >
-                  <option value="mentorado">Mentorado (Padrão)</option>
-                  <option value="mentor">Mentor</option>
-                  <option value="admin">Administrador</option>
-                </select>
+                <CustomSelect 
+                  value={memberType}
+                  onChange={(val) => setMemberType(val as any)}
+                  options={[
+                    { value: 'mentorado', label: 'Mentorado (Padrão)' },
+                    { value: 'mentor', label: 'Mentor' },
+                    { value: 'admin', label: 'Administrador' },
+                  ]}
+                  className="w-full text-sm"
+                />
               </div>
             </FormField>
           </div>
