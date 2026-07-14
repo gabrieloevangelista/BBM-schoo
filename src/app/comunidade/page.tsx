@@ -319,7 +319,8 @@ export default function ComunidadePage() {
 
   // Delete post
   const handleDeletePost = async (postId: string) => {
-    if (!confirm('Deseja excluir esta publicação permanentemente?')) return;
+    const isConfirmed = await customConfirm('Deseja excluir esta publicação permanentemente?', 'Excluir Publicação');
+    if (!isConfirmed) return;
     try {
       const response = await fetch('/api/db');
       if (response.ok) {
@@ -552,7 +553,8 @@ export default function ComunidadePage() {
 
   // Delete comment from post
   const handleDeleteComment = async (postId: string, commentId: string, isReply: boolean = false, parentId?: string) => {
-    if (!confirm('Deseja excluir este comentário?')) return;
+    const isConfirmed = await customConfirm('Deseja excluir este comentário?', 'Excluir Comentário');
+    if (!isConfirmed) return;
     try {
       const response = await fetch('/api/db');
       if (response.ok) {

@@ -27,7 +27,7 @@ import {
   Star,
   Check
 } from 'lucide-react';
-import { customAlert } from '@/components/CustomConfirm';
+import { customAlert, customConfirm } from '@/components/CustomConfirm';
 import { LessonDetailSkeleton } from '@/components/SkeletonLoaders';
 import { Lesson, Resource, LessonComment, Course, Module } from '@/lib/db';
 import MuxPlayer from '@mux/mux-player-react';
@@ -316,13 +316,27 @@ export default function LessonDetailPage() {
           setNewCommentText('');
         }
       }
+import { customConfirm } from '@/components/ui/CustomConfirm';
+{{ ... }}
+        db.lesson_comments = db.lesson_comments.filter((c: any) => c.id !== commentId && c.parent_id !== commentId);
+        
+        await fetch('/api/db', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(db)
+        });
+
+        const updatedComments = db.lesson_comments.filter((c: any) => c.lesson_id === lesson?.id);
+        setComments(updatedComments);
+      }
     } catch (err) {
       console.error(err);
     }
   };
 
-  const handleDeleteComment = async (commentId: string) => {
-    if (!confirm('Deseja excluir este comentário permanentemente?')) return;
+  const handleDeleteComment = async (commentId: string, isReply: boolean = false, parentId?: string) => {
+    const isConfirmed = await customConfirm('Deseja excluir este comentário permanentemente?', 'Excluir Comentário');
+    if (!isConfirmed) return;
     try {
       const response = await fetch('/api/db');
       if (response.ok) {
