@@ -692,20 +692,31 @@ export default function ComunidadePage() {
               />
               {/* Novo Status Story Circle */}
               <div 
-                style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', flexShrink: 0, position: 'relative' }}
+                style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', flexShrink: 0 }}
                 onClick={() => storyInputRef.current?.click()}
               >
-                <div style={{ width: '56px', height: '56px', borderRadius: '50%', padding: '2px', border: '2px dashed var(--color-primary-lemon)', background: 'var(--bg-deep)' }}>
-                  {user?.img ? (
-                    <img src={user.img} alt="Me" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
-                  ) : (
-                    <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', color: '#C1FF07', fontSize: '0.85rem', fontWeight: 600 }} className="flex-center">
-                      {user?.name?.substring(0, 2).toUpperCase() || 'US'}
-                    </div>
-                  )}
-                </div>
-                <div className="absolute bg-primary-lemon text-black rounded-full flex-center" style={{ width: '16px', height: '16px', bottom: '16px', right: '0' }}>
-                  <Plus size={10} strokeWidth={4} />
+                <div style={{ position: 'relative', width: '56px', height: '56px' }}>
+                  <div style={{ width: '100%', height: '100%', borderRadius: '50%', overflow: 'hidden' }}>
+                    {user?.img ? (
+                      <img src={user.img} alt="Me" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    ) : (
+                      <div style={{ width: '100%', height: '100%', background: 'rgba(255,255,255,0.1)', color: '#fff', fontSize: '0.85rem', fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        {user?.name?.substring(0, 2).toUpperCase() || 'US'}
+                      </div>
+                    )}
+                  </div>
+                  <div 
+                    className="absolute bg-primary-lemon text-black rounded-full flex items-center justify-center" 
+                    style={{ 
+                      width: '18px', 
+                      height: '18px', 
+                      bottom: '-2px', 
+                      right: '-2px', 
+                      border: '2px solid #111' 
+                    }}
+                  >
+                    <Plus size={12} strokeWidth={4} />
+                  </div>
                 </div>
                 <span className="text-[10px] text-text-secondary mt-1.5 font-medium">Seu Story</span>
               </div>
