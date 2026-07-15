@@ -276,8 +276,8 @@ export default function RecursosPage() {
     <div className="flex flex-col gap-6">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight font-outfit m-0">Biblioteca de Recursos</h1>
-          <p className="text-text-secondary text-sm m-0 mt-1">Materiais de apoio exclusivos, modelos financeiros e diretrizes táticas para acelerar a performance.</p>
+          <h1 className="text-3xl font-extrabold tracking-tight font-outfit m-0">Recursos</h1>
+          <p className="text-text-secondary text-sm m-0 mt-1">Materiais de apoio e downloads.</p>
         </div>
         
         {isAdmin && (
@@ -297,12 +297,13 @@ export default function RecursosPage() {
         <div className="relative max-w-md">
           <input 
             type="text" 
-            className="form-input pl-10 pr-4 py-2.5 text-xs w-full" 
+            className="form-input pr-4 py-2.5 text-xs w-full" 
+            style={{ paddingLeft: '40px' }}
             placeholder="Pesquisar materiais..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
-          <Search size={16} className="absolute left-3.5 top-3 text-text-muted" />
+          <Search size={16} className="absolute left-3.5 top-3 text-text-muted pointer-events-none" />
         </div>
 
         {/* 4 Cards Grid */}
@@ -320,8 +321,8 @@ export default function RecursosPage() {
               <FileQuestion size={20} />
             </div>
             <div>
-              <h4 className="text-xs font-bold mb-1 font-outfit">Todos os Arquivos</h4>
-              <p className="text-[10px] text-text-secondary m-0 leading-normal">Todos os downloads consolidados.</p>
+              <h4 className="text-xs font-bold mb-1 font-outfit">Todos</h4>
+              <p className="text-[10px] text-text-secondary m-0 leading-normal">Visão geral.</p>
             </div>
           </div>
 
@@ -338,8 +339,8 @@ export default function RecursosPage() {
               <FileText size={20} />
             </div>
             <div>
-              <h4 className="text-xs font-bold mb-1 font-outfit">PDFs Executivos</h4>
-              <p className="text-[10px] text-text-secondary m-0 leading-normal">Guias estratégicos, relatórios e manuais.</p>
+              <h4 className="text-xs font-bold mb-1 font-outfit">Documentos</h4>
+              <p className="text-[10px] text-text-secondary m-0 leading-normal">PDFs e textos.</p>
             </div>
           </div>
 
@@ -356,8 +357,8 @@ export default function RecursosPage() {
               <FileSpreadsheet size={20} />
             </div>
             <div>
-              <h4 className="text-xs font-bold mb-1 font-outfit">Planilhas & Cálculos</h4>
-              <p className="text-[10px] text-text-secondary m-0 leading-normal">Modelos de viabilidade e simuladores de valuation.</p>
+              <h4 className="text-xs font-bold mb-1 font-outfit">Planilhas</h4>
+              <p className="text-[10px] text-text-secondary m-0 leading-normal">Excel e CSV.</p>
             </div>
           </div>
 
@@ -374,8 +375,8 @@ export default function RecursosPage() {
               <FileText size={20} />
             </div>
             <div>
-              <h4 className="text-xs font-bold mb-1 font-outfit">Templates Prontos</h4>
-              <p className="text-[10px] text-text-secondary m-0 leading-normal">Apresentações executivas e propostas comerciais.</p>
+              <h4 className="text-xs font-bold mb-1 font-outfit">Apresentações</h4>
+              <p className="text-[10px] text-text-secondary m-0 leading-normal">Slides e PPTs.</p>
             </div>
           </div>
         </div>
