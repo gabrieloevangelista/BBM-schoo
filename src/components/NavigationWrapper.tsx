@@ -103,6 +103,16 @@ export default function NavigationWrapper({ children }: { children: React.ReactN
     }
   };
 
+  const handleNotificationClick = async (n: Notification) => {
+    if (!n.is_read) {
+      await handleMarkAsRead(n.id);
+    }
+    setShowNotifications(false);
+    if (n.link) {
+      router.push(n.link);
+    }
+  };
+
   const handleMarkAllAsRead = async () => {
     try {
       const response = await fetch('/api/db');
@@ -356,17 +366,58 @@ export default function NavigationWrapper({ children }: { children: React.ReactN
         {/* Header */}
         <header className={`h-[70px] sticky top-0 backdrop-blur-xl border-b flex items-center justify-between px-6 md:px-10 z-40 ${theme === 'light' ? 'bg-white/80 border-black/8 shadow-sm' : 'bg-[#020205]/60 border-white/10'}`}>
           <div>
-            <h2 className={`text-lg font-bold tracking-tight font-outfit ${theme === 'light' ? 'text-gray-900' : 'text-white'}`}>
+            <h2 className={`text-sm sm:text-lg font-bold tracking-tight font-outfit truncate max-w-[120px] sm:max-w-none ${theme === 'light' ? 'text-gray-900' : 'text-white'}`}>
               {pathname === '/dashboard' && 'Visão geral'}
               {pathname.startsWith('/masterclasses') && 'Masterclasses'}
-              {pathname === '/recursos' && 'Central de Recursos'}
-              {pathname === '/calendario' && 'Calendário de Eventos'}
-              {pathname === '/comunidade' && 'Comunidade & Feed'}
-              {pathname === '/missoes' && 'Missões Técnicas'}
-              {pathname === '/oportunidades' && 'Oportunidades de Co-investimento'}
-              {pathname === '/projetos' && 'Projetos e Simulador'}
-              {pathname.startsWith('/admin') && 'Painel de Administração'}
-              {pathname.startsWith('/perfil') && 'Perfil do Membro'}
+              {pathname === '/recursos' && (
+                <>
+                  <span className="hidden sm:inline">Central de Recursos</span>
+                  <span className="sm:hidden">Recursos</span>
+                </>
+              )}
+              {pathname === '/calendario' && (
+                <>
+                  <span className="hidden sm:inline">Calendário de Eventos</span>
+                  <span className="sm:hidden">Calendário</span>
+                </>
+              )}
+              {pathname === '/comunidade' && (
+                <>
+                  <span className="hidden sm:inline">Comunidade & Feed</span>
+                  <span className="sm:hidden">Comunidade</span>
+                </>
+              )}
+              {pathname === '/missoes' && (
+                <>
+                  <span className="hidden sm:inline">Missões Técnicas</span>
+                  <span className="sm:hidden">Missões</span>
+                </>
+              )}
+              {pathname === '/oportunidades' && (
+                <>
+                  <span className="hidden sm:inline">Oportunidades de Co-investimento</span>
+                  <span className="sm:hidden">Oportunidades</span>
+                </>
+              )}
+              {pathname === '/projetos' && (
+                <>
+                  <span className="hidden sm:inline">Projetos e Simulador</span>
+                  <span className="sm:hidden">Projetos</span>
+                </>
+              )}
+              {pathname === '/notificacoes' && 'Notificações'}
+              {pathname.startsWith('/admin') && (
+                <>
+                  <span className="hidden sm:inline">Painel de Administração</span>
+                  <span className="sm:hidden">Admin</span>
+                </>
+              )}
+              {pathname.startsWith('/perfil') && (
+                <>
+                  <span className="hidden sm:inline">Perfil do Membro</span>
+                  <span className="sm:hidden">Perfil</span>
+                </>
+              )}
             </h2>
           </div>
 
@@ -414,34 +465,48 @@ export default function NavigationWrapper({ children }: { children: React.ReactN
                       Nenhuma notificação encontrada.
                     </div>
                   ) : (
-                    <div className="flex flex-col gap-2.5">
-                      {notifications.map(n => (
-                        <div 
-                          key={n.id} 
-                          className={`p-2.5 rounded-lg border-l-4 transition-all duration-200 ${
-                            n.is_read 
-                              ? 'bg-transparent border-l-transparent' 
-                              : 'bg-primary-lemon/4 border-l-primary-lemon'
-                          }`}
-                        >
-                          <div className="flex justify-between items-start gap-1">
-                            <h4 className={`text-xs font-semibold leading-tight ${theme === 'light' ? 'text-gray-900' : 'text-white'}`}>{n.title}</h4>
-                            {!n.is_read && (
-                              <button 
-                                onClick={() => handleMarkAsRead(n.id)}
-                                className="border-0 text-accent-green hover:text-emerald-300 bg-transparent p-0 cursor-pointer"
-                              >
-                                <CheckCircle size={12} />
-                              </button>
-                            )}
+                    <>
+                      <div className="flex flex-col gap-2.5">
+                        {notifications.map(n => (
+                          <div 
+                            key={n.id} 
+                            onClick={() => handleNotificationClick(n)}
+                            className={`p-2.5 rounded-lg border-l-4 transition-all duration-200 cursor-pointer ${
+                              n.is_read 
+                                ? theme === 'light' ? 'bg-transparent border-l-transparent hover:bg-black/5' : 'bg-transparent border-l-transparent hover:bg-white/5'
+                                : 'bg-primary-lemon/4 border-l-primary-lemon hover:bg-primary-lemon/8'
+                            }`}
+                          >
+                            <div className="flex justify-between items-start gap-1">
+                              <h4 className={`text-xs font-semibold leading-tight ${theme === 'light' ? 'text-gray-900' : 'text-white'}`}>{n.title}</h4>
+                              {!n.is_read && (
+                                <button 
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleMarkAsRead(n.id);
+                                  }}
+                                  className="border-0 text-accent-green hover:text-emerald-300 bg-transparent p-0 cursor-pointer"
+                                >
+                                  <CheckCircle size={12} />
+                                </button>
+                              )}
+                            </div>
+                            <p className="text-[11px] text-text-secondary mt-1 leading-normal">{n.description}</p>
+                            <span className="text-[9px] text-text-muted mt-1 block">
+                              {new Date(n.created_at).toLocaleDateString('pt-BR')}
+                            </span>
                           </div>
-                          <p className="text-[11px] text-text-secondary mt-1 leading-normal">{n.description}</p>
-                          <span className="text-[9px] text-text-muted mt-1 block">
-                            {new Date(n.created_at).toLocaleDateString('pt-BR')}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
+                      
+                      <Link 
+                        href="/notificacoes" 
+                        onClick={() => setShowNotifications(false)}
+                        className={`text-center text-xs font-bold font-outfit uppercase mt-3 pt-2.5 border-t no-underline block ${theme === 'light' ? 'border-black/8 text-[#5a9200] hover:text-[#4a7a00]' : 'border-white/10 text-primary-lemon hover:text-white'}`}
+                      >
+                        Ver todas
+                      </Link>
+                    </>
                   )}
                 </div>
               )}

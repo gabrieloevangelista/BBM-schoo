@@ -44,6 +44,7 @@ export default function LessonDetailPage() {
   const [comments, setComments] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'sobre' | 'recursos' | 'comentarios'>('sobre');
+  const [instructor, setInstructor] = useState<{ name: string; role: string; avatar?: string } | null>(null);
 
   // Video progress refs/states
   const videoRef = useRef<any>(null);
@@ -98,6 +99,22 @@ export default function LessonDetailPage() {
         }
 
         setLesson(foundLesson);
+
+        // Resolve instructor dynamically from members database
+        const matchedMember = db.members?.find((m: any) => m.name === foundLesson.instructor_name);
+        if (matchedMember) {
+          setInstructor({
+            name: matchedMember.name,
+            role: matchedMember.role ? (matchedMember.company ? `${matchedMember.role} do ${matchedMember.company}` : matchedMember.role) : 'Mentor Principal',
+            avatar: matchedMember.img || matchedMember.avatar
+          });
+        } else {
+          setInstructor({
+            name: foundLesson.instructor_name || 'Gabriel Evangelista',
+            role: foundLesson.instructor_role || 'CEO do Grupo BBM',
+            avatar: foundLesson.instructor_avatar
+          });
+        }
 
         // 2. Find associated module and course
         const foundModule = db.modules.find((m: Module) => m.id === foundLesson.module_id);
@@ -459,13 +476,13 @@ export default function LessonDetailPage() {
     <div className="flex flex-col gap-6">
       
       {/* ── BREADCRUMBS ── */}
-      <div className="flex items-center gap-2 text-xs font-semibold tracking-wider uppercase font-outfit text-white/40">
-        <Link href={course ? `/masterclasses/curso/${course.slug}` : '/masterclasses'} className="hover:text-white transition duration-150 no-underline flex items-center gap-1">
+      <div className="flex items-center gap-2 text-xs font-semibold tracking-wider uppercase font-outfit text-text-muted">
+        <Link href={course ? `/masterclasses/curso/${course.slug}` : '/masterclasses'} className="hover:text-text-base transition duration-150 no-underline flex items-center gap-1">
           <ArrowLeft size={12} />
           <span>Voltar</span>
         </Link>
         <span>/</span>
-        <span className="text-white/70">{course?.title || 'Aulas'}</span>
+        <span className="text-text-secondary">{course?.title || 'Aulas'}</span>
       </div>
 
       {/* ── TWO-COLUMN GRID ── */}
@@ -500,49 +517,49 @@ export default function LessonDetailPage() {
           {/* Lesson Metadata Banner */}
           <div className="flex flex-col gap-3">
             <div className="flex items-center gap-3">
-              <span className="text-[10px] font-extrabold px-2.5 py-1 rounded bg-[#C1FF07]/10 text-[#C1FF07] border border-[#C1FF07]/10 uppercase tracking-widest font-outfit">
+              <span className="text-[10px] font-extrabold px-2.5 py-1 rounded bg-primary-lemon/10 text-primary-lemon border border-primary-lemon/10 uppercase tracking-widest font-outfit">
                 Aula {lessonNumber} • {lesson.duration || '1h 00m'}
               </span>
             </div>
-            <h1 className="text-3xl font-extrabold text-white font-outfit tracking-tight">
+            <h1 className="text-3xl font-extrabold text-text-base font-outfit tracking-tight">
               {lesson.title}
             </h1>
           </div>
 
           {/* Description & Instructor Section */}
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-6 pt-4 border-t border-white/5">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-6 pt-4 border-t border-[var(--color-glass-border)]">
             
             {/* Instructor / Description Card */}
             <div className="md:col-span-8 flex flex-col gap-5">
               
-              {lesson.instructor_name && (
+              {instructor && (
                 <div className="flex items-center gap-4">
-                  {lesson.instructor_avatar ? (
+                  {instructor.avatar ? (
                     <img 
-                      src={lesson.instructor_avatar} 
-                      alt={lesson.instructor_name} 
-                      className="w-12 h-12 rounded-full object-cover border border-white/10"
+                      src={instructor.avatar} 
+                      alt={instructor.name} 
+                      className="w-12 h-12 rounded-full object-cover border border-[var(--color-glass-border)]"
                     />
                   ) : (
-                    <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 text-white flex items-center justify-center font-bold text-sm">
-                      {lesson.instructor_name.substring(0, 2).toUpperCase()}
+                    <div className="w-12 h-12 rounded-full bg-[var(--color-bg-card)] border border-[var(--color-glass-border)] text-text-base flex items-center justify-center font-bold text-sm">
+                      {instructor.name.substring(0, 2).toUpperCase()}
                     </div>
                   )}
                   <div>
-                    <h4 className="text-sm font-bold text-white leading-tight">{lesson.instructor_name}</h4>
-                    <p className="text-xs text-text-secondary mt-0.5">{lesson.instructor_role || 'Mentor Principal'}</p>
+                    <h4 className="text-sm font-bold text-text-base leading-tight">{instructor.name}</h4>
+                    <p className="text-xs text-text-secondary mt-0.5">{instructor.role}</p>
                   </div>
                 </div>
               )}
 
-              <p className="text-white/60 text-sm font-inter leading-relaxed">
+              <p className="text-text-secondary text-sm font-inter leading-relaxed">
                 {lesson.long_description || lesson.description}
               </p>
             </div>
 
             {/* Resources / Attachments */}
             <div className="md:col-span-4 flex flex-col gap-4">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-white/50 font-outfit">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-text-secondary font-outfit">
                 Materiais Complementares
               </h3>
 
@@ -558,16 +575,16 @@ export default function LessonDetailPage() {
                       href={res.file_url} 
                       target="_blank" 
                       rel="noreferrer"
-                      className="glass-panel p-3 flex items-center justify-between no-underline text-white transition-all duration-150 hover:bg-white/[0.04]"
+                      className="glass-panel p-3 flex items-center justify-between no-underline text-text-base transition-all duration-150 hover:bg-[var(--color-bg-card-hover)]"
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
                         {getResourceIcon(res.category)}
                         <div className="min-w-0">
-                          <h4 className="text-xs font-bold text-white overflow-hidden text-ellipsis whitespace-nowrap">{res.title}</h4>
+                          <h4 className="text-xs font-bold text-text-base overflow-hidden text-ellipsis whitespace-nowrap">{res.title}</h4>
                           <span className="text-[10px] text-text-muted">{res.size}</span>
                         </div>
                       </div>
-                      <Download size={12} className="text-text-muted hover:text-white" />
+                      <Download size={12} className="text-text-muted hover:text-text-base" />
                     </a>
                   ))}
                   
@@ -575,7 +592,7 @@ export default function LessonDetailPage() {
                     <button 
                       onClick={handleDownloadResources} 
                       disabled={zipLoading}
-                      className="w-full py-2 bg-white/[0.03] border border-white/[0.08] hover:bg-white/[0.06] text-white text-xs font-semibold rounded cursor-pointer transition duration-150 flex items-center justify-center gap-2"
+                      className="w-full py-2 bg-[var(--color-bg-card)] border border-[var(--color-glass-border)] hover:bg-[var(--color-bg-card-hover)] text-text-base text-xs font-semibold rounded cursor-pointer transition duration-150 flex items-center justify-center gap-2"
                     >
                       <Download size={12} />
                       <span>{zipLoading ? 'Compactando...' : 'Baixar todos (.ZIP)'}</span>
@@ -587,8 +604,8 @@ export default function LessonDetailPage() {
           </div>
 
           {/* Discussion / Comments Section */}
-          <div className="pt-6 border-t border-white/5 flex flex-col gap-6">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-white/50 font-outfit">
+          <div className="pt-6 border-t border-[var(--color-glass-border)] flex flex-col gap-6">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-text-secondary font-outfit">
               Dúvidas & Discussão ({comments.length})
             </h3>
 

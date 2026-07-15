@@ -115,7 +115,6 @@ export default function MasterclassesPage() {
                 key={course.id} 
                 href={`/masterclasses/curso/${course.slug}`}
                 className="w-[280px] md:w-[320px] aspect-[16/10] rounded-xl overflow-hidden relative flex-shrink-0 snap-start group cursor-pointer no-underline border border-white/10 flex flex-col justify-end"
-                style={{ boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}
               >
                 <div className="absolute inset-0 z-0">
                   <img src={course.cover_image_url} alt={course.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" />
@@ -157,7 +156,6 @@ export default function MasterclassesPage() {
                   key={lesson.id} 
                   href={linkUrl}
                   className="w-[280px] md:w-[320px] aspect-[16/10] rounded-xl overflow-hidden relative flex-shrink-0 snap-start group cursor-pointer no-underline border border-white/10 flex flex-col justify-end"
-                  style={{ boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}
                 >
                   <div className="absolute inset-0 z-0">
                     <img src={lesson.cover_image_url || lesson.thumbnail_url} alt={lesson.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" />
@@ -201,7 +199,6 @@ export default function MasterclassesPage() {
                 key={mod.id} 
                 href={linkUrl}
                 className="w-[280px] md:w-[320px] aspect-[16/10] rounded-xl overflow-hidden relative flex-shrink-0 snap-start group cursor-pointer no-underline border border-white/10 flex flex-col justify-end"
-                style={{ boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}
               >
                 <div className="absolute inset-0 z-0">
                   <img src={mod.cover_image_url} alt={mod.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" />

@@ -25,9 +25,9 @@ import { CalendarEvent } from '@/lib/db';
 export default function CalendarioPage() {
   const { user } = useAuth();
   const [events, setEvents] = useState<CalendarEvent[]>([]);
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [viewMode, setViewMode] = useState<'mensal' | 'semanal' | 'anual' | 'list'>('mensal');
   const [filterType, setFilterType] = useState<'all' | 'mentoria'>('all');
-  const [currentDate, setCurrentDate] = useState(new Date()); // Controls month shown
+  const [currentDate, setCurrentDate] = useState(new Date()); // Controls period shown
   const [isLoading, setIsLoading] = useState(true);
 
   // Sync animation state
@@ -221,12 +221,28 @@ export default function CalendarioPage() {
     'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
   ];
 
-  const handlePrevMonth = () => {
-    setCurrentDate(new Date(year, month - 1, 1));
+  const handlePrev = () => {
+    if (viewMode === 'mensal') {
+      setCurrentDate(new Date(year, month - 1, 1));
+    } else if (viewMode === 'semanal') {
+      const prev = new Date(currentDate);
+      prev.setDate(prev.getDate() - 7);
+      setCurrentDate(prev);
+    } else if (viewMode === 'anual') {
+      setCurrentDate(new Date(year - 1, month, 1));
+    }
   };
 
-  const handleNextMonth = () => {
-    setCurrentDate(new Date(year, month + 1, 1));
+  const handleNext = () => {
+    if (viewMode === 'mensal') {
+      setCurrentDate(new Date(year, month + 1, 1));
+    } else if (viewMode === 'semanal') {
+      const next = new Date(currentDate);
+      next.setDate(next.getDate() + 7);
+      setCurrentDate(next);
+    } else if (viewMode === 'anual') {
+      setCurrentDate(new Date(year + 1, month, 1));
+    }
   };
 
   // Date cell click
@@ -235,6 +251,26 @@ export default function CalendarioPage() {
     const formattedMonth = (month + 1) < 10 ? `0${month + 1}` : (month + 1);
     setSelectedDateStr(`${year}-${formattedMonth}-${formattedDay}`);
   };
+
+  // Compute weekDays for weekly view
+  const startOfWeek = new Date(currentDate);
+  const dayOfWeek = startOfWeek.getDay();
+  startOfWeek.setDate(startOfWeek.getDate() - dayOfWeek);
+
+  const weekDays: Date[] = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(startOfWeek);
+    d.setDate(startOfWeek.getDate() + i);
+    weekDays.push(d);
+  }
+
+  // Compute 12 rolling months for annual view starting from the active month
+  const annualMonths = [];
+  for (let i = 0; i < 12; i++) {
+    const targetMonth = (month + i) % 12;
+    const targetYear = year + Math.floor((month + i) / 12);
+    annualMonths.push({ monthIndex: targetMonth, year: targetYear });
+  }
 
   const filteredEvents = events.filter(e => {
     const matchesFilter = filterType === 'all' || e.event_type === filterType;
@@ -358,30 +394,23 @@ export default function CalendarioPage() {
 
         {/* View Mode Toggle */}
         <div className="flex gap-1 border border-white/10 rounded-[4px] p-1 bg-white/2">
-          <button 
-            onClick={() => setViewMode('grid')}
-            className="p-1.5 rounded-[2px] cursor-pointer transition-all duration-200 flex items-center justify-center"
-            style={{ 
-              border: 'none', 
-              backgroundColor: viewMode === 'grid' ? 'var(--color-primary-lemon)' : 'transparent',
-              color: viewMode === 'grid' ? 'var(--color-switch-active-text)' : 'var(--text-secondary)'
-            }}
-            title="Grade"
-          >
-            <CalendarIcon size={14} />
-          </button>
-          <button 
-            onClick={() => setViewMode('list')}
-            className="p-1.5 rounded-[2px] cursor-pointer transition-all duration-200 flex items-center justify-center"
-            style={{ 
-              border: 'none', 
-              backgroundColor: viewMode === 'list' ? 'var(--color-primary-lemon)' : 'transparent',
-              color: viewMode === 'list' ? 'var(--color-switch-active-text)' : 'var(--text-secondary)'
-            }}
-            title="Lista"
-          >
-            <List size={14} />
-          </button>
+          {(['mensal', 'semanal', 'anual', 'list'] as const).map((mode) => (
+            <button 
+              key={mode}
+              onClick={() => setViewMode(mode)}
+              className="px-2.5 py-1 rounded-[2px] cursor-pointer transition-all duration-200 text-[10px] font-bold uppercase tracking-wider"
+              style={{ 
+                border: 'none', 
+                backgroundColor: viewMode === mode ? 'var(--color-primary-lemon)' : 'transparent',
+                color: viewMode === mode ? 'var(--color-switch-active-text)' : 'var(--color-text-secondary)'
+              }}
+            >
+              {mode === 'mensal' && 'Mensal'}
+              {mode === 'semanal' && 'Semanal'}
+              {mode === 'anual' && 'Anual'}
+              {mode === 'list' && 'Lista'}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -390,7 +419,8 @@ export default function CalendarioPage() {
         
         {/* Left Column: Calendar Grid / List */}
         <div className="lg:col-span-8 flex flex-col gap-6">
-          {viewMode === 'grid' && (
+          {/* Monthly View */}
+          {viewMode === 'mensal' && (
             <div className="glass-panel p-6">
               {/* Calendar header with Month Name and Navigation */}
               <div className="flex justify-between items-center mb-6">
@@ -398,10 +428,10 @@ export default function CalendarioPage() {
                   {monthNames[month]} {year}
                 </h3>
                 <div className="flex gap-2">
-                  <button onClick={handlePrevMonth} className="outline-btn p-1.5" style={{ minWidth: 'auto' }}>
+                  <button onClick={handlePrev} className="outline-btn p-1.5" style={{ minWidth: 'auto' }}>
                     <ChevronLeft size={14} />
                   </button>
-                  <button onClick={handleNextMonth} className="outline-btn p-1.5" style={{ minWidth: 'auto' }}>
+                  <button onClick={handleNext} className="outline-btn p-1.5" style={{ minWidth: 'auto' }}>
                     <ChevronRight size={14} />
                   </button>
                 </div>
@@ -409,8 +439,11 @@ export default function CalendarioPage() {
 
               {/* Weekday headers */}
               <div className="grid grid-cols-7 gap-1.5 text-center mb-2">
-                {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map(day => (
-                  <span key={day} className="text-[10px] text-text-muted font-bold uppercase tracking-wider">{day}</span>
+                {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map((day, dIdx) => (
+                  <span key={day} className="text-[10px] text-text-muted font-bold uppercase tracking-wider">
+                    <span className="hidden sm:inline">{day}</span>
+                    <span className="inline sm:hidden">{['D', 'S', 'T', 'Q', 'Q', 'S', 'S'][dIdx]}</span>
+                  </span>
                 ))}
               </div>
 
@@ -431,12 +464,12 @@ export default function CalendarioPage() {
                       onClick={() => handleDayClick(day)}
                       className={`glass-panel p-2 flex flex-col min-h-[64px] cursor-pointer transition-all duration-200 ${
                         isSelected 
-                          ? 'border-[#C1FF07] bg-[#C1FF07]/5 shadow-[0_0_12px_rgba(193,255,7,0.08)]' 
+                          ? 'bg-primary-lemon/5' 
                           : 'hover:bg-white/5 border-white/5 bg-white/1'
                       }`}
-                      style={{ border: isSelected ? '1px solid #C1FF07' : '1px solid rgba(193, 255, 7, 0.08)' }}
+                      style={{ border: isSelected ? '1px solid var(--color-primary-lemon)' : undefined }}
                     >
-                      <span className={`text-[10px] font-bold ${isSelected ? 'text-[#C1FF07]' : 'text-text-secondary'}`}>
+                      <span className={`text-[10px] font-bold ${isSelected ? 'text-primary-lemon' : 'text-text-secondary'}`}>
                         {day}
                       </span>
 
@@ -446,7 +479,7 @@ export default function CalendarioPage() {
                             key={e.id}
                             className={`text-[8px] px-1.5 py-0.5 rounded truncate ${
                               e.event_type === 'mentoria' 
-                                ? 'bg-[#C1FF07]/10 border-l border-[#C1FF07] text-text-base' 
+                                ? 'bg-primary-lemon/10 border-l border-primary-lemon text-text-base' 
                                 : 'bg-[#34D399]/10 border-l border-[#34D399] text-text-base'
                             }`}
                             title={e.title}
@@ -454,6 +487,171 @@ export default function CalendarioPage() {
                             {e.title}
                           </div>
                         ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Weekly View */}
+          {viewMode === 'semanal' && (
+            <div className="glass-panel p-6">
+              {/* Navigation Header */}
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-sm font-bold text-text-base font-outfit uppercase tracking-wider">
+                  Semana de {weekDays[0].getDate()} de {monthNames[weekDays[0].getMonth()]} a {weekDays[6].getDate()} de {monthNames[weekDays[6].getMonth()]} ({year})
+                </h3>
+                <div className="flex gap-2">
+                  <button onClick={handlePrev} className="outline-btn p-1.5" style={{ minWidth: 'auto' }}>
+                    <ChevronLeft size={14} />
+                  </button>
+                  <button onClick={handleNext} className="outline-btn p-1.5" style={{ minWidth: 'auto' }}>
+                    <ChevronRight size={14} />
+                  </button>
+                </div>
+              </div>
+
+              {/* Grid of 7 days */}
+              <div className="grid grid-cols-1 md:grid-cols-7 gap-3">
+                {weekDays.map((dateObj, idx) => {
+                  const dDay = dateObj.getDate();
+                  const dMonth = dateObj.getMonth();
+                  const dYear = dateObj.getFullYear();
+                  const formattedDay = dDay < 10 ? `0${dDay}` : dDay;
+                  const formattedMonth = (dMonth + 1) < 10 ? `0${dMonth + 1}` : (dMonth + 1);
+                  const dateStr = `${dYear}-${formattedMonth}-${formattedDay}`;
+                  
+                  const dayEvents = filteredEvents.filter(e => e.event_date === dateStr);
+                  const isSelected = selectedDateStr === dateStr;
+                  const isToday = new Date().toDateString() === dateObj.toDateString();
+                  
+                  const weekdaysShort = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+
+                  return (
+                    <div 
+                      key={idx}
+                      onClick={() => setSelectedDateStr(dateStr)}
+                      className={`glass-panel p-3.5 flex flex-col min-h-[140px] cursor-pointer transition-all duration-200 ${
+                        isSelected 
+                          ? 'bg-primary-lemon/5' 
+                          : isToday 
+                            ? 'border-blue-500/30 bg-blue-500/2'
+                            : 'hover:bg-white/5 border-white/5 bg-white/1'
+                      }`}
+                      style={{ border: isSelected ? '1px solid var(--color-primary-lemon)' : undefined }}
+                    >
+                      <div className="flex justify-between items-baseline border-b border-white/5 pb-1 mb-2">
+                        <span className={`text-[10px] font-extrabold uppercase ${isSelected ? 'text-primary-lemon' : 'text-text-secondary'}`}>
+                          {weekdaysShort[idx]}
+                        </span>
+                        <span className={`text-xs font-bold ${isSelected ? 'text-primary-lemon' : isToday ? 'text-blue-400' : 'text-text-base'}`}>
+                          {dDay}
+                        </span>
+                      </div>
+
+                      <div className="flex flex-col gap-1.5 overflow-y-auto max-h-[100px] scrollbar-none">
+                        {dayEvents.map(e => (
+                          <div 
+                            key={e.id}
+                            className={`text-[9px] p-1.5 rounded leading-tight ${
+                              e.event_type === 'mentoria' 
+                                ? 'bg-primary-lemon/10 border-l-2 border-primary-lemon text-text-base' 
+                                : 'bg-[#34D399]/10 border-l-2 border-[#34D399] text-text-base'
+                            }`}
+                            title={e.title}
+                          >
+                            <span className="font-semibold block text-[8px] opacity-75">{e.start_time.substring(0, 5)}</span>
+                            <span className="truncate block font-medium">{e.title}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Annual View */}
+          {viewMode === 'anual' && (
+            <div className="glass-panel p-6">
+              {/* Navigation Header */}
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-sm font-bold text-text-base font-outfit uppercase tracking-wider">
+                  12 Meses a partir de {monthNames[month]} de {year}
+                </h3>
+                <div className="flex gap-2">
+                  <button onClick={handlePrev} className="outline-btn p-1.5" style={{ minWidth: 'auto' }}>
+                    <ChevronLeft size={14} />
+                  </button>
+                  <button onClick={handleNext} className="outline-btn p-1.5" style={{ minWidth: 'auto' }}>
+                    <ChevronRight size={14} />
+                  </button>
+                </div>
+              </div>
+
+              {/* 12 Months Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
+                {annualMonths.map(({ monthIndex, year: targetYear }) => {
+                  const monthName = monthNames[monthIndex];
+                  const firstDay = getFirstDayOfWeek(targetYear, monthIndex);
+                  const daysCount = getDaysInMonth(targetYear, monthIndex);
+
+                  return (
+                    <div 
+                      key={`${targetYear}-${monthIndex}`} 
+                      className="p-3 bg-white/[0.01] border border-white/5 rounded-lg flex flex-col"
+                    >
+                      <button 
+                        onClick={() => {
+                          setCurrentDate(new Date(targetYear, monthIndex, 1));
+                          setViewMode('mensal');
+                        }}
+                        className="text-left font-bold text-xs uppercase text-primary-lemon hover:underline mb-2 bg-transparent border-0 p-0 cursor-pointer font-outfit"
+                      >
+                        {monthName} {targetYear}
+                      </button>
+
+                      {/* Mini weekday headers */}
+                      <div className="grid grid-cols-7 gap-0.5 text-center text-[9px] text-text-muted font-bold mb-1">
+                        {['D', 'S', 'T', 'Q', 'Q', 'S', 'S'].map((wd, wIdx) => (
+                          <span key={wIdx}>{wd}</span>
+                        ))}
+                      </div>
+
+                      {/* Days mini grid */}
+                      <div className="grid grid-cols-7 gap-0.5 text-center text-[10px]">
+                        {Array.from({ length: firstDay }).map((_, idx) => (
+                          <span key={`empty-${idx}`} />
+                        ))}
+                        {Array.from({ length: daysCount }).map((_, idx) => {
+                          const dayNum = idx + 1;
+                          const formattedDay = dayNum < 10 ? `0${dayNum}` : dayNum;
+                          const formattedMonth = (monthIndex + 1) < 10 ? `0${monthIndex + 1}` : (monthIndex + 1);
+                          const cellDateStr = `${targetYear}-${formattedMonth}-${formattedDay}`;
+
+                          const hasEvents = filteredEvents.some(e => e.event_date === cellDateStr);
+                          const isSelected = selectedDateStr === cellDateStr;
+
+                          return (
+                            <span 
+                              key={dayNum}
+                              onClick={() => setSelectedDateStr(cellDateStr)}
+                              className="aspect-square flex-center rounded-sm cursor-pointer transition-colors relative font-semibold"
+                              style={{
+                                backgroundColor: isSelected ? 'var(--color-primary-lemon)' : 'transparent',
+                                color: isSelected ? 'var(--color-switch-active-text)' : 'inherit'
+                              }}
+                            >
+                              {dayNum}
+                              {hasEvents && !isSelected && (
+                                <span className="absolute bottom-0 w-1 h-1 bg-emerald-400 rounded-full" />
+                              )}
+                            </span>
+                          );
+                        })}
                       </div>
                     </div>
                   );
@@ -472,7 +670,7 @@ export default function CalendarioPage() {
                 filteredEvents.map(event => (
                   <div key={event.id} className="glass-panel p-5 flex justify-between items-center flex-wrap gap-4">
                     <div className="flex gap-4 items-start flex-grow">
-                      <div className="w-14 h-14 rounded-xl bg-[#C1FF07]/10 border border-[#C1FF07]/25 text-[#C1FF07] flex flex-col items-center justify-center flex-shrink-0">
+                      <div className="w-14 h-14 rounded-xl bg-primary-lemon/10 border border-primary-lemon/25 text-primary-lemon flex flex-col items-center justify-center flex-shrink-0">
                         <span className="text-lg font-extrabold leading-none">{event.event_date.split('-')[2]}</span>
                         <span className="text-[8px] uppercase font-bold mt-1">{monthNames[parseInt(event.event_date.split('-')[1]) - 1].substring(0, 3)}</span>
                       </div>
@@ -600,15 +798,15 @@ export default function CalendarioPage() {
             <h3 className="text-xs font-bold text-text-base font-outfit m-0 uppercase tracking-wider">Requisitos</h3>
             <ul className="flex flex-col gap-3 p-0 m-0 list-none text-[11px] text-text-secondary">
               <li className="flex items-start gap-2">
-                <span className="text-[#C1FF07] mt-0.5">•</span>
+                <span className="text-primary-lemon mt-0.5">•</span>
                 <span>Mantenha sua câmera ligada durante as discussões de mentoria.</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-[#C1FF07] mt-0.5">•</span>
+                <span className="text-primary-lemon mt-0.5">•</span>
                 <span>As gravações estarão na biblioteca de Masterclasses em até 24 horas.</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-[#C1FF07] mt-0.5">•</span>
+                <span className="text-primary-lemon mt-0.5">•</span>
                 <span>Dúvidas específicas podem ser enviadas por e-mail antes do início da sessão.</span>
               </li>
             </ul>

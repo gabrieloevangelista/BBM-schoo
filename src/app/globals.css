@@ -102,9 +102,7 @@ h1, h2, h3, h4, h5, h6 {
   background-color: var(--color-glass-bg);
   border: 1px solid var(--color-glass-border) !important;
   border-radius: 4px !important;
-  box-shadow:
-    0 4px 20px rgba(0, 0, 0, 0.12),
-    inset 0 0 0 1px var(--color-glass-shadow-inset);
+  box-shadow: none !important;
   transition: all 0.2s ease-in-out;
 }
 
@@ -112,9 +110,7 @@ h1, h2, h3, h4, h5, h6 {
   background-color: var(--color-glass-hover-bg);
   border-color: var(--color-glass-hover-border) !important;
   transform: translateY(-2px);
-  box-shadow:
-    0 10px 25px rgba(0, 0, 0, 0.4),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+  box-shadow: none !important;
 }
 
 /* SOLID OPAQUE MODAL CARDS — SCI-FI HUD Style */
@@ -604,17 +600,16 @@ input[type="datetime-local"].form-input::-webkit-datetime-edit-minute-field:focu
   color: #1a1a1a;
 }
 
-/* Cards & Panels */
 [data-theme="light"] .glass-panel {
   background-color: #ffffff !important;
   border-color: rgba(0, 0, 0, 0.07) !important;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06) !important;
+  box-shadow: none !important;
 }
 
 [data-theme="light"] .glass-panel-hover:hover {
   background-color: #fafafa !important;
   border-color: rgba(0, 0, 0, 0.12) !important;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.09) !important;
+  box-shadow: none !important;
 }
 
 [data-theme="light"] .modal-card {
@@ -810,10 +805,16 @@ input[type="datetime-local"].form-input::-webkit-datetime-edit-minute-field:focu
   100% { background-color: rgba(0, 0, 0, 0.04); }
 }
 
-/* Force inline style color text that pages may hardcode */
-[data-theme="light"] [style*="color: #fff"],
-[data-theme="light"] [style*="color: white"],
-[data-theme="light"] [style*="color: #f1f3f4"] {
+/* Force inline style color text that pages may hardcode (avoid matching background-color) */
+[data-theme="light"] [style^="color: #fff"],
+[data-theme="light"] [style*="; color: #fff"],
+[data-theme="light"] [style*=";color: #fff"],
+[data-theme="light"] [style^="color: white"],
+[data-theme="light"] [style*="; color: white"],
+[data-theme="light"] [style*=";color: white"],
+[data-theme="light"] [style^="color: #f1f3f4"],
+[data-theme="light"] [style*="; color: #f1f3f4"],
+[data-theme="light"] [style*=";color: #f1f3f4"] {
   color: #1a1a1a !important;
 }
 
@@ -823,10 +824,16 @@ input[type="datetime-local"].form-input::-webkit-datetime-edit-minute-field:focu
   color: #5a9200 !important;
 }
 
-/* Override inline hardcoded lemon color from JS components */
-[data-theme="light"] [style*="color: #C1FF07"],
-[data-theme="light"] [style*="color: rgb(193, 255, 7)"],
-[data-theme="light"] [style*="color: var(--color-primary-lemon)"] {
+/* Override inline hardcoded lemon color from JS components (avoid matching background-color) */
+[data-theme="light"] [style^="color: #C1FF07"],
+[data-theme="light"] [style*="; color: #C1FF07"],
+[data-theme="light"] [style*=";color: #C1FF07"],
+[data-theme="light"] [style^="color: rgb(193, 255, 7)"],
+[data-theme="light"] [style*="; color: rgb(193, 255, 7)"],
+[data-theme="light"] [style*=";color: rgb(193, 255, 7)"],
+[data-theme="light"] [style^="color: var(--color-primary-lemon)"],
+[data-theme="light"] [style*="; color: var(--color-primary-lemon)"],
+[data-theme="light"] [style*=";color: var(--color-primary-lemon)"] {
   color: #5a9200 !important;
 }
 
