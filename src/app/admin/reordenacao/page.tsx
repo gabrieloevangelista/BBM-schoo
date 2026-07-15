@@ -14,7 +14,7 @@ import Switch from '@/components/Switch';
 
 // Types
 interface Course { id: string; title: string; slug: string; description: string; is_published?: boolean; cover_image_url?: string; }
-interface Module { id: string; course_id: string; title: string; description?: string; is_published?: boolean; cover_image_url?: string; }
+interface Module { id: string; course_id: string; title: string; description?: string; is_published?: boolean; cover_image_url?: string; sequence_order?: number; status?: 'published'|'rascunho'|'agendado'; }
 interface Lesson { id: string; module_id: string; title: string; duration: string; instructor_name: string; video_url: string; cover_image_url: string; sequence_order: number; is_published?: boolean; status?: 'published'|'rascunho'|'agendado'; scheduled_at?: string; description?: string; }
 interface Resource { id: string; lesson_id: string; title: string; category: string; file_url: string; }
 
@@ -111,7 +111,7 @@ export default function AdminContentManager() {
   const [courseEditId, setCourseEditId] = useState<string | null>(null);
 
   // Form states for module editor
-  const [moduleForm, setModuleForm] = useState({ title: '', description: '', cover_image_url: '' });
+  const [moduleForm, setModuleForm] = useState<{ title: string; description: string; cover_image_url: string; status?: 'published'|'rascunho'|'agendado' }>({ title: '', description: '', cover_image_url: '', status: 'published' });
   const [moduleEditId, setModuleEditId] = useState<string | null>(null);
   
   // Form states for lesson editor

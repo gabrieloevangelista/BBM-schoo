@@ -332,16 +332,13 @@ export default function DashboardPage() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
           {latestCourses.length > 0 ? (
             latestCourses.map(course => (
               <Link 
                 key={course.id} 
                 href={`/masterclasses/curso/${course.slug}`} 
                 className="relative overflow-hidden rounded-xl aspect-[16/10] w-full group no-underline flex flex-col justify-end border border-white/10"
-                style={{ 
-                  boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
-                }}
               >
                 <div className="absolute inset-0 z-0">
                   <img 
@@ -353,11 +350,11 @@ export default function DashboardPage() {
                 {/* Gradient overlay mimicking the uploaded image */}
                 <div className="absolute inset-0 z-10 bg-gradient-to-t from-[#0a0a0c] via-[#0a0a0c]/60 to-transparent opacity-90"></div>
                 
-                <div className="relative z-20 p-5 flex flex-col gap-1 mt-auto">
-                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#C1FF07] font-outfit drop-shadow-md">
+                <div className="relative z-20 p-3 md:p-5 flex flex-col gap-0.5 md:gap-1 mt-auto">
+                  <span className="text-[8px] md:text-[10px] font-extrabold uppercase tracking-wider text-[#C1FF07] font-outfit drop-shadow-md">
                     CURSO COMPLETO
                   </span>
-                  <h3 className="text-white text-lg font-bold leading-tight font-outfit m-0 drop-shadow-lg">
+                  <h3 className="text-white text-xs md:text-lg font-bold leading-tight font-outfit m-0 drop-shadow-lg">
                     {course.title}
                   </h3>
                 </div>
@@ -365,7 +362,7 @@ export default function DashboardPage() {
             ))
           ) : (
             /* Fallback mock card matching screenshot visual details */
-            <div className="glass-panel p-6 col-span-3 text-center text-text-secondary text-sm italic">
+            <div className="glass-panel p-6 col-span-2 md:col-span-3 lg:col-span-4 text-center text-text-secondary text-sm italic">
               Nenhuma masterclass cadastrada.
             </div>
           )}

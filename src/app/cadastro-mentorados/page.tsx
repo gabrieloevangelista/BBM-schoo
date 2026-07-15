@@ -70,7 +70,7 @@ export default function SecretRegistrationPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-bg-deep p-5">
-      <div className="w-full max-w-[460px] p-8 md:p-10 bg-white/3 border border-primary-lemon/15 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.8)] backdrop-blur-md">
+      <div className="w-full max-w-[460px] p-6 md:p-10 bg-white/3 border border-primary-lemon/15 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.8)] backdrop-blur-md">
         
         {/* Header */}
         <div className="text-center mb-8">

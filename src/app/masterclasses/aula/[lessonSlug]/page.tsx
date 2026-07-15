@@ -482,7 +482,7 @@ export default function LessonDetailPage() {
           <span>Voltar</span>
         </Link>
         <span>/</span>
-        <span className="text-text-secondary">{course?.title || 'Aulas'}</span>
+        <span className="text-text-secondary max-w-[180px] sm:max-w-none truncate">{course?.title || 'Aulas'}</span>
       </div>
 
       {/* ── TWO-COLUMN GRID ── */}

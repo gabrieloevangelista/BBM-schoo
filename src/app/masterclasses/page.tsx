@@ -65,41 +65,41 @@ export default function MasterclassesPage() {
   }
 
   return (
-    <div className="flex flex-col gap-8 pb-12">
+    <div className="flex flex-col gap-8 pb-12 w-full max-w-full overflow-hidden">
       
       {/* Featured Netflix-style Hero Banner */}
       {featuredCourse && (
-        <section className="relative w-full h-[320px] md:h-[420px] rounded-2xl overflow-hidden bg-cover bg-center" style={{ backgroundImage: `url('${featuredCourse.cover_image_url}')` }}>
+        <section className="relative w-full h-[260px] md:h-[420px] rounded-2xl overflow-hidden bg-cover bg-center" style={{ backgroundImage: `url('${featuredCourse.cover_image_url}')` }}>
           {/* Gradients to fade bottom and sides */}
           <div className="absolute inset-0 bg-gradient-to-r from-[#010103] via-[#010103]/70 to-transparent z-10" />
           <div className="absolute inset-0 bg-gradient-to-t from-[#010103] via-transparent to-transparent z-10" />
           
           {/* Hero Content */}
-          <div className="absolute bottom-0 left-0 p-6 md:p-12 z-20 max-w-lg flex flex-col gap-3">
+          <div className="absolute bottom-0 left-0 right-6 md:right-12 p-6 md:p-12 z-20 max-w-lg flex flex-col gap-3">
             <span className="badge badge-lemon self-start uppercase tracking-wider text-[10px] font-bold">
               Destaque BBM
             </span>
-            <h1 className="text-2xl md:text-4xl font-extrabold tracking-tight font-outfit m-0 leading-tight text-white">
+            <h1 className="text-xl md:text-3xl font-extrabold tracking-tight font-outfit m-0 leading-tight text-white">
               {featuredCourse.title}
             </h1>
             <p className="text-white/70 text-xs md:text-sm leading-relaxed max-md:hidden">
               {featuredCourse.description}
             </p>
 
-            <div className="flex gap-3.5 mt-2">
+            <div className="flex flex-wrap gap-2 mt-1">
               <Link 
                 href={`/masterclasses/curso/${featuredCourse.slug}`}
-                className="btn-primary no-underline"
+                className="btn-primary no-underline text-xs py-2 px-3.5 md:text-sm md:py-2.5 md:px-5"
               >
-                <Play size={16} fill="currentColor" />
+                <Play size={14} fill="currentColor" />
                 <span>Assistir</span>
               </Link>
               <Link 
                 href={`/masterclasses/curso/${featuredCourse.slug}`}
-                className="btn-secondary no-underline"
+                className="btn-secondary no-underline text-xs py-2 px-3.5 md:text-sm md:py-2.5 md:px-5"
               >
-                <Info size={16} />
-                <span>Mais Informações</span>
+                <Info size={14} />
+                <span>Mais Info</span>
               </Link>
             </div>
           </div>
@@ -107,25 +107,25 @@ export default function MasterclassesPage() {
       )}
 
       {/* Row 1: Programs (Courses Carousel) */}
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-3 w-full max-w-full overflow-hidden">
         <h2 className="text-lg font-bold font-outfit px-1">Programas de Mentoria (Cursos)</h2>
-        <div className="flex gap-5 overflow-x-auto pb-4 scrollbar-none snap-x snap-mandatory px-1">
+        <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-none snap-x snap-mandatory px-1 w-full">
           {courses.map(course => (
               <Link 
                 key={course.id} 
                 href={`/masterclasses/curso/${course.slug}`}
-                className="w-[280px] md:w-[320px] aspect-[16/10] rounded-xl overflow-hidden relative flex-shrink-0 snap-start group cursor-pointer no-underline border border-white/10 flex flex-col justify-end"
+                className="w-[200px] sm:w-[280px] md:w-[320px] aspect-[16/10] rounded-xl overflow-hidden relative flex-shrink-0 snap-start group cursor-pointer no-underline border border-white/10 flex flex-col justify-end"
               >
                 <div className="absolute inset-0 z-0">
                   <img src={course.cover_image_url} alt={course.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" />
                 </div>
                 <div className="absolute inset-0 z-10 bg-gradient-to-t from-[#0a0a0c] via-[#0a0a0c]/60 to-transparent opacity-90" />
                 
-                <div className="relative z-20 p-5 flex flex-col gap-1 mt-auto">
-                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#C1FF07] font-outfit drop-shadow-md">
+                <div className="relative z-20 p-3 md:p-5 flex flex-col gap-0.5 md:gap-1 mt-auto">
+                  <span className="text-[8px] md:text-[10px] font-extrabold uppercase tracking-wider text-[#C1FF07] font-outfit drop-shadow-md">
                     CURSO COMPLETO
                   </span>
-                  <h3 className="text-white text-lg font-bold leading-tight font-outfit m-0 drop-shadow-lg">
+                  <h3 className="text-white text-xs md:text-lg font-bold leading-tight font-outfit m-0 drop-shadow-lg">
                     {course.title}
                   </h3>
                 </div>
@@ -135,14 +135,14 @@ export default function MasterclassesPage() {
       </div>
 
       {/* Row 2: All Active Lessons (Netflix Episodes style Carousel) */}
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-3 w-full max-w-full overflow-hidden">
         <h2 className="text-lg font-bold font-outfit px-1">Aulas Recentes (Assista Agora)</h2>
         {lessons.length === 0 ? (
           <div className="glass-panel p-6 text-center text-text-secondary text-sm mx-1">
             Nenhuma aula cadastrada.
           </div>
         ) : (
-          <div className="flex gap-5 overflow-x-auto pb-4 scrollbar-none snap-x snap-mandatory px-1">
+          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-none snap-x snap-mandatory px-1 w-full">
             {lessons.map(lesson => {
               // Find matching course/module for linking
               const parentModule = modules.find(m => m.id === lesson.module_id);
@@ -155,7 +155,7 @@ export default function MasterclassesPage() {
                 <Link 
                   key={lesson.id} 
                   href={linkUrl}
-                  className="w-[280px] md:w-[320px] aspect-[16/10] rounded-xl overflow-hidden relative flex-shrink-0 snap-start group cursor-pointer no-underline border border-white/10 flex flex-col justify-end"
+                  className="w-[200px] sm:w-[280px] md:w-[320px] aspect-[16/10] rounded-xl overflow-hidden relative flex-shrink-0 snap-start group cursor-pointer no-underline border border-white/10 flex flex-col justify-end"
                 >
                   <div className="absolute inset-0 z-0">
                     <img src={lesson.cover_image_url || lesson.thumbnail_url} alt={lesson.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" />
@@ -170,12 +170,12 @@ export default function MasterclassesPage() {
 
                   <div className="absolute inset-0 z-10 bg-gradient-to-t from-[#0a0a0c] via-[#0a0a0c]/60 to-transparent opacity-90" />
                   
-                  <div className="relative z-20 p-5 flex flex-col gap-1 mt-auto">
-                    <div className="flex items-center gap-1.5 text-[10px] text-[#C1FF07] font-extrabold uppercase tracking-wider font-outfit drop-shadow-md">
+                  <div className="relative z-20 p-3 md:p-5 flex flex-col gap-0.5 md:gap-1 mt-auto">
+                    <div className="flex items-center gap-1.5 text-[8px] md:text-[10px] text-[#C1FF07] font-extrabold uppercase tracking-wider font-outfit drop-shadow-md">
                       <Clock size={10} />
                       <span>{lesson.duration || '00:00'}</span>
                     </div>
-                    <h3 className="text-white text-lg font-bold leading-tight font-outfit m-0 drop-shadow-lg">
+                    <h3 className="text-white text-xs md:text-lg font-bold leading-tight font-outfit m-0 drop-shadow-lg">
                       {lesson.title}
                     </h3>
                   </div>
@@ -187,30 +187,29 @@ export default function MasterclassesPage() {
       </div>
 
       {/* Row 3: Modules and Chapters Carousel */}
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-3 w-full max-w-full overflow-hidden">
         <h2 className="text-lg font-bold font-outfit px-1">Módulos & Áreas de Foco</h2>
-        <div className="flex gap-5 overflow-x-auto pb-4 scrollbar-none snap-x snap-mandatory px-1">
-          {modules.map(mod => {
-            const parentCourse = courses.find(c => c.id === mod.course_id);
-            const linkUrl = parentCourse ? `/masterclasses/curso/${parentCourse.slug}` : '/masterclasses';
-
+        <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-none snap-x snap-mandatory px-1 w-full">
+          {modules.map(m => {
+            const course = courses.find(c => c.id === m.course_id);
+            const courseSlug = course ? course.slug : '';
             return (
               <Link 
-                key={mod.id} 
-                href={linkUrl}
-                className="w-[280px] md:w-[320px] aspect-[16/10] rounded-xl overflow-hidden relative flex-shrink-0 snap-start group cursor-pointer no-underline border border-white/10 flex flex-col justify-end"
+                key={m.id} 
+                href={courseSlug ? `/masterclasses/curso/${courseSlug}` : '/masterclasses'}
+                className="w-[200px] sm:w-[280px] md:w-[320px] aspect-[16/10] rounded-xl overflow-hidden relative flex-shrink-0 snap-start group cursor-pointer no-underline border border-white/10 flex flex-col justify-end"
               >
                 <div className="absolute inset-0 z-0">
-                  <img src={mod.cover_image_url} alt={mod.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" />
+                  <img src={m.cover_image_url} alt={m.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" />
                 </div>
                 <div className="absolute inset-0 z-10 bg-gradient-to-t from-[#0a0a0c] via-[#0a0a0c]/60 to-transparent opacity-90" />
                 
-                <div className="relative z-20 p-5 flex flex-col gap-1 mt-auto">
-                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#C1FF07] font-outfit drop-shadow-md">
+                <div className="relative z-20 p-3 md:p-5 flex flex-col gap-0.5 md:gap-1 mt-auto">
+                  <span className="text-[8px] md:text-[10px] font-extrabold uppercase tracking-wider text-[#C1FF07] font-outfit drop-shadow-md">
                     MÓDULO
                   </span>
-                  <h3 className="text-white text-lg font-bold leading-tight mt-1 font-outfit drop-shadow-lg m-0">
-                    {mod.title}
+                  <h3 className="text-white text-xs md:text-lg font-bold leading-tight mt-1 font-outfit drop-shadow-lg m-0">
+                    {m.title}
                   </h3>
                 </div>
               </Link>

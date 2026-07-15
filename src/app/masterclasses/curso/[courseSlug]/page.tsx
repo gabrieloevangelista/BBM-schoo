@@ -101,36 +101,34 @@ export default function CourseModulesPage() {
   }
 
   return (
-    <div>
+    <div className="w-full max-w-full overflow-hidden">
       {/* Breadcrumb */}
-      <div style={{ display: 'flex', gap: '8px', alignItems: 'center', fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '20px' }}>
-        <Link href="/masterclasses" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }} className="hover:underline">
+      <div className="flex items-center gap-2 text-xs font-semibold tracking-wider uppercase font-outfit text-text-muted mb-5">
+        <Link href="/masterclasses" className="hover:text-text-base transition duration-150 no-underline text-text-secondary">
           Masterclasses
         </Link>
-        <ChevronRight size={14} />
-        <span style={{ color: '#fff' }}>{course.title}</span>
+        <ChevronRight size={12} className="text-text-muted" />
+        <span className="text-text-base max-w-[180px] sm:max-w-none truncate">{course.title}</span>
       </div>
 
       {/* Course Banner */}
       <section 
-        className="glass-panel" 
+        className="glass-panel p-5 md:p-10 mb-8" 
         style={{ 
-          padding: '30px', 
-          marginBottom: '40px',
           background: course.cover_image_url ? `linear-gradient(rgba(1,1,5,0.85), rgba(1,1,5,0.95)), url('${course.cover_image_url}')` : 'var(--bg-card)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           borderColor: 'rgba(193,255,7,0.2)'
         }}
       >
-        <span className="badge badge-gold" style={{ marginBottom: '10px' }}>Curso Masterclass</span>
-        <h1 style={{ fontSize: '2.2rem', color: '#fff', marginBottom: '12px', fontFamily: 'var(--font-outfit)' }}>{course.title}</h1>
-        <p style={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '1rem', maxWidth: '600px', lineHeight: 1.6 }}>{course.description}</p>
+        <span className="badge badge-gold mb-2.5">Curso Masterclass</span>
+        <h1 className="text-2xl md:text-4xl font-extrabold tracking-tight text-white mb-3 font-outfit">{course.title}</h1>
+        <p className="text-white/70 text-sm md:text-base max-w-2xl leading-relaxed">{course.description}</p>
       </section>
 
       {/* Modules List */}
       {modules.length === 0 ? (
-        <div className="glass-panel" style={{ padding: '30px', textAlign: 'center', color: 'var(--text-secondary)' }}>
+        <div className="glass-panel p-6 md:p-10 text-center text-text-secondary">
           Nenhum módulo liberado para esta masterclass ainda.
         </div>
       ) : (
@@ -142,24 +140,25 @@ export default function CourseModulesPage() {
               <div key={m.id} className="flex flex-col gap-6">
                 
                 {/* Module Header (e.g. Aulas Semanais) */}
-                <div className="flex justify-between items-end border-b border-white/5 pb-3">
-                  <div>
+                <div className="flex flex-col border-b border-white/5 pb-3 gap-1.5">
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                     <span className="text-[10px] font-extrabold text-[#C1FF07] uppercase tracking-wider font-outfit">
                       Módulo {idx + 1}
                     </span>
-                    <h3 className="text-xl font-extrabold font-outfit tracking-tight mt-1 flex items-center gap-2 text-text-base">
-                      {m.title}
-                      {m.status === 'agendado' && (
-                        <span className="badge badge-red flex items-center gap-1 text-[9px] py-0.5 px-1.5 uppercase font-bold tracking-wider">
-                          <Lock size={8} /> Agendado
-                        </span>
-                      )}
-                    </h3>
-                    <p className="text-xs text-text-secondary mt-1 max-w-xl leading-relaxed">{m.description}</p>
+                    <span className="text-text-muted text-[10px] font-bold">•</span>
+                    <span className="text-text-secondary text-[10px] font-bold uppercase font-outfit tracking-wider">
+                      {moduleLessons.length} {moduleLessons.length === 1 ? 'aula' : 'aulas'}
+                    </span>
                   </div>
-                  <span className="text-[11px] font-bold text-text-secondary uppercase font-outfit tracking-wider">
-                    {moduleLessons.length} {moduleLessons.length === 1 ? 'aula' : 'aulas'}
-                  </span>
+                  <h3 className="text-xl font-extrabold font-outfit tracking-tight flex items-center gap-2 text-text-base m-0">
+                    {m.title}
+                    {m.status === 'agendado' && (
+                      <span className="badge badge-red flex items-center gap-1 text-[9px] py-0.5 px-1.5 uppercase font-bold tracking-wider">
+                        <Lock size={8} /> Agendado
+                      </span>
+                    )}
+                  </h3>
+                  <p className="text-xs text-text-secondary mt-1 max-w-xl leading-relaxed m-0">{m.description}</p>
                 </div>
 
                 {/* Grid of Lesson Cards */}
@@ -168,7 +167,7 @@ export default function CourseModulesPage() {
                     Nenhuma aula cadastrada neste módulo.
                   </p>
                 ) : (
-                  <div className="flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-none scroll-smooth">
+                  <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-none snap-x snap-mandatory px-1 scroll-smooth">
                     {moduleLessons.map(lesson => {
                       const isCompleted = completedLessonIds.has(lesson.id);
                       const isHovered = hoveredLessonId === lesson.id;
@@ -182,79 +181,40 @@ export default function CourseModulesPage() {
                       const muxGifUrl = `https://image.mux.com/${testPlaybackId}/animated.gif?width=320`;
 
                       return (
-                        <div 
+                        <Link 
                           key={lesson.id}
-                          className="glass-panel glass-panel-hover flex flex-col justify-between overflow-hidden group w-full sm:w-[calc(50%-12px)] md:w-[calc(33.333%-16px)] lg:w-[calc(25%-18px)] flex-shrink-0 snap-start"
-                          style={{ borderRadius: '4px' }}
+                          href={`/masterclasses/aula/${lesson.slug}`}
+                          className="w-[200px] sm:w-[280px] md:w-[320px] aspect-[16/10] rounded-xl overflow-hidden relative flex-shrink-0 snap-start group cursor-pointer no-underline border border-white/10 flex flex-col justify-end"
                           onMouseEnter={() => setHoveredLessonId(lesson.id)}
                           onMouseLeave={() => setHoveredLessonId(null)}
                         >
-                          {/* Image Thumbnail Container */}
-                          <div className="relative aspect-video w-full bg-black/40 overflow-hidden border-b border-white/[0.04]">
+                          <div className="absolute inset-0 z-0">
                             <img 
                               src={isHovered ? muxGifUrl : coverSrc} 
                               alt={lesson.title} 
-                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-102"
+                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                             />
-                            
-                            {/* Overlay Badges */}
-                            <div className="absolute top-3 left-3 z-10 flex gap-2">
+                          </div>
+                          <div className="absolute inset-0 z-10 bg-gradient-to-t from-[#0a0a0c] via-[#0a0a0c]/60 to-transparent opacity-90" />
+                          
+                          <div className="relative z-20 p-3 md:p-5 flex flex-col gap-0.5 md:gap-1 mt-auto">
+                            <div className="flex items-center gap-1.5 text-[8px] md:text-[10px] text-[#C1FF07] font-extrabold uppercase tracking-wider font-outfit drop-shadow-md">
                               {isCompleted ? (
-                                <span className="bg-emerald-500 text-bg-deep px-1.5 py-0.5 rounded-sm text-[8px] font-extrabold uppercase tracking-wider flex items-center gap-1 shadow-md">
-                                  <CheckCircle size={8} className="fill-bg-deep" />
-                                  Concluída
+                                <span className="bg-emerald-500 text-[#010103] px-1.5 py-0.5 rounded-sm flex items-center gap-0.5 shadow-md font-bold">
+                                  <CheckCircle size={10} /> Concluída
                                 </span>
                               ) : (
-                                <span className="bg-[#12131a]/85 border border-white/10 text-white/70 px-1.5 py-0.5 rounded-sm text-[8px] font-extrabold uppercase tracking-wider flex items-center gap-1 shadow-md">
-                                  <BookOpen size={8} />
-                                  Disponível
-                                </span>
+                                <>
+                                  <Clock size={10} />
+                                  <span>{lesson.duration || '00:00'}</span>
+                                </>
                               )}
                             </div>
-
-                            <div className="absolute bottom-3 right-3 z-10">
-                              <span className="bg-black/70 backdrop-blur-sm px-1.5 py-0.5 rounded-sm text-[9px] text-white/80 font-mono font-bold">
-                                {lesson.duration || '00:00'}
-                              </span>
-                            </div>
-
-                            {/* Hover Play Button Overlay */}
-                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
-                              <div className="w-10 h-10 rounded-full bg-[#C1FF07] text-[#010103] flex items-center justify-center shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform duration-200">
-                                <Play size={16} className="fill-[#010103] ml-0.5" />
-                              </div>
-                            </div>
+                            <h3 className="text-white text-xs md:text-sm font-bold leading-tight font-outfit m-0 drop-shadow-lg line-clamp-2">
+                              {lesson.title}
+                            </h3>
                           </div>
-
-                          {/* Info & Content */}
-                          <div className="p-4 flex flex-col justify-between flex-grow gap-4">
-                            <div className="flex flex-col gap-1.5">
-                              <h4 className="text-sm font-extrabold text-text-base tracking-tight leading-snug group-hover:text-[#C1FF07] transition duration-150 text-ellipsis overflow-hidden line-clamp-1">
-                                {lesson.title}
-                              </h4>
-                              {lesson.description && (
-                                <p className="text-[11px] text-text-secondary line-clamp-2 leading-relaxed">
-                                  {lesson.description}
-                                </p>
-                              )}
-                            </div>
-
-                            <div className="flex items-center justify-between pt-3 border-t border-white/[0.03]">
-                              <span className="text-[10px] text-text-secondary font-medium truncate max-w-[60%]">
-                                Instrutor: {lesson.instructor_name || 'Mentor CLS'}
-                              </span>
-                              
-                              <Link 
-                                href={`/masterclasses/aula/${lesson.slug}`}
-                                className="outline-btn text-[10px] tracking-wider uppercase font-bold"
-                                style={{ padding: '6px 12px', minWidth: 'auto', textDecoration: 'none' }}
-                              >
-                                <span>Ver Aula</span>
-                              </Link>
-                            </div>
-                          </div>
-
-                        </div>
+                        </Link>
                       );
                     })}
                   </div>

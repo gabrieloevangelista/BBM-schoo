@@ -294,8 +294,8 @@ export default function RecursosPage() {
           style={{ 
             padding: '16px 24px', 
             marginBottom: '20px', 
-            background: 'rgba(193, 255, 7, 0.04)', 
-            borderColor: 'rgba(193, 255, 7, 0.15)',
+            background: 'rgba(90, 146, 0, 0.04)', 
+            borderColor: 'rgba(90, 146, 0, 0.15)',
             display: 'flex', 
             justifyContent: 'space-between', 
             alignItems: 'center',
@@ -303,7 +303,7 @@ export default function RecursosPage() {
             gap: '15px'
           }}
         >
-          <span style={{ fontSize: '0.9rem', color: '#fff', fontWeight: 600 }}>
+          <span className="text-text-base text-sm font-semibold">
             {selectedIds.size} recurso(s) selecionado(s)
           </span>
 
@@ -328,100 +328,173 @@ export default function RecursosPage() {
       )}
 
       {/* Resources Table / Grid */}
-      <div className="glass-panel" style={{ overflowX: 'auto', padding: '10px' }}>
+      <div>
         {filteredResources.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-secondary)' }}>
+          <div className="glass-panel text-center py-10 text-text-secondary">
             Nenhum recurso encontrado para os filtros ativos.
           </div>
         ) : (
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-            <thead>
-              <tr style={{ borderBottom: '1px solid rgba(193, 255, 7, 0.1)', color: 'var(--text-secondary)', fontSize: '0.75rem' }}>
-                {isAdmin && (
-                  <th style={{ padding: '15px 12px', width: '45px' }}>
-                    <input 
-                      type="checkbox" 
-                      checked={selectedIds.size === filteredResources.length && filteredResources.length > 0} 
-                      onChange={toggleSelectAll}
-                      style={{ cursor: 'pointer' }}
-                    />
-                  </th>
-                )}
-                <th style={{ padding: '15px 12px' }}>Nome do Material</th>
-                <th style={{ padding: '15px 12px' }}>Descrição</th>
-                <th style={{ padding: '15px 12px' }}>Categoria / Formato</th>
-                {isAdmin && <th style={{ padding: '15px 12px' }}>Data de Liberação</th>}
-                <th style={{ padding: '15px 12px', textAlign: 'right' }}>Ações</th>
-              </tr>
-            </thead>
-            <tbody>
+          <>
+            {/* Mobile Card List View */}
+            <div className="flex flex-col gap-3 md:hidden">
               {filteredResources.map(res => {
                 const isSelected = selectedIds.has(res.id);
                 const isScheduledFuture = res.available_at && new Date(res.available_at) > new Date();
 
                 return (
-                  <tr 
+                  <div 
                     key={res.id} 
-                    style={{ 
-                      borderBottom: '1px solid rgba(255,255,255,0.03)',
-                      background: isSelected ? 'rgba(193,255,7,0.02)' : 'transparent',
-                      opacity: isScheduledFuture ? 0.7 : 1
-                    }}
+                    className={`glass-panel p-4 flex flex-col gap-3 border transition-colors ${
+                      isSelected 
+                        ? 'border-primary-lemon/40 bg-primary-lemon/5' 
+                        : 'border-white/5 bg-white/1 hover:bg-white/2'
+                    }`}
+                    style={{ opacity: isScheduledFuture ? 0.7 : 1 }}
                   >
-                    {isAdmin && (
-                      <td style={{ padding: '15px 12px' }}>
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-white/5 rounded-lg">
+                          {getResourceIcon(res.category)}
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-bold text-text-base m-0 leading-snug">{res.title}</h4>
+                          <span className="text-[10px] text-text-muted mt-1 block">
+                            Adicionado em {new Date(res.created_at).toLocaleDateString('pt-BR')}
+                          </span>
+                        </div>
+                      </div>
+                      {isAdmin && (
                         <input 
                           type="checkbox" 
                           checked={isSelected} 
                           onChange={() => toggleSelectRow(res.id)}
-                          style={{ cursor: 'pointer' }}
+                          className="w-4 h-4 cursor-pointer accent-primary-lemon mt-1"
                         />
-                      </td>
+                      )}
+                    </div>
+                    
+                    {res.description && (
+                      <p className="text-xs text-text-secondary m-0 leading-relaxed">
+                        {res.description}
+                      </p>
                     )}
-                    <td style={{ padding: '15px 12px' }}>
-                      <div className="flex items-center gap-3">
-                        {getResourceIcon(res.category)}
-                        <div>
-                          <p style={{ color: '#fff', fontSize: '0.85rem', fontWeight: 600, margin: 0 }}>{res.title}</p>
-                          <p style={{ color: 'var(--text-muted)', fontSize: '0.7rem', margin: 0, marginTop: '2px' }}>Adicionado em {new Date(res.created_at).toLocaleDateString('pt-BR')}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td style={{ padding: '15px 12px', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                      {res.description || 'Sem descrição cadastrada.'}
-                    </td>
-                    <td style={{ padding: '15px 12px' }}>
-                      <span className="badge badge-gray" style={{ fontSize: '0.65rem' }}>{res.format || 'ZIP'} {res.size ? `• ${res.size}` : ''}</span>
-                    </td>
-                    {isAdmin && (
-                      <td style={{ padding: '15px 12px', fontSize: '0.8rem' }}>
-                        {res.available_at ? (
-                          <span style={{ color: isScheduledFuture ? '#FF4A4A' : '#34D399', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                            {isScheduledFuture ? <EyeOff size={12} /> : <Eye size={12} />}
-                            {new Date(res.available_at).toLocaleDateString('pt-BR')}
+
+                    <div className="flex justify-between items-center gap-2 pt-3 border-t border-[var(--color-glass-border)]">
+                      <div className="flex items-center gap-2">
+                        <span className="badge badge-gray text-[9px]">{res.format || 'ZIP'} {res.size ? `• ${res.size}` : ''}</span>
+                        {isAdmin && (
+                          <span className="text-[10px] font-medium" style={{ color: isScheduledFuture ? '#FF4A4A' : '#34D399' }}>
+                            {res.available_at ? new Date(res.available_at).toLocaleDateString('pt-BR') : 'Imediata'}
                           </span>
-                        ) : (
-                          <span style={{ color: '#34D399' }}>Imediata</span>
                         )}
-                      </td>
-                    )}
-                    <td style={{ padding: '15px 12px', textAlign: 'right' }}>
+                      </div>
                       <a 
                         href={res.file_url} 
                         target="_blank" 
                         rel="noreferrer"
-                        className="outline-btn text-[10px] font-bold tracking-wider uppercase px-3 py-1.5"
-                        style={{ textDecoration: 'none' }}
+                        className="btn-primary py-1.5 px-3 text-[10px] uppercase font-bold tracking-wider no-underline"
                       >
-                        <Download size={12} />
+                        <Download size={10} />
                         <span>Baixar</span>
                       </a>
-                    </td>
-                  </tr>
+                    </div>
+                  </div>
                 );
               })}
-            </tbody>
-          </table>
+            </div>
+
+            {/* Desktop Table View */}
+            <div className="hidden md:block glass-panel" style={{ overflowX: 'auto', padding: '10px' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid rgba(193, 255, 7, 0.1)', color: 'var(--text-secondary)', fontSize: '0.75rem' }}>
+                    {isAdmin && (
+                      <th style={{ padding: '15px 12px', width: '45px' }}>
+                        <input 
+                          type="checkbox" 
+                          checked={selectedIds.size === filteredResources.length && filteredResources.length > 0} 
+                          onChange={toggleSelectAll}
+                          style={{ cursor: 'pointer' }}
+                        />
+                      </th>
+                    )}
+                    <th style={{ padding: '15px 12px' }}>Nome do Material</th>
+                    <th style={{ padding: '15px 12px' }}>Descrição</th>
+                    <th style={{ padding: '15px 12px' }}>Categoria / Formato</th>
+                    {isAdmin && <th style={{ padding: '15px 12px' }}>Data de Liberação</th>}
+                    <th style={{ padding: '15px 12px', textAlign: 'right' }}>Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredResources.map(res => {
+                    const isSelected = selectedIds.has(res.id);
+                    const isScheduledFuture = res.available_at && new Date(res.available_at) > new Date();
+
+                    return (
+                      <tr 
+                        key={res.id} 
+                        style={{ 
+                          borderBottom: '1px solid rgba(255,255,255,0.03)',
+                          background: isSelected ? 'rgba(193,255,7,0.02)' : 'transparent',
+                          opacity: isScheduledFuture ? 0.7 : 1
+                        }}
+                      >
+                        {isAdmin && (
+                          <td style={{ padding: '15px 12px' }}>
+                            <input 
+                              type="checkbox" 
+                              checked={isSelected} 
+                              onChange={() => toggleSelectRow(res.id)}
+                              style={{ cursor: 'pointer' }}
+                            />
+                          </td>
+                        )}
+                        <td style={{ padding: '15px 12px' }}>
+                          <div className="flex items-center gap-3">
+                            {getResourceIcon(res.category)}
+                            <div>
+                              <p className="text-text-base text-sm font-semibold m-0">{res.title}</p>
+                              <p style={{ color: 'var(--text-muted)', fontSize: '0.7rem', margin: 0, marginTop: '2px' }}>Adicionado em {new Date(res.created_at).toLocaleDateString('pt-BR')}</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td style={{ padding: '15px 12px', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                          {res.description || 'Sem descrição cadastrada.'}
+                        </td>
+                        <td style={{ padding: '15px 12px' }}>
+                          <span className="badge badge-gray" style={{ fontSize: '0.65rem' }}>{res.format || 'ZIP'} {res.size ? `• ${res.size}` : ''}</span>
+                        </td>
+                        {isAdmin && (
+                          <td style={{ padding: '15px 12px', fontSize: '0.8rem' }}>
+                            {res.available_at ? (
+                              <span style={{ color: isScheduledFuture ? '#FF4A4A' : '#34D399', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                {isScheduledFuture ? <EyeOff size={12} /> : <Eye size={12} />}
+                                {new Date(res.available_at).toLocaleDateString('pt-BR')}
+                              </span>
+                            ) : (
+                              <span style={{ color: '#34D399' }}>Imediata</span>
+                            )}
+                          </td>
+                        )}
+                        <td style={{ padding: '15px 12px', textAlign: 'right' }}>
+                          <a 
+                            href={res.file_url} 
+                            target="_blank" 
+                            rel="noreferrer"
+                            className="outline-btn text-[10px] font-bold tracking-wider uppercase px-3 py-1.5"
+                            style={{ textDecoration: 'none' }}
+                          >
+                            <Download size={12} />
+                            <span>Baixar</span>
+                          </a>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
 

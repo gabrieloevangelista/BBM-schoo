@@ -121,7 +121,7 @@ export default function LoginPage() {
       </div>
 
       {/* ── RIGHT PANEL — Login Form ── */}
-      <div className="flex-1 flex flex-col items-center justify-center p-8 md:p-16 relative">
+      <div className="flex-1 flex flex-col items-center justify-center p-6 md:p-16 relative">
 
         {/* Mobile logo */}
         <div className="lg:hidden mb-10 self-start">

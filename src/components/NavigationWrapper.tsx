@@ -177,7 +177,7 @@ export default function NavigationWrapper({ children }: { children: React.ReactN
   const unreadCount = notifications.filter(n => !n.is_read).length;
 
   return (
-    <div className={`flex min-h-screen relative ${theme === 'light' ? 'bg-[#f0f2f5] text-[#1a1a1a]' : 'bg-[#12131a] text-white'}`}>
+    <div className={`flex h-screen w-screen overflow-hidden relative ${theme === 'light' ? 'bg-[#f0f2f5] text-[#1a1a1a]' : 'bg-[#12131a] text-white'}`}>
       
       {/* Sidebar (Desktop & Tablet) */}
       <aside 
@@ -358,7 +358,7 @@ export default function NavigationWrapper({ children }: { children: React.ReactN
 
       {/* Main Content Area Container */}
       <div 
-        className={`flex-grow flex flex-col min-h-screen transition-all duration-300 ${
+        className={`flex-grow flex flex-col h-screen overflow-hidden transition-all duration-300 ${
           sidebarExpanded ? 'md:ml-[260px]' : 'md:ml-[85px]'
         }`}
       >
@@ -541,30 +541,30 @@ export default function NavigationWrapper({ children }: { children: React.ReactN
         </header>
 
         {/* Dynamic Page Content */}
-        <main className="flex-grow p-6 pb-24 md:p-10 md:pb-10 overflow-y-auto">
+        <main className="flex-grow px-4 py-6 pb-24 md:p-10 md:pb-10 overflow-y-auto overflow-x-hidden w-full max-w-full">
           {children}
         </main>
       </div>
 
       {/* Bottom Navigation Tab Bar (Mobile Only) */}
-      <nav className={`fixed bottom-0 left-0 w-full h-16 backdrop-blur-xl z-50 flex justify-around items-center px-2.5 md:hidden ${theme === 'light' ? 'bg-white/95 border-t border-black/8' : 'bg-[#12131a]/96 border-t border-white/5'}`}>
-        <Link href="/dashboard" className={`flex flex-col items-center justify-center no-underline text-[10px] font-outfit font-medium gap-1 flex-grow h-full ${pathname === '/dashboard' ? (theme === 'light' ? 'text-[#5a9200]' : 'text-primary-lemon') : (theme === 'light' ? 'text-gray-500 hover:text-gray-900' : 'text-text-secondary hover:text-white')}`}>
+      <nav className={`fixed bottom-0 left-0 w-full h-[72px] pb-[env(safe-area-inset-bottom,8px)] backdrop-blur-xl z-50 flex justify-around items-center px-2.5 md:hidden ${theme === 'light' ? 'bg-white/95 border-t border-black/8' : 'bg-[#12131a]/96 border-t border-white/5'}`}>
+        <Link href="/dashboard" className={`flex flex-col items-center justify-center no-underline text-[10px] font-outfit font-medium gap-1 flex-grow h-full outline-none focus:outline-none ${pathname === '/dashboard' ? (theme === 'light' ? 'text-[#5a9200]' : 'text-primary-lemon') : (theme === 'light' ? 'text-gray-500 hover:text-gray-900' : 'text-text-secondary hover:text-white')}`}>
           <LayoutDashboard size={20} />
           <span>Início</span>
         </Link>
-        <Link href="/masterclasses" className={`flex flex-col items-center justify-center no-underline text-[10px] font-outfit font-medium gap-1 flex-grow h-full ${pathname.startsWith('/masterclasses') ? (theme === 'light' ? 'text-[#5a9200]' : 'text-primary-lemon') : (theme === 'light' ? 'text-gray-500 hover:text-gray-900' : 'text-text-secondary hover:text-white')}`}>
+        <Link href="/masterclasses" className={`flex flex-col items-center justify-center no-underline text-[10px] font-outfit font-medium gap-1 flex-grow h-full outline-none focus:outline-none ${pathname.startsWith('/masterclasses') ? (theme === 'light' ? 'text-[#5a9200]' : 'text-primary-lemon') : (theme === 'light' ? 'text-gray-500 hover:text-gray-900' : 'text-text-secondary hover:text-white')}`}>
           <GraduationCap size={20} />
           <span>Aulas</span>
         </Link>
-        <Link href="/calendario" className={`flex flex-col items-center justify-center no-underline text-[10px] font-outfit font-medium gap-1 flex-grow h-full ${pathname === '/calendario' ? (theme === 'light' ? 'text-[#5a9200]' : 'text-primary-lemon') : (theme === 'light' ? 'text-gray-500 hover:text-gray-900' : 'text-text-secondary hover:text-white')}`}>
+        <Link href="/calendario" className={`flex flex-col items-center justify-center no-underline text-[10px] font-outfit font-medium gap-1 flex-grow h-full outline-none focus:outline-none ${pathname === '/calendario' ? (theme === 'light' ? 'text-[#5a9200]' : 'text-primary-lemon') : (theme === 'light' ? 'text-gray-500 hover:text-gray-900' : 'text-text-secondary hover:text-white')}`}>
           <Calendar size={20} />
           <span>Agenda</span>
         </Link>
-        <Link href="/comunidade" className={`flex flex-col items-center justify-center no-underline text-[10px] font-outfit font-medium gap-1 flex-grow h-full ${pathname === '/comunidade' ? (theme === 'light' ? 'text-[#5a9200]' : 'text-primary-lemon') : (theme === 'light' ? 'text-gray-500 hover:text-gray-900' : 'text-text-secondary hover:text-white')}`}>
+        <Link href="/comunidade" className={`flex flex-col items-center justify-center no-underline text-[10px] font-outfit font-medium gap-1 flex-grow h-full outline-none focus:outline-none ${pathname === '/comunidade' ? (theme === 'light' ? 'text-[#5a9200]' : 'text-primary-lemon') : (theme === 'light' ? 'text-gray-500 hover:text-gray-900' : 'text-text-secondary hover:text-white')}`}>
           <MessageSquare size={20} />
           <span>Social</span>
         </Link>
-        <Link href={`/perfil/${user.username}`} className={`flex flex-col items-center justify-center no-underline text-[10px] font-outfit font-medium gap-1 flex-grow h-full ${pathname.startsWith('/perfil') ? (theme === 'light' ? 'text-[#5a9200]' : 'text-primary-lemon') : (theme === 'light' ? 'text-gray-500 hover:text-gray-900' : 'text-text-secondary hover:text-white')}`}>
+        <Link href={`/perfil/${user.username}`} className={`flex flex-col items-center justify-center no-underline text-[10px] font-outfit font-medium gap-1 flex-grow h-full outline-none focus:outline-none ${pathname.startsWith('/perfil') ? (theme === 'light' ? 'text-[#5a9200]' : 'text-primary-lemon') : (theme === 'light' ? 'text-gray-500 hover:text-gray-900' : 'text-text-secondary hover:text-white')}`}>
           <User size={20} />
           <span>Perfil</span>
         </Link>
