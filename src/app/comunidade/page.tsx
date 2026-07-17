@@ -1296,6 +1296,38 @@ export default function ComunidadePage() {
                         </span>
                       </div>
                     )}
+
+                    {/* Quick comments input */}
+                    <form 
+                      onSubmit={(e) => { e.preventDefault(); handleAddComment(post.id); }}
+                      className="flex gap-2.5"
+                    >
+                      <input 
+                        type="text" 
+                        className="form-input text-xs" 
+                        placeholder="Escreva um comentário..."
+                        value={commentTexts[post.id] || ''}
+                        onChange={(e) => setCommentTexts(prev => ({ ...prev, [post.id]: e.target.value }))}
+                        style={{ padding: '8px 12px', borderRadius: '6px' }}
+                      />
+                      <button type="submit" className="outline-btn text-xs" style={{ padding: '8px 12px', minWidth: 'auto' }}>
+                        <Send size={12} />
+                      </button>
+                    </form>
+                  </article>
+                );
+              })}
+
+              {filteredTimelinePosts.length === 0 && (
+                <div className="glass-panel p-8 text-center text-text-secondary text-sm italic">
+                  Nenhuma publicação encontrada no feed.
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Right column - Masters sidebar */}
         <aside className="lg:col-span-4 flex flex-col gap-6">
           <div className="glass-panel p-5 flex flex-col gap-4">
             <h3 className="text-sm font-bold text-white font-outfit flex items-center gap-2 uppercase tracking-wider">
