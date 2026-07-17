@@ -1082,121 +1082,210 @@ export default function ComunidadePage() {
             </form>
           </section>
 
-          {/* Main Feed List */}
-          <div className="flex flex-col gap-6">
-            {filteredTimelinePosts.map(post => {
-              const isLiked = user && post.liked_by_users.includes(user.id);
-              const isSaved = user && post.saved_by_users.includes(user.id);
-              const isAuthor = user && post.user_id === user.id;
-              const isAdmin = user?.member_type === 'admin';
+          {/* Main Feed List / Reels Grid */}
+          {activeTab === 'reels' ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+              {filteredTimelinePosts.map(post => {
+                const isLiked = user && post.liked_by_users.includes(user.id);
+                return (
+                  <div 
+                    key={post.id}
+                    onClick={() => setLightboxPost(post)}
+                    className="relative aspect-[9/16] rounded-xl overflow-hidden border border-white/5 bg-black cursor-pointer group transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_10px_30px_rgba(0,0,0,0.5)]"
+                    onMouseEnter={(e) => {
+                      const video = e.currentTarget.querySelector('video');
+                      if (video) video.play().catch(() => {});
+                    }}
+                    onMouseLeave={(e) => {
+                      const video = e.currentTarget.querySelector('video');
+                      if (video) {
+                        video.pause();
+                        video.currentTime = 0;
+                      }
+                    }}
+                  >
+                    {post.video_url ? (
+                      <video 
+                        src={post.video_url} 
+                        className="w-full h-full object-cover pointer-events-none" 
+                        muted 
+                        loop 
+                        playsInline
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-zinc-900 text-text-muted text-[10px]">
+                        Sem vídeo
+                      </div>
+                    )}
 
-              return (
-                <article key={post.id} className="glass-panel p-6">
-                  {/* Post Header */}
-                  <div className="flex justify-between items-center mb-4">
-                    <div className="flex gap-3 items-center">
-                      {post.author_avatar ? (
-                        <img src={post.author_avatar} alt={post.author_name} className="w-10 h-10 rounded-full object-cover border border-white/5" />
-                      ) : (
-                        <div className="w-10 h-10 rounded-full bg-primary-lemon/10 border border-primary-lemon/20 text-primary-lemon flex items-center justify-center font-bold text-sm">
-                          {post.author_name.substring(0, 2).toUpperCase()}
-                        </div>
-                      )}
-                      <div>
-                        <h3 className="text-sm font-bold text-white leading-tight font-outfit">{post.author_name}</h3>
-                        <p className="text-[11px] text-text-secondary mt-0.5">{post.author_role} • {new Date(post.created_at).toLocaleDateString('pt-BR')}</p>
+                    {/* Gradient Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-90 transition-all duration-300 group-hover:from-black/95" />
+
+                    {/* Likes & Comments Quick Info */}
+                    <div className="absolute top-3 right-3 flex flex-col gap-2 z-10">
+                      <div className="flex items-center gap-1 bg-black/60 px-2 py-1 rounded-full text-white text-[9px] font-bold">
+                        <Heart size={10} className={isLiked ? 'text-red-500 fill-red-500' : 'text-white'} />
+                        <span>{post.likes_count}</span>
+                      </div>
+                      <div className="flex items-center gap-1 bg-black/60 px-2 py-1 rounded-full text-white text-[9px] font-bold">
+                        <MessageSquare size={10} className="text-white" />
+                        <span>{post.comments.length}</span>
                       </div>
                     </div>
 
-                    <div className="flex gap-2 items-center">
-                      {post.post_type === 'reels' && (
-                        <span className="badge badge-lemon text-[9px] flex items-center gap-1">
-                          <Film size={10} /> Reels
-                        </span>
-                      )}
-                      {(isAuthor || isAdmin) && (
-                        <button onClick={() => handleDeletePost(post.id)} className="outline-btn border-0 p-1 text-red-500 hover:text-red-400" style={{ minWidth: 'auto' }}>
-                          <Trash2 size={16} />
-                        </button>
+                    {/* Reels Icon */}
+                    <div className="absolute top-3 left-3 bg-black/60 p-1.5 rounded-full text-white z-10">
+                      <Film size={12} />
+                    </div>
+
+                    {/* Content & Author Overlay */}
+                    <div className="absolute bottom-3 left-3 right-3 flex flex-col gap-1.5 text-left z-10">
+                      <div className="flex items-center gap-2">
+                        {post.author_avatar ? (
+                          <img src={post.author_avatar} alt={post.author_name} className="w-6 h-6 rounded-full object-cover border border-white/20" />
+                        ) : (
+                          <div className="w-6 h-6 rounded-full bg-primary-lemon/10 border border-primary-lemon/20 text-primary-lemon flex items-center justify-center font-bold text-[8px]">
+                            {post.author_name.substring(0, 2).toUpperCase()}
+                          </div>
+                        )}
+                        <span className="text-[10px] font-bold text-white truncate w-24">{post.author_name}</span>
+                      </div>
+                      {post.content && (
+                        <p className="text-[10px] text-white/90 line-clamp-2 leading-snug m-0">
+                          {post.content}
+                        </p>
                       )}
                     </div>
                   </div>
+                );
+              })}
 
-                  {/* Post Content */}
-                  {post.content && (
-                    <p className="text-white text-sm mb-4 leading-relaxed white-space-pre-wrap">
-                      {post.content}
-                    </p>
-                  )}
+              {filteredTimelinePosts.length === 0 && (
+                <div className="col-span-full glass-panel p-8 text-center text-text-secondary text-sm italic">
+                  Nenhum vídeo curto encontrado na comunidade.
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="flex flex-col gap-6">
+              {filteredTimelinePosts.map(post => {
+                const isLiked = user && post.liked_by_users.includes(user.id);
+                const isSaved = user && post.saved_by_users.includes(user.id);
+                const isAuthor = user && post.user_id === user.id;
+                const isAdmin = user?.member_type === 'admin';
 
-                  {/* Post Media (Image / Video Player) */}
-                  {(post.image_url || post.video_url) && (
-                    <div 
-                      onClick={() => setLightboxPost(post)}
-                      className="cursor-pointer rounded-xl overflow-hidden border border-white/5 bg-[#000] mb-4 relative max-h-[400px] flex-center"
-                    >
-                      {post.video_url ? (
-                        <div className="w-full relative">
-                          <video src={post.video_url} className="w-full max-h-[400px] block" muted loop autoPlay />
-                          <div className="absolute top-3 right-3 bg-black/60 p-2 rounded-full text-white">
-                            <Play size={16} />
+                return (
+                  <article key={post.id} className="glass-panel p-6">
+                    {/* Post Header */}
+                    <div className="flex justify-between items-center mb-4">
+                      <div className="flex gap-3 items-center">
+                        {post.author_avatar ? (
+                          <img src={post.author_avatar} alt={post.author_name} className="w-10 h-10 rounded-full object-cover border border-white/5" />
+                        ) : (
+                          <div className="w-10 h-10 rounded-full bg-[#C1FF07]/10 border border-[#C1FF07]/20 text-[#C1FF07] flex items-center justify-center font-bold text-sm">
+                            {post.author_name.substring(0, 2).toUpperCase()}
                           </div>
+                        )}
+                        <div>
+                          <div className="flex items-center gap-1.5">
+                            <h3 className="text-xs font-bold text-white leading-snug">{post.author_name}</h3>
+                            {post.author_role === 'Master' && (
+                              <span className="text-[8px] font-extrabold bg-[#C1FF07]/10 border border-[#C1FF07]/20 text-[#C1FF07] px-1.5 py-0.5 rounded uppercase tracking-wider font-outfit">
+                                MASTER
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-[10px] text-text-secondary leading-normal">{post.author_role || 'Mentorado'}</p>
                         </div>
-                      ) : (
-                        <img src={post.image_url} alt="Media" className="w-full max-h-[400px] object-contain block" />
+                      </div>
+
+                      {/* Delete button (owner or admin) */}
+                      {(isAuthor || isAdmin) && (
+                        <button 
+                          onClick={() => handleDeletePost(post.id)}
+                          className="outline-btn border-0 p-1.5 text-gray-500 hover:text-red-500 hover:bg-red-500/5"
+                          style={{ minWidth: 'auto' }}
+                          title="Excluir publicação"
+                        >
+                          <Trash2 size={14} />
+                        </button>
                       )}
                     </div>
-                  )}
 
-                  {/* Action Buttons */}
-                  <div className="flex justify-between items-center border-y border-white/5 py-1 mb-4">
-                    <div className="flex items-center gap-1">
-                      <button 
-                        onClick={() => handleLikePost(post.id)}
-                        className="outline-btn border-0 text-xs flex items-center gap-1.5"
-                        style={{ minWidth: 'auto', padding: '6px 12px', color: isLiked ? '#FF4A4A' : 'var(--color-text-secondary)' }}
-                        title="Curtir Post"
-                      >
-                        <Heart size={16} fill={isLiked ? '#FF4A4A' : 'transparent'} />
-                      </button>
+                    {/* Post Content */}
+                    {post.content && (
+                      <p className="text-white text-sm mb-4 leading-relaxed white-space-pre-wrap">
+                        {post.content}
+                      </p>
+                    )}
 
-                      <button 
+                    {/* Post Media (Image / Video Player) */}
+                    {(post.image_url || post.video_url) && (
+                      <div 
                         onClick={() => setLightboxPost(post)}
-                        className="outline-btn border-0 text-xs flex items-center gap-1.5"
-                        style={{ minWidth: 'auto', padding: '6px 12px' }}
-                        title="Comentários"
+                        className="cursor-pointer rounded-xl overflow-hidden border border-white/5 bg-[#000] mb-4 relative max-h-[400px] flex-center"
                       >
-                        <MessageSquare size={16} />
-                        <span className="text-[11px] font-bold text-white/50">{post.comments.length}</span>
-                      </button>
+                        {post.video_url ? (
+                          <div className="w-full relative">
+                            <video src={post.video_url} className="w-full max-h-[400px] block" muted loop autoPlay />
+                            <div className="absolute top-3 right-3 bg-black/60 p-2 rounded-full text-white">
+                              <Play size={16} />
+                            </div>
+                          </div>
+                        ) : (
+                          <img src={post.image_url} alt="Media" className="w-full max-h-[400px] object-contain block" />
+                        )}
+                      </div>
+                    )}
+
+                    {/* Actions (Like / Comment / Save) */}
+                    <div className="flex items-center justify-between border-t border-white/5 pt-4 mb-4">
+                      <div className="flex gap-4">
+                        <button 
+                          onClick={() => handleLikeToggle(post.id)}
+                          className={`flex items-center gap-1.5 text-xs font-bold transition-all duration-200 cursor-pointer ${
+                            isLiked ? 'text-red-500' : 'text-text-secondary hover:text-white'
+                          }`}
+                          style={{ background: 'transparent' }}
+                        >
+                          <Heart size={16} fill={isLiked ? '#FF4A4A' : 'transparent'} />
+                          <span>{post.likes_count}</span>
+                        </button>
+                        <button 
+                          onClick={() => setLightboxPost(post)}
+                          className="flex items-center gap-1.5 text-xs font-bold text-text-secondary hover:text-white transition-all duration-200 cursor-pointer"
+                          style={{ background: 'transparent' }}
+                        >
+                          <MessageSquare size={16} />
+                          <span>{post.comments.length}</span>
+                        </button>
+                      </div>
 
                       <button 
-                        onClick={() => handleSavePost(post.id)}
-                        className="outline-btn border-0 text-xs flex items-center gap-1.5"
-                        style={{ minWidth: 'auto', padding: '6px 12px', color: isSaved ? '#C1FF07' : 'var(--color-text-secondary)' }}
-                        title="Salvar Post"
+                        onClick={() => handleSaveToggle(post.id)}
+                        className={`flex items-center gap-1.5 text-xs font-bold transition-all duration-200 cursor-pointer ${
+                          isSaved ? 'text-primary-lemon' : 'text-text-secondary hover:text-white'
+                        }`}
+                        style={{ background: 'transparent' }}
                       >
-                        <Bookmark size={16} fill={isSaved ? '#C1FF07' : 'transparent'} />
+                        <Bookmark size={16} fill={isSaved ? 'var(--primary-lemon)' : 'transparent'} />
                       </button>
                     </div>
 
-                    {/* Liked Users Avatar Stack */}
-                    {post.liked_by_users.length > 0 && (
-                      <div className="flex items-center gap-2">
+                    {/* Likes detail */}
+                    {post.likes_count > 0 && (
+                      <div className="flex items-center gap-1.5 mb-4 bg-white/[0.01] border border-white/5 p-2 rounded-lg">
                         <div className="flex -space-x-1.5 overflow-hidden">
-                          {post.liked_by_users.slice(0, 3).map(userId => {
-                            const liker = members.find(m => m.id === userId);
-                            if (!liker) return null;
+                          {post.liked_by_users.slice(0, 3).map((uid, idx) => {
+                            const foundMember = members.find(m => m.id === uid);
                             return (
-                              <div 
-                                key={userId}
-                                className="w-5 h-5 rounded-full ring-2 ring-[#12131a] bg-[#171821] flex items-center justify-center text-[7px] font-bold text-[#C1FF07] overflow-hidden"
-                                title={liker.name}
-                              >
-                                {liker.img ? (
-                                  <img src={liker.img} alt={liker.name} className="w-full h-full object-cover" />
+                              <div key={uid} className="inline-block w-5 h-5 rounded-full ring-2 ring-bg-deep overflow-hidden">
+                                {foundMember?.img ? (
+                                  <img src={foundMember.img} alt="User Avatar" className="w-full h-full object-cover" />
                                 ) : (
-                                  <span>{liker.initials || '??'}</span>
+                                  <div className="w-full h-full bg-[#C1FF07]/10 text-[#C1FF07] text-[8px] font-bold flex-center">
+                                    {foundMember?.name.substring(0, 2).toUpperCase() || 'M'}
+                                  </div>
                                 )}
                               </div>
                             );
@@ -1207,38 +1296,6 @@ export default function ComunidadePage() {
                         </span>
                       </div>
                     )}
-                  </div>
-
-                  {/* Quick comments input */}
-                  <form 
-                    onSubmit={(e) => { e.preventDefault(); handleAddComment(post.id); }}
-                    className="flex gap-2.5"
-                  >
-                    <input 
-                      type="text" 
-                      className="form-input text-xs" 
-                      placeholder="Escreva um comentário..."
-                      value={commentTexts[post.id] || ''}
-                      onChange={(e) => setCommentTexts(prev => ({ ...prev, [post.id]: e.target.value }))}
-                      style={{ padding: '8px 12px', borderRadius: '6px' }}
-                    />
-                    <button type="submit" className="outline-btn text-xs" style={{ padding: '8px 12px', minWidth: 'auto' }}>
-                      <Send size={12} />
-                    </button>
-                  </form>
-                </article>
-              );
-            })}
-
-            {filteredTimelinePosts.length === 0 && (
-              <div className="glass-panel p-8 text-center text-text-secondary text-sm italic">
-                Nenhuma publicação encontrada no feed.
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Right column - Masters sidebar */}
         <aside className="lg:col-span-4 flex flex-col gap-6">
           <div className="glass-panel p-5 flex flex-col gap-4">
             <h3 className="text-sm font-bold text-white font-outfit flex items-center gap-2 uppercase tracking-wider">
