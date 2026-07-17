@@ -77,7 +77,7 @@ export default function ComunidadePage() {
   }, [activeStory, currentStoryIndex, activeUserStories.length]);
 
   // Post Creator states
-  const [postType, setPostType] = useState<'standard' | 'status' | 'reels'>('standard');
+  const [postType, setPostType] = useState<'feed' | 'status' | 'reels'>('feed');
   const [content, setContent] = useState('');
   const [mediaUrl, setMediaUrl] = useState('');
   const [attachedFile, setAttachedFile] = useState<File | null>(null);
@@ -103,7 +103,7 @@ export default function ComunidadePage() {
       if (response.ok) {
         const db = await response.json();
         
-        // 1. Filter normal timeline posts: standard & reels
+        // 1. Filter normal timeline posts: feed & reels
         let timelineList = db.community_posts.filter((p: CommunityPost) => p.post_type !== 'status');
         timelineList.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
         setPosts(timelineList);
@@ -313,14 +313,14 @@ export default function ComunidadePage() {
       setAttachedPreview(localUrl);
 
       if (file.type.startsWith('image/')) {
-        setPostType('standard');
+        setPostType('feed');
       } else if (file.type.startsWith('video/')) {
         const video = document.createElement('video');
         video.preload = 'metadata';
         video.onloadedmetadata = async () => {
           const duration = video.duration;
           if (duration > 180) {
-            setPostType('standard');
+            setPostType('feed');
           } else if (duration >= 60 && duration <= 180) {
             setPostType('reels');
           } else {
@@ -421,7 +421,7 @@ export default function ComunidadePage() {
         // Reset
         setContent('');
         handleRemoveAttachment();
-        setPostType('standard');
+        setPostType('feed');
         fetchFeedData();
       }
     } catch (err) {
@@ -981,13 +981,13 @@ export default function ComunidadePage() {
                 <div className="flex gap-2 items-center">
                   <button 
                     type="button" 
-                    onClick={() => setPostType('standard')}
+                    onClick={() => setPostType('feed')}
                     className={`px-3 py-1.5 rounded-full text-[10px] font-bold cursor-pointer transition-all duration-200 flex items-center gap-1 ${
-                      postType === 'standard' 
+                      postType === 'feed' 
                         ? 'bg-white/10 text-white border border-white/20' 
                         : 'border border-transparent text-text-secondary hover:text-white'
                     }`}
-                    style={{ background: postType === 'standard' ? 'rgba(255,255,255,0.06)' : 'transparent' }}
+                    style={{ background: postType === 'feed' ? 'rgba(255,255,255,0.06)' : 'transparent' }}
                   >
                     <MessageSquare size={12} />
                     <span>Feed Geral</span>
@@ -1088,9 +1088,11 @@ export default function ComunidadePage() {
                   </div>
 
                   {/* Post Content */}
-                  <p className="text-white text-sm mb-4 leading-relaxed white-space-pre-wrap">
-                    {post.content}
-                  </p>
+                  {post.content && (
+                    <p className="text-white text-sm mb-4 leading-relaxed white-space-pre-wrap">
+                      {post.content}
+                    </p>
+                  )}
 
                   {/* Post Media (Image / Video Player) */}
                   {(post.image_url || post.video_url) && (

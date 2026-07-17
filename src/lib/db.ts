@@ -123,7 +123,7 @@ export interface CommunityPost {
   liked_by_users: string[]; 
   saved_by_users: string[]; 
   comments: CommunityComment[];
-  post_type: 'standard' | 'status' | 'reels';
+  post_type: 'feed' | 'status' | 'reels';
   created_at: string;
 }
 
