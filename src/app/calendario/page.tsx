@@ -210,6 +210,12 @@ export default function CalendarioPage() {
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
 
+  // Today's date string in YYYY-MM-DD format (local time zone)
+  const todayObj = new Date();
+  const formattedTodayDay = todayObj.getDate() < 10 ? `0${todayObj.getDate()}` : todayObj.getDate();
+  const formattedTodayMonth = (todayObj.getMonth() + 1) < 10 ? `0${todayObj.getMonth() + 1}` : (todayObj.getMonth() + 1);
+  const todayStr = `${todayObj.getFullYear()}-${formattedTodayMonth}-${formattedTodayDay}`;
+
   const getDaysInMonth = (y: number, m: number) => new Date(y, m + 1, 0).getDate();
   const getFirstDayOfWeek = (y: number, m: number) => new Date(y, m, 1).getDay();
 
@@ -456,7 +462,11 @@ export default function CalendarioPage() {
                 {Array.from({ length: totalDays }).map((_, idx) => {
                   const day = idx + 1;
                   const dayEvents = getEventsForDay(day);
-                  const isSelected = selectedDateStr === `${year}-${(month+1)<10?`0${month+1}`:(month+1)}-${day<10?`0${day}`:day}`;
+                  const formattedDay = day < 10 ? `0${day}` : day;
+                  const formattedMonth = (month + 1) < 10 ? `0${month + 1}` : (month + 1);
+                  const cellDateStr = `${year}-${formattedMonth}-${formattedDay}`;
+                  const isSelected = selectedDateStr === cellDateStr;
+                  const isToday = todayStr === cellDateStr;
 
                   return (
                     <div 
@@ -465,11 +475,25 @@ export default function CalendarioPage() {
                       className={`glass-panel p-2 flex flex-col min-h-[64px] cursor-pointer transition-all duration-200 ${
                         isSelected 
                           ? 'bg-primary-lemon/5' 
-                          : 'hover:bg-white/5 border-white/5 bg-white/1'
+                          : isToday
+                            ? 'bg-blue-500/[0.03] border-blue-500/30'
+                            : 'hover:bg-white/5 border-white/5 bg-white/1'
                       }`}
-                      style={{ border: isSelected ? '1px solid var(--color-primary-lemon)' : undefined }}
+                      style={{ 
+                        border: isSelected 
+                          ? '1px solid var(--color-primary-lemon)' 
+                          : isToday 
+                            ? '1px solid rgba(59, 130, 246, 0.4)' 
+                            : undefined 
+                      }}
                     >
-                      <span className={`text-[10px] font-bold ${isSelected ? 'text-primary-lemon' : 'text-text-secondary'}`}>
+                      <span className={`text-[10px] font-bold ${
+                        isSelected 
+                          ? 'text-primary-lemon' 
+                          : isToday
+                            ? 'text-blue-400 font-extrabold'
+                            : 'text-text-secondary'
+                      }`}>
                         {day}
                       </span>
 
@@ -525,7 +549,7 @@ export default function CalendarioPage() {
                   
                   const dayEvents = filteredEvents.filter(e => e.event_date === dateStr);
                   const isSelected = selectedDateStr === dateStr;
-                  const isToday = new Date().toDateString() === dateObj.toDateString();
+                  const isToday = todayStr === dateStr;
                   
                   const weekdaysShort = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
@@ -634,6 +658,7 @@ export default function CalendarioPage() {
 
                           const hasEvents = filteredEvents.some(e => e.event_date === cellDateStr);
                           const isSelected = selectedDateStr === cellDateStr;
+                          const isToday = todayStr === cellDateStr;
 
                           return (
                             <span 
@@ -641,8 +666,17 @@ export default function CalendarioPage() {
                               onClick={() => setSelectedDateStr(cellDateStr)}
                               className="aspect-square flex-center rounded-sm cursor-pointer transition-colors relative font-semibold"
                               style={{
-                                backgroundColor: isSelected ? 'var(--color-primary-lemon)' : 'transparent',
-                                color: isSelected ? 'var(--color-switch-active-text)' : 'inherit'
+                                backgroundColor: isSelected 
+                                  ? 'var(--color-primary-lemon)' 
+                                  : isToday 
+                                    ? 'rgba(59, 130, 246, 0.2)' 
+                                    : 'transparent',
+                                border: !isSelected && isToday ? '1px solid rgba(59, 130, 246, 0.5)' : 'none',
+                                color: isSelected 
+                                  ? 'var(--color-switch-active-text)' 
+                                  : isToday 
+                                    ? '#60a5fa' 
+                                    : 'inherit'
                               }}
                             >
                               {dayNum}
@@ -667,64 +701,81 @@ export default function CalendarioPage() {
                   Nenhum compromisso agendado para o filtro selecionado.
                 </div>
               ) : (
-                filteredEvents.map(event => (
-                  <div key={event.id} className="glass-panel p-5 flex justify-between items-center flex-wrap gap-4">
-                    <div className="flex gap-4 items-start flex-grow">
-                      <div className="w-14 h-14 rounded-xl bg-primary-lemon/10 border border-primary-lemon/25 text-primary-lemon flex flex-col items-center justify-center flex-shrink-0">
-                        <span className="text-lg font-extrabold leading-none">{event.event_date.split('-')[2]}</span>
-                        <span className="text-[8px] uppercase font-bold mt-1">{monthNames[parseInt(event.event_date.split('-')[1]) - 1].substring(0, 3)}</span>
-                      </div>
-                      <div>
-                        <span className={`badge text-[9px] uppercase font-bold mb-1.5 ${event.event_type === 'mentoria' ? 'badge-gold' : 'badge-green'}`}>
-                          {event.event_type === 'mentoria' ? 'Mentoria Coletiva' : 'Atualização'}
-                        </span>
-                        <h3 className="text-sm font-bold text-text-base m-0 font-outfit">{event.title}</h3>
-                        <p className="text-[11px] text-text-secondary m-0 mt-1">Pauta: {event.topic}</p>
-                        <div className="flex gap-4 items-center mt-2.5 text-[10px] text-text-muted">
-                          <span className="flex items-center gap-1"><Clock size={12} /> {event.start_time.substring(0,5)} às {event.end_time.substring(0,5)}</span>
-                          {event.mentor_name && <span className="flex items-center gap-1"><User size={12} /> {event.mentor_name}</span>}
+                filteredEvents.map(event => {
+                  const isTodayEvent = event.event_date === todayStr;
+                  return (
+                    <div 
+                      key={event.id} 
+                      className={`glass-panel p-5 flex justify-between items-center flex-wrap gap-4 transition-all duration-200`}
+                      style={{ border: isTodayEvent ? '1px solid rgba(59, 130, 246, 0.4)' : undefined }}
+                    >
+                      <div className="flex gap-4 items-start flex-grow">
+                        <div className={`w-14 h-14 rounded-xl flex flex-col items-center justify-center flex-shrink-0 ${
+                          isTodayEvent 
+                            ? 'bg-blue-500/10 border border-blue-500/35 text-blue-400' 
+                            : 'bg-primary-lemon/10 border border-primary-lemon/25 text-primary-lemon'
+                        }`}>
+                          <span className="text-lg font-extrabold leading-none">{event.event_date.split('-')[2]}</span>
+                          <span className="text-[8px] uppercase font-bold mt-1">{monthNames[parseInt(event.event_date.split('-')[1]) - 1].substring(0, 3)}</span>
+                        </div>
+                        <div>
+                          <span className={`badge text-[9px] uppercase font-bold mb-1.5 ${
+                            isTodayEvent 
+                              ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' 
+                              : event.event_type === 'mentoria' 
+                                ? 'badge-gold' 
+                                : 'badge-green'
+                          }`}>
+                            {isTodayEvent ? 'Hoje' : event.event_type === 'mentoria' ? 'Mentoria Coletiva' : 'Atualização'}
+                          </span>
+                          <h3 className="text-sm font-bold text-text-base m-0 font-outfit">{event.title}</h3>
+                          <p className="text-[11px] text-text-secondary m-0 mt-1">Pauta: {event.topic}</p>
+                          <div className="flex gap-4 items-center mt-2.5 text-[10px] text-text-muted">
+                            <span className="flex items-center gap-1"><Clock size={12} /> {event.start_time.substring(0,5)} às {event.end_time.substring(0,5)}</span>
+                            {event.mentor_name && <span className="flex items-center gap-1"><User size={12} /> {event.mentor_name}</span>}
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    <div className="flex gap-2.5 items-center">
-                      {event.zoom_link && (
-                        <a href={event.zoom_link} target="_blank" rel="noreferrer" className="outline-btn text-[10px] font-bold tracking-wider uppercase px-3 py-1.5 flex items-center gap-1" style={{ textDecoration: 'none' }}>
-                          <Video size={12} />
-                          <span>Link do Encontro</span>
+                      <div className="flex gap-2.5 items-center">
+                        {event.zoom_link && (
+                          <a href={event.zoom_link} target="_blank" rel="noreferrer" className="outline-btn text-[10px] font-bold tracking-wider uppercase px-3 py-1.5 flex items-center gap-1" style={{ textDecoration: 'none' }}>
+                            <Video size={12} />
+                            <span>Link do Encontro</span>
+                          </a>
+                        )}
+                        <a href={getGoogleCalendarUrl(event)} target="_blank" rel="noreferrer" className="outline-btn text-[10px] font-bold tracking-wider uppercase px-3 py-1.5 flex items-center gap-1" style={{ textDecoration: 'none' }}>
+                          <ExternalLink size={12} />
+                          <span>Google Agenda</span>
                         </a>
-                      )}
-                      <a href={getGoogleCalendarUrl(event)} target="_blank" rel="noreferrer" className="outline-btn text-[10px] font-bold tracking-wider uppercase px-3 py-1.5 flex items-center gap-1" style={{ textDecoration: 'none' }}>
-                        <ExternalLink size={12} />
-                        <span>Google Agenda</span>
-                      </a>
-                      {canManage && (
-                        <div className="flex items-center">
-                          <button 
-                            onClick={() => {
-                              setEditingEventId(event.id);
-                              setNewTitle(event.title);
-                              setNewEventType(event.event_type as 'mentoria' | 'atualizacao');
-                              setSelectedDateStr(event.event_date);
-                              setNewStartTime(event.start_time.substring(0, 5));
-                              setNewEndTime(event.end_time.substring(0, 5));
-                              setNewTopic(event.topic || '');
-                              setNewZoomLink(event.zoom_link || '');
-                              setShowAddModal(true);
-                            }} 
-                            className="outline-btn border-0 text-text-secondary hover:text-text-base p-1.5 cursor-pointer" 
-                            style={{ minWidth: 'auto' }}
-                          >
-                            <Edit2 size={14} />
-                          </button>
-                          <button onClick={() => setDeletingEventId(event.id)} className="outline-btn border-0 text-red-500 hover:text-red-400 p-1.5 cursor-pointer" style={{ minWidth: 'auto' }}>
-                            <Trash2 size={14} />
-                          </button>
-                        </div>
-                      )}
+                        {canManage && (
+                          <div className="flex items-center">
+                            <button 
+                              onClick={() => {
+                                setEditingEventId(event.id);
+                                setNewTitle(event.title);
+                                setNewEventType(event.event_type as 'mentoria' | 'atualizacao');
+                                setSelectedDateStr(event.event_date);
+                                setNewStartTime(event.start_time.substring(0, 5));
+                                setNewEndTime(event.end_time.substring(0, 5));
+                                setNewTopic(event.topic || '');
+                                setNewZoomLink(event.zoom_link || '');
+                                setShowAddModal(true);
+                              }} 
+                              className="outline-btn border-0 text-text-secondary hover:text-text-base p-1.5 cursor-pointer" 
+                              style={{ minWidth: 'auto' }}
+                            >
+                              <Edit2 size={14} />
+                            </button>
+                            <button onClick={() => setDeletingEventId(event.id)} className="outline-btn border-0 text-red-500 hover:text-red-400 p-1.5 cursor-pointer" style={{ minWidth: 'auto' }}>
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
           )}
@@ -734,8 +785,11 @@ export default function CalendarioPage() {
         <aside className="lg:col-span-4 flex flex-col gap-6">
           {/* Selected Day Agenda */}
           <div className="glass-panel p-5 flex flex-col gap-4">
-            <h3 className="text-xs font-bold text-text-secondary font-outfit m-0 uppercase tracking-wider">
-              {getSelectedDateFriendlyLabel()}
+            <h3 className="text-xs font-bold text-text-secondary font-outfit m-0 uppercase tracking-wider flex items-center gap-1.5">
+              <span>{getSelectedDateFriendlyLabel()}</span>
+              {selectedDateStr === todayStr && (
+                <span className="badge bg-blue-500/20 text-blue-400 border border-blue-500/30 text-[8px] px-1 py-0.5 rounded uppercase font-bold">Hoje</span>
+              )}
             </h3>
 
             {selectedDayEvents.length === 0 ? (
