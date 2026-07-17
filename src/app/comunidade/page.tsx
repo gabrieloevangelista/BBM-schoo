@@ -288,21 +288,42 @@ export default function ComunidadePage() {
       if (storyInputRef.current) storyInputRef.current.value = '';
     };
 
-    if (isVideo) {
-      const video = document.createElement('video');
-      video.preload = 'metadata';
-      video.onloadedmetadata = async () => {
-        if (video.duration <= 60) {
-          const isStatus = await customConfirm('Postar como Story?', 'Confirmar');
-          doUpload(localUrl, isStatus ? 'status' : 'reels');
-        } else {
-          customAlert('Para Stories ou Reels, o vídeo deve ter 1 minuto ou menos.');
+    const uploadFileAndPost = async () => {
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        const uploadRes = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData
+        });
+        if (!uploadRes.ok) {
+          throw new Error('Falha no upload do arquivo.');
         }
-      };
-      video.src = localUrl;
-    } else {
-      doUpload(localUrl, 'status');
-    }
+        const uploadData = await uploadRes.json();
+        const persistedUrl = uploadData.file_url;
+
+        if (isVideo) {
+          const video = document.createElement('video');
+          video.preload = 'metadata';
+          video.onloadedmetadata = async () => {
+            if (video.duration <= 60) {
+              const isStatus = await customConfirm('Postar como Story?', 'Confirmar');
+              doUpload(persistedUrl, isStatus ? 'status' : 'reels');
+            } else {
+              customAlert('Para Stories ou Reels, o vídeo deve ter 1 minuto ou menos.');
+            }
+          };
+          video.src = localUrl;
+        } else {
+          doUpload(persistedUrl, 'status');
+        }
+      } catch (err) {
+        console.error(err);
+        customAlert('Erro ao realizar upload do Story.');
+      }
+    };
+
+    uploadFileAndPost();
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -355,15 +376,34 @@ export default function ComunidadePage() {
 
     try {
       let base64Media;
+      let persistedUrl;
+
       if (attachedFile) {
         base64Media = await fileToBase64(attachedFile);
+        
+        const formData = new FormData();
+        formData.append('file', attachedFile);
+        const uploadRes = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData
+        });
+        if (!uploadRes.ok) {
+          throw new Error('Falha no upload do arquivo.');
+        }
+        const uploadData = await uploadRes.json();
+        persistedUrl = uploadData.file_url;
       }
 
       // Moderation Check
       const modRes = await fetch('/api/moderate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: content.trim(), mediaUrl: attachedPreview || undefined, base64Media, type: postType })
+        body: JSON.stringify({ 
+          text: content.trim(), 
+          mediaUrl: persistedUrl || undefined, 
+          base64Media, 
+          type: postType 
+        })
       });
 
       if (!modRes.ok) {
@@ -399,8 +439,8 @@ export default function ComunidadePage() {
           author_avatar: user?.img || '',
           author_role: user?.role || 'Mentorado Elite',
           content: content.trim(),
-          image_url: attachedPreview && !isVideo ? attachedPreview : undefined,
-          video_url: attachedPreview && isVideo ? attachedPreview : undefined,
+          image_url: persistedUrl && !isVideo ? persistedUrl : undefined,
+          video_url: persistedUrl && isVideo ? persistedUrl : undefined,
           likes_count: 0,
           liked_by_users: [],
           saved_by_users: [],
@@ -426,12 +466,7 @@ export default function ComunidadePage() {
       }
     } catch (err) {
       console.error(err);
-      customAlert(
-        <div>
-          Sua publicação foi removida por infringir as regras da comunidade.{' '}
-          <a href="/regras" className="text-primary-lemon hover:underline font-bold">Leia as regras aqui</a>.
-        </div>
-      );
+      customAlert('Erro ao enviar a publicação. Tente novamente.');
     }
   };
 
