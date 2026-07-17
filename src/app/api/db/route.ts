@@ -60,21 +60,21 @@ export async function POST(request: Request) {
       // Delete child rows first to prevent foreign key constraint violations
       const incomingReplyIds = allReplies.map(r => r.id);
       if (incomingReplyIds.length > 0) {
-        await supabase.from('comment_replies').delete().not('id', 'in', incomingReplyIds);
+        await supabase.from('comment_replies').delete().not('id', 'in', `(${incomingReplyIds.join(',')})`);
       } else {
         await supabase.from('comment_replies').delete().neq('id', 'temp');
       }
 
       const incomingCommentIds = allComments.map(c => c.id);
       if (incomingCommentIds.length > 0) {
-        await supabase.from('community_comments').delete().not('id', 'in', incomingCommentIds);
+        await supabase.from('community_comments').delete().not('id', 'in', `(${incomingCommentIds.join(',')})`);
       } else {
         await supabase.from('community_comments').delete().neq('id', 'temp');
       }
 
       const incomingPostIds = postsToUpsert.map(p => p.id);
       if (incomingPostIds.length > 0) {
-        await supabase.from('community_posts').delete().not('id', 'in', incomingPostIds);
+        await supabase.from('community_posts').delete().not('id', 'in', `(${incomingPostIds.join(',')})`);
       } else {
         await supabase.from('community_posts').delete().neq('id', 'temp');
       }
@@ -84,7 +84,7 @@ export async function POST(request: Request) {
     if (db.calendar_events) {
       const incomingEventIds = db.calendar_events.map((e: any) => e.id);
       if (incomingEventIds.length > 0) {
-        await supabase.from('calendar_events').delete().not('id', 'in', incomingEventIds);
+        await supabase.from('calendar_events').delete().not('id', 'in', `(${incomingEventIds.join(',')})`);
       }
     }
     
@@ -92,7 +92,7 @@ export async function POST(request: Request) {
     if (db.members) {
       const incomingMemberIds = db.members.map((m: any) => m.id);
       if (incomingMemberIds.length > 0) {
-        await supabase.from('members').delete().not('id', 'in', incomingMemberIds).neq('id', 'admin-01');
+        await supabase.from('members').delete().not('id', 'in', `(${incomingMemberIds.join(',')})`).neq('id', 'admin-01');
       }
     }
     
