@@ -21,6 +21,8 @@ export interface Member {
   linkedin?: string;
   instagram?: string;
   website?: string;
+  badges?: string[];
+  hidden_badges?: string[];
 }
 
 export interface Course {
@@ -288,8 +290,43 @@ export async function getDb(): Promise<DatabaseSchema> {
     };
   });
 
+  // Deserialize custom fields from bio column
+  const mappedMembers = (members || []).map(m => {
+    let bio = m.bio || '';
+    let linkedin = '';
+    let instagram = '';
+    let website = '';
+    let badges: string[] = [];
+    let hidden_badges: string[] = [];
+
+    if (bio.includes('|||')) {
+      const parts = bio.split('|||');
+      bio = parts[0].trim();
+      try {
+        const meta = JSON.parse(parts[1]);
+        linkedin = meta.linkedin || '';
+        instagram = meta.instagram || '';
+        website = meta.website || '';
+        badges = meta.badges || [];
+        hidden_badges = meta.hidden_badges || [];
+      } catch (e) {
+        console.error('Failed to parse member meta:', e);
+      }
+    }
+
+    return {
+      ...m,
+      bio,
+      linkedin,
+      instagram,
+      website,
+      badges,
+      hidden_badges
+    };
+  });
+
   return {
-    members: members || [],
+    members: mappedMembers || [],
     courses: courses || [],
     modules: modules || [],
     lessons: lessons || [],
@@ -321,12 +358,36 @@ export async function saveDb(db: DatabaseSchema): Promise<void> {
 // Added backwards compatible helper functions
 export async function getMembers() { const db = await getDb(); return db.members; }
 export async function updateMember(updatedMember: Member) {
-  await supabase.from('members').update(updatedMember).eq('id', updatedMember.id);
+  const { linkedin, instagram, website, badges, hidden_badges, ...rest } = updatedMember;
+  const meta = {
+    linkedin: linkedin || '',
+    instagram: instagram || '',
+    website: website || '',
+    badges: badges || [],
+    hidden_badges: hidden_badges || []
+  };
+  const sanitized = {
+    ...rest,
+    bio: `${updatedMember.bio || ''} ||| ${JSON.stringify(meta)}`
+  };
+  await supabase.from('members').update(sanitized).eq('id', updatedMember.id);
   return updatedMember;
 }
 export async function addMember(member: Omit<Member, 'id' | 'added_at'>) {
   const newMember = { ...member, id: `user-${Date.now()}`, added_at: new Date().toISOString() };
-  await supabase.from('members').insert([newMember]);
+  const { linkedin, instagram, website, badges, hidden_badges, ...rest } = newMember;
+  const meta = {
+    linkedin: linkedin || '',
+    instagram: instagram || '',
+    website: website || '',
+    badges: badges || [],
+    hidden_badges: hidden_badges || []
+  };
+  const sanitized = {
+    ...rest,
+    bio: `${newMember.bio || ''} ||| ${JSON.stringify(meta)}`
+  };
+  await supabase.from('members').insert([sanitized]);
   return newMember as Member;
 }
 export async function deleteMember(id: string) {

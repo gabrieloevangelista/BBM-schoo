@@ -17,7 +17,24 @@ export async function POST(request: Request) {
     const db = await request.json();
     
     // Upsert standard tables
-    if (db.members?.length) await supabase.from('members').upsert(db.members);
+    if (db.members?.length) {
+      const sanitizedMembers = db.members.map((m: any) => {
+        const { linkedin, instagram, website, badges, hidden_badges, ...rest } = m;
+        const meta = {
+          linkedin: linkedin || '',
+          instagram: instagram || '',
+          website: website || '',
+          badges: badges || [],
+          hidden_badges: hidden_badges || []
+        };
+        const bioText = m.bio || '';
+        return {
+          ...rest,
+          bio: `${bioText} ||| ${JSON.stringify(meta)}`
+        };
+      });
+      await supabase.from('members').upsert(sanitizedMembers);
+    }
     if (db.courses?.length) await supabase.from('courses').upsert(db.courses);
     if (db.modules?.length) await supabase.from('modules').upsert(db.modules);
     if (db.lessons?.length) await supabase.from('lessons').upsert(db.lessons);

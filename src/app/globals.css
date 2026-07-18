@@ -233,6 +233,57 @@ h1, h2, h3, h4, h5, h6 {
   transform: translateY(-2px);
 }
 
+/* Post creator selection buttons */
+.hud-post-type-btn {
+  padding: 6px 12px;
+  border-radius: 2px;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  font-family: var(--font-outfit);
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Active style (Dark theme default) */
+.hud-post-type-btn.active {
+  border: 1px solid var(--color-primary-lemon) !important;
+  color: var(--color-primary-lemon) !important;
+  background-color: rgba(193, 255, 7, 0.05) !important;
+}
+
+/* Inactive style (Dark theme default) */
+.hud-post-type-btn.inactive {
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  color: var(--color-text-secondary) !important;
+  background-color: transparent !important;
+}
+
+.hud-post-type-btn.inactive:hover {
+  color: #ffffff !important;
+  background-color: rgba(255, 255, 255, 0.04) !important;
+}
+
+/* Light Theme overrides */
+[data-theme="light"] .hud-post-type-btn.active {
+  border-color: #5a9200 !important;
+  color: #5a9200 !important;
+  background-color: rgba(90, 146, 0, 0.05) !important;
+}
+
+[data-theme="light"] .hud-post-type-btn.inactive {
+  border-color: rgba(0, 0, 0, 0.06) !important;
+  color: #5f6368 !important;
+}
+
+[data-theme="light"] .hud-post-type-btn.inactive:hover {
+  color: #1a1a1a !important;
+  background-color: rgba(0, 0, 0, 0.04) !important;
+}
+
 /* Diagonal stripes background/header accent */
 .hud-stripes {
   background: repeating-linear-gradient(
@@ -621,31 +672,53 @@ input[type="checkbox"]:focus {
   margin-bottom: 0.5rem;
 }
 
-/* ── Base input ── */
+/* ── Base input (HUD Sci-Fi Style) ── */
 .form-input {
   width: 100%;
   padding: 0.65rem 0.85rem;
   font-size: 0.875rem;
   font-family: var(--font-inter);
-  background-color: rgba(8, 8, 12, 0.85) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  border-radius: 2px !important;
+  background-color: rgba(0, 0, 0, 0.65) !important;
+  border: 1px solid rgba(193, 255, 7, 0.15) !important;
+  border-left: 3px solid rgba(193, 255, 7, 0.45) !important;
+  border-radius: 0px !important; /* Cyberpunk sharp edges */
   color: #f1f3f4 !important;
   outline: none !important;
-  transition: border-color 0.2s ease-in-out, background-color 0.2s ease-in-out;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   -webkit-appearance: none;
   appearance: none;
   color-scheme: dark;
 }
 
 .form-input::placeholder {
-  color: rgba(255, 255, 255, 0.28);
+  color: rgba(255, 255, 255, 0.25);
 }
 
 .form-input:focus {
-  border-color: rgba(255, 255, 255, 0.28) !important;
-  background-color: rgba(255, 255, 255, 0.04) !important;
-  box-shadow: none !important;
+  border-color: rgba(193, 255, 7, 0.5) !important;
+  border-left: 3px solid var(--color-primary-lemon) !important;
+  background-color: rgba(193, 255, 7, 0.02) !important;
+  box-shadow: 0 0 8px rgba(193, 255, 7, 0.12) !important;
+}
+
+/* Light theme overrides for HUD inputs */
+[data-theme="light"] .form-input {
+  background-color: rgba(255, 255, 255, 0.9) !important;
+  border: 1px solid rgba(90, 146, 0, 0.25) !important;
+  border-left: 3px solid rgba(90, 146, 0, 0.5) !important;
+  color: #171821 !important;
+  color-scheme: light;
+}
+
+[data-theme="light"] .form-input::placeholder {
+  color: rgba(0, 0, 0, 0.35);
+}
+
+[data-theme="light"] .form-input:focus {
+  border-color: rgba(90, 146, 0, 0.5) !important;
+  border-left: 3px solid #5a9200 !important;
+  background-color: rgba(90, 146, 0, 0.02) !important;
+  box-shadow: 0 0 8px rgba(90, 146, 0, 0.12) !important;
 }
 
 .form-input:disabled {

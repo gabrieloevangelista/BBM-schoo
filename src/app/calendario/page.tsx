@@ -22,11 +22,51 @@ import {
 import { customAlert, customConfirm } from '@/components/CustomConfirm';
 import { CalendarEvent } from '@/lib/db';
 
+const getEventTypeName = (type: string) => {
+  switch (type) {
+    case 'online': return 'Reunião Online';
+    case 'presencial': return 'Encontro Presencial';
+    case 'experiencia': return 'Experiência Masters';
+    case 'mentoria': return 'Mentoria';
+    case 'atualizacao': return 'Atualização';
+    default: return 'Evento';
+  }
+};
+
+const getEventTypeColorClass = (type: string) => {
+  switch (type) {
+    case 'online': return 'badge-gold';
+    case 'presencial': return 'badge-blue';
+    case 'experiencia': return 'badge-purple';
+    case 'mentoria': return 'badge-gold';
+    case 'atualizacao': return 'badge-green';
+    default: return 'badge-gray';
+  }
+};
+
+const getEventStyleClass = (type: string, isWeekly = false) => {
+  const borderSize = isWeekly ? 'border-l-2' : 'border-l';
+  switch (type) {
+    case 'online': 
+      return `bg-primary-lemon/10 ${borderSize} border-primary-lemon text-text-base`;
+    case 'presencial': 
+      return `bg-blue-500/10 ${borderSize} border-blue-400 text-text-base`;
+    case 'experiencia': 
+      return `bg-purple-500/10 ${borderSize} border-purple-400 text-text-base`;
+    case 'mentoria': 
+      return `bg-amber-500/10 ${borderSize} border-amber-400 text-text-base`;
+    case 'atualizacao': 
+      return `bg-[#34D399]/10 ${borderSize} border-[#34D399] text-text-base`;
+    default: 
+      return `bg-gray-500/10 ${borderSize} border-gray-400 text-text-base`;
+  }
+};
+
 export default function CalendarioPage() {
   const { user } = useAuth();
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [viewMode, setViewMode] = useState<'mensal' | 'semanal' | 'anual' | 'list'>('mensal');
-  const [filterType, setFilterType] = useState<'all' | 'mentoria'>('all');
+  const [filterType, setFilterType] = useState<'all' | 'online' | 'presencial' | 'experiencia' | 'mentoria' | 'atualizacao'>('all');
   const [currentDate, setCurrentDate] = useState(new Date()); // Controls period shown
   const [isLoading, setIsLoading] = useState(true);
 
@@ -43,7 +83,7 @@ export default function CalendarioPage() {
     return `${today.getFullYear()}-${formattedMonth}-${formattedDay}`;
   });
   const [newTitle, setNewTitle] = useState('');
-  const [newEventType, setNewEventType] = useState<'mentoria' | 'atualizacao'>('mentoria');
+  const [newEventType, setNewEventType] = useState<'online' | 'presencial' | 'experiencia' | 'mentoria' | 'atualizacao'>('online');
   const [newStartTime, setNewStartTime] = useState('19:00');
   const [newEndTime, setNewEndTime] = useState('20:00');
   const [newTopic, setNewTopic] = useState('');
@@ -373,7 +413,7 @@ export default function CalendarioPage() {
       {/* Filters & Toggles */}
       <div className="flex justify-between items-center border-b border-[var(--color-glass-border)] pb-4 mb-2 flex-wrap gap-4">
         {/* Type Filter Buttons */}
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <button 
             onClick={() => setFilterType('all')} 
             className={`px-3 py-1.5 rounded text-[10px] font-extrabold uppercase tracking-wider cursor-pointer border transition-all duration-200 ${
@@ -384,6 +424,39 @@ export default function CalendarioPage() {
             style={{ background: filterType === 'all' ? undefined : 'transparent' }}
           >
             Todos os Eventos
+          </button>
+          <button 
+            onClick={() => setFilterType('online')} 
+            className={`px-3 py-1.5 rounded text-[10px] font-extrabold uppercase tracking-wider cursor-pointer border transition-all duration-200 ${
+              filterType === 'online' 
+                ? 'bg-primary-lemon/10 text-primary-lemon border-primary-lemon/30' 
+                : 'border-transparent text-text-secondary hover:text-text-base'
+            }`}
+            style={{ background: filterType === 'online' ? undefined : 'transparent' }}
+          >
+            Online
+          </button>
+          <button 
+            onClick={() => setFilterType('presencial')} 
+            className={`px-3 py-1.5 rounded text-[10px] font-extrabold uppercase tracking-wider cursor-pointer border transition-all duration-200 ${
+              filterType === 'presencial' 
+                ? 'bg-primary-lemon/10 text-primary-lemon border-primary-lemon/30' 
+                : 'border-transparent text-text-secondary hover:text-text-base'
+            }`}
+            style={{ background: filterType === 'presencial' ? undefined : 'transparent' }}
+          >
+            Presenciais
+          </button>
+          <button 
+            onClick={() => setFilterType('experiencia')} 
+            className={`px-3 py-1.5 rounded text-[10px] font-extrabold uppercase tracking-wider cursor-pointer border transition-all duration-200 ${
+              filterType === 'experiencia' 
+                ? 'bg-primary-lemon/10 text-primary-lemon border-primary-lemon/30' 
+                : 'border-transparent text-text-secondary hover:text-text-base'
+            }`}
+            style={{ background: filterType === 'experiencia' ? undefined : 'transparent' }}
+          >
+            Experiências
           </button>
           <button 
             onClick={() => setFilterType('mentoria')} 
@@ -501,11 +574,7 @@ export default function CalendarioPage() {
                         {dayEvents.map(e => (
                           <div 
                             key={e.id}
-                            className={`text-[8px] px-1.5 py-0.5 rounded truncate ${
-                              e.event_type === 'mentoria' 
-                                ? 'bg-primary-lemon/10 border-l border-primary-lemon text-text-base' 
-                                : 'bg-[#34D399]/10 border-l border-[#34D399] text-text-base'
-                            }`}
+                            className={`text-[8px] px-1.5 py-0.5 rounded truncate ${getEventStyleClass(e.event_type)}`}
                             title={e.title}
                           >
                             {e.title}
@@ -579,11 +648,7 @@ export default function CalendarioPage() {
                         {dayEvents.map(e => (
                           <div 
                             key={e.id}
-                            className={`text-[9px] p-1.5 rounded leading-tight ${
-                              e.event_type === 'mentoria' 
-                                ? 'bg-primary-lemon/10 border-l-2 border-primary-lemon text-text-base' 
-                                : 'bg-[#34D399]/10 border-l-2 border-[#34D399] text-text-base'
-                            }`}
+                            className={`text-[9px] p-1.5 rounded leading-tight ${getEventStyleClass(e.event_type, true)}`}
                             title={e.title}
                           >
                             <span className="font-semibold block text-[8px] opacity-75">{e.start_time.substring(0, 5)}</span>
@@ -722,11 +787,9 @@ export default function CalendarioPage() {
                           <span className={`badge text-[9px] uppercase font-bold mb-1.5 ${
                             isTodayEvent 
                               ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' 
-                              : event.event_type === 'mentoria' 
-                                ? 'badge-gold' 
-                                : 'badge-green'
+                              : getEventTypeColorClass(event.event_type)
                           }`}>
-                            {isTodayEvent ? 'Hoje' : event.event_type === 'mentoria' ? 'Mentoria Coletiva' : 'Atualização'}
+                            {isTodayEvent ? 'Hoje' : getEventTypeName(event.event_type)}
                           </span>
                           <h3 className="text-sm font-bold text-text-base m-0 font-outfit">{event.title}</h3>
                           <p className="text-[11px] text-text-secondary m-0 mt-1">Pauta: {event.topic}</p>
@@ -754,7 +817,7 @@ export default function CalendarioPage() {
                               onClick={() => {
                                 setEditingEventId(event.id);
                                 setNewTitle(event.title);
-                                setNewEventType(event.event_type as 'mentoria' | 'atualizacao');
+                                setNewEventType(event.event_type as any);
                                 setSelectedDateStr(event.event_date);
                                 setNewStartTime(event.start_time.substring(0, 5));
                                 setNewEndTime(event.end_time.substring(0, 5));
@@ -801,8 +864,8 @@ export default function CalendarioPage() {
                 {selectedDayEvents.map(event => (
                   <div key={event.id} className="p-4 bg-white/2 border border-white/5 rounded-xl flex flex-col gap-2">
                     <div className="flex justify-between items-start gap-1">
-                      <span className={`badge text-[9px] uppercase font-bold ${event.event_type === 'mentoria' ? 'badge-gold' : 'badge-green'}`}>
-                        {event.event_type === 'mentoria' ? 'Mentoria' : 'Atualização'}
+                      <span className={`badge text-[9px] uppercase font-bold ${getEventTypeColorClass(event.event_type)}`}>
+                        {getEventTypeName(event.event_type)}
                       </span>
                       {canManage && (
                         <div className="flex items-center">
@@ -810,7 +873,7 @@ export default function CalendarioPage() {
                             onClick={() => {
                               setEditingEventId(event.id);
                               setNewTitle(event.title);
-                              setNewEventType(event.event_type as 'mentoria' | 'atualizacao');
+                              setNewEventType(event.event_type as any);
                               setSelectedDateStr(event.event_date);
                               setNewStartTime(event.start_time.substring(0, 5));
                               setNewEndTime(event.end_time.substring(0, 5));
@@ -976,6 +1039,22 @@ export default function CalendarioPage() {
                   onChange={(e) => setNewTitle(e.target.value)}
                   required
                 />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Tipo de Evento *</label>
+                <select 
+                  className="form-input" 
+                  value={newEventType}
+                  onChange={(e: any) => setNewEventType(e.target.value)}
+                  required
+                >
+                  <option value="online">Reunião Online</option>
+                  <option value="presencial">Encontro Presencial</option>
+                  <option value="experiencia">Experiência com Masters</option>
+                  <option value="mentoria">Mentoria</option>
+                  <option value="atualizacao">Atualização</option>
+                </select>
               </div>
 
 

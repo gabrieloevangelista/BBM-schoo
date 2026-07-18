@@ -186,8 +186,12 @@ export default function NavigationWrapper({ children }: { children: React.ReactN
         } max-md:hidden ${theme === 'light' ? 'bg-white border-r border-black/8 shadow-[2px_0_20px_rgba(0,0,0,0.06)]' : 'bg-[#171821]/90 border-r border-white/10'}`}
       >
         {/* Sidebar Header Logo */}
-        <div className={`h-[70px] flex items-center justify-between px-5 border-b ${theme === 'light' ? 'border-black/8' : 'border-white/10'}`}>
-          <Link href="/dashboard" className="flex items-center no-underline">
+        <div className={`flex border-b ${
+          sidebarExpanded 
+            ? 'h-[70px] flex-row items-center justify-between px-5' 
+            : 'flex-col items-center justify-center gap-2 py-4 px-0 h-auto'
+        } ${theme === 'light' ? 'border-black/8' : 'border-white/10'}`}>
+          <Link href="/dashboard" className="flex items-center no-underline justify-center">
             {sidebarExpanded ? (
               <img src="/logo_BBM school H cópia.png" alt="BBM School" className="h-8 w-auto object-contain" width={160} height={32} />
             ) : (

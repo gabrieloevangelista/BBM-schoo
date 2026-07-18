@@ -26,6 +26,102 @@ import { Link as LinkIcon, Award, Target, Trophy, Clock, PlayCircle, MessageSqua
 import { PerfilSkeleton } from '@/components/SkeletonLoaders';
 import { Member, MemberConnection } from '@/lib/db';
 
+export const ALL_BADGES = [
+  // Categoria Alta (Premium)
+  {
+    id: 'master-build',
+    name: 'Master Build',
+    mentor: 'Rafael Marcos',
+    category: 'Alta',
+    description: 'Engenharia e Estruturas de Negócios',
+    color: '#00F0FF', // Cyan
+    bg: 'rgba(0, 240, 255, 0.05)',
+    border: 'rgba(0, 240, 255, 0.25)',
+    text: 'MB'
+  },
+  {
+    id: 'black-belt',
+    name: 'Black Belt',
+    mentor: 'Paulo Vieira',
+    category: 'Alta',
+    description: 'Liderança e Mentoria Empresarial Premium',
+    color: '#FFFFFF', // White
+    bg: 'rgba(255, 255, 255, 0.05)',
+    border: 'rgba(255, 255, 255, 0.25)',
+    text: 'BB'
+  },
+  {
+    id: 'outlier',
+    name: 'Outlier',
+    mentor: 'Thiago Finch',
+    category: 'Alta',
+    description: 'Marketing e Posicionamento Premium',
+    color: '#B000FF', // Purple
+    bg: 'rgba(176, 0, 255, 0.05)',
+    border: 'rgba(176, 0, 255, 0.25)',
+    text: 'OUT'
+  },
+  
+  // Categoria Intermediária
+  {
+    id: 'metodo-sis',
+    name: 'Método SIS',
+    mentor: 'Paulo Vieira',
+    category: 'Intermediária',
+    description: 'Inteligência Emocional e Alta Performance',
+    color: '#34D399', // Emerald Green
+    bg: 'rgba(52, 211, 153, 0.05)',
+    border: 'rgba(52, 211, 153, 0.25)',
+    text: 'SIS'
+  },
+  {
+    id: 'metodo-ip',
+    name: 'Método IP',
+    mentor: 'Pablo Marçal',
+    category: 'Intermediária',
+    description: 'Desenvolvimento e Inteligência Emocional',
+    color: '#FF6B00', // Orange
+    bg: 'rgba(255, 107, 0, 0.05)',
+    border: 'rgba(255, 107, 0, 0.25)',
+    text: 'IP'
+  },
+  {
+    id: 'subido',
+    name: 'Subido',
+    mentor: 'Pedro Sobral',
+    category: 'Intermediária',
+    description: 'Gestão de Tráfego e Escala de Vendas',
+    color: '#FFD600', // Yellow
+    bg: 'rgba(255, 214, 0, 0.05)',
+    border: 'rgba(255, 214, 0, 0.25)',
+    text: 'SUB'
+  },
+
+  // Categoria Inicial (Low Ticket)
+  {
+    id: 'pce',
+    name: 'PCE',
+    mentor: 'Paulo Vieira',
+    category: 'Inicial',
+    description: 'Primeiros Passos e Estrutura Empresarial',
+    color: '#F472B6', // Pink
+    bg: 'rgba(244, 114, 182, 0.05)',
+    border: 'rgba(244, 114, 182, 0.25)',
+    text: 'PCE'
+  },
+  {
+    id: 'start-digital',
+    name: 'Start Digital',
+    mentor: 'BBM Team',
+    category: 'Inicial',
+    description: 'Fundamentos de Marketing Digital',
+    color: '#60A5FA', // Light Blue
+    bg: 'rgba(96, 165, 250, 0.05)',
+    border: 'rgba(96, 165, 250, 0.25)',
+    text: 'START'
+  }
+];
+
 export default function MemberProfilePage() {
   const { user, refreshUser } = useAuth();
   const { username } = useParams();
@@ -36,7 +132,7 @@ export default function MemberProfilePage() {
   const [allMembers, setAllMembers] = useState<Member[]>([]);
   const [allConnections, setAllConnections] = useState<MemberConnection[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'info' | 'conexoes' | 'descobrir'>('info');
+  const [activeTab, setActiveTab] = useState<'info' | 'conexoes' | 'descobrir' | 'badges'>('info');
 
   // Edit states
   const [isEditing, setIsEditing] = useState(false);
@@ -51,6 +147,9 @@ export default function MemberProfilePage() {
   const [editLinkedIn, setEditLinkedIn] = useState('');
   const [editInstagram, setEditInstagram] = useState('');
   const [editWebsite, setEditWebsite] = useState('');
+  const [editBadges, setEditBadges] = useState<string[]>([]);
+  const [editHiddenBadges, setEditHiddenBadges] = useState<string[]>([]);
+  const [showBadgesModal, setShowBadgesModal] = useState(false);
   
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
@@ -92,6 +191,13 @@ export default function MemberProfilePage() {
       setEditLinkedIn(found.linkedin || '');
       setEditInstagram(found.instagram || '');
       setEditWebsite(found.website || '');
+      
+      // Simulate defaults if user has no badges yet
+      const loadedBadges = found.badges && found.badges.length > 0
+        ? found.badges
+        : ['metodo-sis', 'pce', 'master-build'];
+      setEditBadges(loadedBadges);
+      setEditHiddenBadges(found.hidden_badges || []);
 
       // 2. Load connected members for this profile
       const connList = (db.member_connections || []).filter((c: MemberConnection) => 
@@ -193,7 +299,9 @@ export default function MemberProfilePage() {
               initials,
               linkedin: editLinkedIn,
               instagram: editInstagram,
-              website: editWebsite
+              website: editWebsite,
+              badges: editBadges,
+              hidden_badges: editHiddenBadges
             };
           }
           return m;
@@ -208,6 +316,22 @@ export default function MemberProfilePage() {
         if (saveResponse.ok) {
           setSuccessMsg('Perfil atualizado com sucesso!');
           setIsEditing(false);
+          setProfile(prev => prev ? {
+            ...prev,
+            name: editName,
+            username: editUsername,
+            role: editRole,
+            company: editCompany,
+            industry: editIndustry,
+            location: editLocation,
+            bio: editBio,
+            img: editAvatar,
+            linkedin: editLinkedIn,
+            instagram: editInstagram,
+            website: editWebsite,
+            badges: editBadges,
+            hidden_badges: editHiddenBadges
+          } : null);
           await refreshUser();
           
           if (editUsername !== profile?.username) {
@@ -391,6 +515,12 @@ export default function MemberProfilePage() {
 
   const isOwnProfile = user && user.id === profile.id;
   const connectionState = getConnectionState(profile.id);
+
+  const displayBadges = profile?.badges && profile.badges.length > 0 
+    ? profile.badges 
+    : ['metodo-sis', 'pce', 'master-build'];
+  const userHidden = profile?.hidden_badges || [];
+  const visibleBadges = displayBadges.filter(id => !userHidden.includes(id));
 
   // Discovery Filter
   const filteredDiscovery = allMembers.filter(m => {
@@ -596,6 +726,99 @@ export default function MemberProfilePage() {
               </div>
             </div>
 
+            {/* Simular mentorias / badges selector */}
+            <div className="flex flex-col gap-4 border-t border-white/5 pt-5 mt-2">
+              <div>
+                <label className="text-xs text-text-secondary font-bold font-outfit uppercase tracking-wider">
+                  Simular Mentorias Adquiridas & Visibilidade
+                </label>
+                <p className="text-[10px] text-text-muted mt-1 leading-normal">
+                  Marque se você possui o curso e controle se o selo/badge ficará visível publicamente no seu perfil.
+                </p>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {ALL_BADGES.map(badge => {
+                  const isAcquired = editBadges.includes(badge.id);
+                  const isVisible = !editHiddenBadges.includes(badge.id);
+                  
+                  return (
+                    <div 
+                      key={badge.id}
+                      className={`flex flex-col gap-2 p-3 rounded-sm border transition-all duration-200 ${
+                        isAcquired 
+                          ? 'bg-white/[0.02]' 
+                          : 'border-white/5 bg-transparent opacity-60'
+                      }`}
+                      style={{ 
+                        borderColor: isAcquired ? badge.border : 'transparent',
+                        boxShadow: isAcquired ? `0 0 10px ${badge.color}10` : undefined
+                      }}
+                    >
+                      {/* Badge info header */}
+                      <div className="flex items-center gap-2.5">
+                        <div 
+                          className="w-7 h-7 rounded-full border flex items-center justify-center font-extrabold text-[8px] font-outfit" 
+                          style={{ 
+                            borderColor: badge.color, 
+                            backgroundColor: badge.bg, 
+                            color: badge.color 
+                          }}
+                        >
+                          {badge.text}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-[10px] font-extrabold font-outfit truncate uppercase">{badge.name}</p>
+                          <p className="text-[8px] text-text-muted truncate leading-none mt-0.5">{badge.mentor} • {badge.category}</p>
+                        </div>
+                      </div>
+
+                      {/* Control switches */}
+                      <div className="flex items-center gap-4 border-t border-white/5 pt-2 mt-1">
+                        {/* 1. Acquired checkbox */}
+                        <label className="flex items-center gap-1.5 cursor-pointer text-[9px] font-bold text-text-secondary select-none">
+                          <input 
+                            type="checkbox"
+                            checked={isAcquired}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setEditBadges(prev => [...prev, badge.id]);
+                              } else {
+                                setEditBadges(prev => prev.filter(id => id !== badge.id));
+                                // Auto hide if unacquired
+                                setEditHiddenBadges(prev => [...prev, badge.id]);
+                              }
+                            }}
+                            className="rounded border-white/10 text-primary-lemon focus:ring-primary-lemon bg-transparent w-3.5 h-3.5 cursor-pointer"
+                          />
+                          <span>ADQUIRIDO</span>
+                        </label>
+
+                        {/* 2. Visible toggle (only active if acquired) */}
+                        {isAcquired && (
+                          <label className="flex items-center gap-1.5 cursor-pointer text-[9px] font-bold text-text-secondary select-none">
+                            <input 
+                              type="checkbox"
+                              checked={isVisible}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setEditHiddenBadges(prev => prev.filter(id => id !== badge.id));
+                                } else {
+                                  setEditHiddenBadges(prev => [...prev, badge.id]);
+                                }
+                              }}
+                              className="rounded border-white/10 text-primary-lemon focus:ring-primary-lemon bg-transparent w-3.5 h-3.5 cursor-pointer"
+                            />
+                            <span>EXIBIR NO PERFIL</span>
+                          </label>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
             <div className="flex gap-3 justify-end mt-4">
               <button 
                 type="button" 
@@ -627,6 +850,14 @@ export default function MemberProfilePage() {
           }`}
         >
           Informações
+        </button>
+        <button 
+          onClick={() => setActiveTab('badges')} 
+          className={`bg-transparent border-0 border-b-2 py-2 px-1 cursor-pointer font-semibold text-sm font-outfit transition-all duration-200 ${
+            activeTab === 'badges' ? 'border-primary-lemon text-primary-lemon' : 'border-transparent text-text-secondary hover:text-text-base'
+          }`}
+        >
+          Conquistas ({visibleBadges.length})
         </button>
         <button 
           onClick={() => setActiveTab('conexoes')} 
@@ -702,6 +933,80 @@ export default function MemberProfilePage() {
                     </a>
                   )}
                 </div>
+              </div>
+            </div>
+
+            {/* Hall de Badges Card */}
+            <div className="glass-panel" style={{ padding: '24px', overflow: 'visible' }}>
+              <div className="flex justify-between items-center mb-4">
+                <h3 style={{ color: 'var(--color-text-base)', fontSize: '1.1rem' }} className="font-outfit flex items-center gap-2 m-0">
+                  <Trophy size={18} className="text-primary-lemon" />
+                  <span>Hall de Badges</span>
+                </h3>
+                {visibleBadges.length > 0 && (
+                  <button 
+                    onClick={() => setActiveTab('badges')} 
+                    className="outline-btn text-[10px] font-bold py-1 px-2 border-0 bg-transparent text-primary-lemon hover:text-white uppercase tracking-wider font-outfit cursor-pointer"
+                    style={{ minWidth: 'auto', background: 'transparent' }}
+                  >
+                    Ver Todos
+                  </button>
+                )}
+              </div>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', overflow: 'visible' }}>
+                {visibleBadges.length === 0 ? (
+                  <div className="text-center py-6 text-text-muted text-xs italic">
+                    Nenhum badge de mentoria visível.
+                    {isOwnProfile && (
+                      <p className="mt-1 text-[10px] text-text-secondary not-italic">
+                        Edite seu perfil para simular a aquisição ou exibir seus badges!
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <div className="flex flex-wrap gap-3 py-2" style={{ overflow: 'visible' }}>
+                    {visibleBadges.map(id => {
+                      const badge = ALL_BADGES.find(b => b.id === id);
+                      if (!badge) return null;
+                      return (
+                        <div key={badge.id} className="relative group cursor-pointer flex-shrink-0" style={{ overflow: 'visible' }}>
+                          {/* Small Square emblem - Simple Trophy icon with the method's color, NO GLOW */}
+                          <div 
+                            className="w-12 h-12 rounded-xl border-2 flex items-center justify-center transition-all duration-200 hover:scale-105" 
+                            style={{ 
+                              borderColor: badge.border, 
+                              backgroundColor: badge.bg, 
+                              color: badge.color
+                            }}
+                          >
+                            <Trophy size={16} />
+                          </div>
+
+                          {/* Tooltip on hover */}
+                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2.5 hidden group-hover:flex flex-col z-50 w-52 p-3 rounded-sm bg-[#171821] border border-white/10 shadow-[0_6px_25px_rgba(0,0,0,0.7)] pointer-events-none text-left">
+                            <div className="absolute top-0 left-0 w-1.5 h-1.5 border-t border-l border-primary-lemon" />
+                            <div className="absolute bottom-0 right-0 w-1.5 h-1.5 border-b border-r border-primary-lemon" />
+                            
+                            <p className="text-[10px] font-extrabold text-white uppercase font-outfit tracking-wide leading-tight">
+                              {badge.name}
+                            </p>
+                            <p className="text-[9px] font-extrabold mt-1 leading-none uppercase" style={{ color: badge.color }}>
+                              {badge.mentor}
+                            </p>
+                            <p className="text-[8px] text-text-secondary leading-normal mt-1.5 font-medium">
+                              {badge.description}
+                            </p>
+                            <div className="mt-2 pt-1.5 border-t border-white/5 flex justify-between items-center text-[7px] font-extrabold tracking-wider uppercase text-text-muted">
+                              <span>TIPO: {badge.category}</span>
+                              <span style={{ color: badge.color }}>ATV_SYS</span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -846,8 +1151,66 @@ export default function MemberProfilePage() {
             </div>
           </div>
         )}
-      </div>
 
+        {/* Tab 4: Conquistas (Full page view) */}
+        {activeTab === 'badges' && (
+          <div className="glass-panel p-8" style={{ minHeight: '400px' }}>
+            <h2 className="text-xl font-bold text-white uppercase tracking-wider font-outfit mb-6 flex items-center gap-2">
+              <Trophy className="text-primary-lemon" size={22} />
+              <span>Minhas Mentorias Adquiridas</span>
+            </h2>
+            
+            <div className="flex flex-col gap-8">
+              {['Alta', 'Intermediária', 'Inicial'].map(cat => {
+                const catBadges = ALL_BADGES.filter(b => visibleBadges.includes(b.id) && b.category === cat);
+                if (catBadges.length === 0) return null;
+
+                return (
+                  <div key={cat} className="flex flex-col gap-4">
+                    <span className="text-[10px] font-extrabold uppercase tracking-widest text-text-secondary border-l-2 border-primary-lemon pl-2">
+                      {cat === 'Alta' ? 'Categoria Alta (Master)' : cat === 'Intermediária' ? 'Categoria Intermediária' : 'Categoria de Entrada'}
+                    </span>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {catBadges.map(badge => (
+                        <div 
+                          key={badge.id}
+                          className="hud-card p-4 relative flex items-center gap-4 transition-all duration-200 hover:scale-[1.01]"
+                          style={{ 
+                            borderColor: badge.border, 
+                            backgroundColor: 'rgba(255, 255, 255, 0.01)'
+                          }}
+                        >
+                          <div className="hud-corner-tl" style={{ borderColor: badge.color }} />
+                          <div className="hud-corner-br" style={{ borderColor: badge.color }} />
+                          
+                          {/* Flat Simple Trophy Emblem */}
+                          <div 
+                            className="w-10 h-10 rounded-full border-2 flex items-center justify-center relative flex-shrink-0" 
+                            style={{ 
+                              borderColor: badge.color, 
+                              backgroundColor: badge.bg, 
+                              color: badge.color
+                            }}
+                          >
+                            <Trophy size={16} />
+                          </div>
+                          
+                          <div className="min-w-0">
+                            <h4 className="text-sm font-bold text-white uppercase font-outfit truncate leading-tight">{badge.name}</h4>
+                            <p className="text-[10px] text-text-secondary uppercase tracking-wide truncate mt-1 leading-none font-bold" style={{ color: badge.color }}>{badge.mentor}</p>
+                            <p className="text-[9px] text-text-muted mt-1.5 leading-tight">{badge.description}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+      </div>
     </div>
   );
 }

@@ -834,7 +834,7 @@ export default function ComunidadePage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="page-title">Feed da Comunidade</h1>
+        <h1 className="page-title">Comunidade</h1>
         <p className="page-subtitle">Acompanhe as novidades, interaja com postagens e conecte-se com os Masters da comunidade.</p>
       </div>
 
@@ -849,7 +849,7 @@ export default function ComunidadePage() {
           }`}
           style={{ background: 'transparent' }}
         >
-          Feed da Comunidade
+          Feed
         </button>
         <button
           onClick={() => setActiveTab('reels')}
@@ -994,7 +994,7 @@ export default function ComunidadePage() {
                 <div className="flex-grow">
                   <textarea 
                     className="w-full bg-transparent border-0 text-white placeholder-text-muted focus:outline-none text-sm min-h-[70px] p-0 resize-none" 
-                    placeholder="Compartilhe um insight, atualização de obra ou dúvida com a comunidade..."
+                    placeholder="Compartilhe um insight, atualização de projeto ou dúvida com a comunidade..."
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
                   />
@@ -1025,11 +1025,7 @@ export default function ComunidadePage() {
                   <button 
                     type="button" 
                     onClick={() => setPostType('feed')}
-                    className={`px-3 py-1.5 rounded-sm text-[10px] font-extrabold cursor-pointer transition-all duration-200 flex items-center gap-1.5 uppercase font-outfit ${
-                      postType === 'feed' 
-                        ? 'border border-[#C1FF07] text-[#C1FF07] bg-[#C1FF07]/5' 
-                        : 'border border-white/5 text-text-secondary hover:text-white hover:bg-white/5'
-                    }`}
+                    className={`hud-post-type-btn ${postType === 'feed' ? 'active' : 'inactive'}`}
                   >
                     <MessageSquare size={12} />
                     <span>Feed Geral</span>
@@ -1037,11 +1033,7 @@ export default function ComunidadePage() {
                   <button 
                     type="button" 
                     onClick={() => setPostType('status')}
-                    className={`px-3 py-1.5 rounded-sm text-[10px] font-extrabold cursor-pointer transition-all duration-200 flex items-center gap-1.5 uppercase font-outfit ${
-                      postType === 'status' 
-                        ? 'border border-[#C1FF07] text-[#C1FF07] bg-[#C1FF07]/5' 
-                        : 'border border-white/5 text-text-secondary hover:text-white hover:bg-white/5'
-                    }`}
+                    className={`hud-post-type-btn ${postType === 'status' ? 'active' : 'inactive'}`}
                   >
                     <Users size={12} />
                     <span>Status / Story</span>
@@ -1049,11 +1041,7 @@ export default function ComunidadePage() {
                   <button 
                     type="button" 
                     onClick={() => setPostType('reels')}
-                    className={`px-3 py-1.5 rounded-sm text-[10px] font-extrabold cursor-pointer transition-all duration-200 flex items-center gap-1.5 uppercase font-outfit ${
-                      postType === 'reels' 
-                        ? 'border border-[#C1FF07] text-[#C1FF07] bg-[#C1FF07]/5' 
-                        : 'border border-white/5 text-text-secondary hover:text-white hover:bg-white/5'
-                    }`}
+                    className={`hud-post-type-btn ${postType === 'reels' ? 'active' : 'inactive'}`}
                   >
                     <Film size={12} />
                     <span>Reels Interno</span>
