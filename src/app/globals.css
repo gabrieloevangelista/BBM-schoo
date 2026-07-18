@@ -1176,3 +1176,21 @@ input[type="datetime-local"].form-input::-webkit-datetime-edit-minute-field:focu
   border: 2px solid #ffffff !important;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
+
+/* ── Segmented Progress Bar ── */
+.bg-primary-lemon-important {
+  background-color: var(--color-primary-lemon) !important;
+}
+
+.bg-empty-segment-important {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+[data-theme="light"] .bg-primary-lemon-important {
+  background-color: #599000 !important;
+}
+
+[data-theme="light"] .bg-empty-segment-important {
+  background-color: rgba(0, 0, 0, 0.06) !important;
+}
+

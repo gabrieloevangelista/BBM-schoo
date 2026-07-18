@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { DashboardSkeleton } from '@/components/SkeletonLoaders';
+import SegmentedProgressBar from '@/components/SegmentedProgressBar';
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -328,15 +329,7 @@ export default function DashboardPage() {
             <h3 className="text-xl font-bold font-outfit m-0">
               {stats.totalMissions > 0 ? Math.round((stats.completedMissions / stats.totalMissions) * 100) : 0}% <span className="text-xs text-text-muted font-normal">Concluído</span>
             </h3>
-            <div 
-              className="w-full h-1.5 rounded-full overflow-hidden border border-white/[0.04]"
-              style={{ backgroundColor: 'var(--color-input-border)' }}
-            >
-              <div 
-                className="h-full bg-gradient-to-r from-primary-lemon to-primary-lemon-hover rounded-full transition-all duration-1000"
-                style={{ width: `${stats.totalMissions > 0 ? (stats.completedMissions / stats.totalMissions) * 100 : 0}%` }} 
-              />
-            </div>
+            <SegmentedProgressBar filled={stats.completedMissions} total={stats.totalMissions} segments={16} />
           </div>
         </div>
 

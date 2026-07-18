@@ -17,6 +17,7 @@ import {
 import { MissoesSkeleton } from '@/components/SkeletonLoaders';
 import { getMissions, getMissionSubmissions, addMissionSubmission, Mission, MissionSubmission } from '@/lib/db';
 import { customAlert } from '@/components/CustomConfirm';
+import SegmentedProgressBar from '@/components/SegmentedProgressBar';
 
 export default function StudentMissionsPage() {
   const { user } = useAuth();
@@ -235,15 +236,7 @@ export default function StudentMissionsPage() {
           </span>
         </div>
 
-        <div 
-          className="w-full h-2.5 rounded-full overflow-hidden"
-          style={{ backgroundColor: 'var(--color-input-border)' }}
-        >
-          <div 
-            className="h-full bg-gradient-to-r from-primary-lemon to-primary-lemon-hover rounded-full transition-all duration-1000"
-            style={{ width: `${progressPct}%` }} 
-          />
-        </div>
+        <SegmentedProgressBar filled={approvedM} total={totalM} segments={16} />
       </section>
 
       {/* Missions Accordion List */}
