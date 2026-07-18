@@ -228,27 +228,52 @@ export default function DashboardPage() {
       )}
 
       {/* Welcome & Executive Summary Header */}
-      <section id="onboarding-welcome" className="flex flex-col gap-1">
-        <h1 className="text-3xl font-extrabold tracking-tight font-outfit m-0">
-          {greeting}, <span className="text-[#C1FF07]">{user ? getFirstName(user.name) : 'Membro'}</span> .
-        </h1>
-        <p className="text-text-secondary text-sm md:text-base m-0">
-          Aqui está o seu resumo executivo para hoje.
-        </p>
+      <section 
+        id="onboarding-welcome" 
+        className="relative rounded-2xl overflow-hidden p-6 md:p-8 border border-white/[0.04] flex flex-col justify-center min-h-[160px] bg-cover bg-center"
+        style={{ backgroundImage: "url('/bbm_neon_banner.png')" }}
+      >
+        <div className="hud-corner-tl" />
+        <div className="hud-corner-tr" />
+        <div className="hud-corner-bl" />
+        <div className="hud-corner-br" />
+        {/* Dark/Neon Gradient Overlay for text contrast */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#12131a] via-[#12131a]/70 to-transparent z-0" />
+        
+        <div className="relative z-10 flex flex-col gap-1.5">
+          <div className="flex items-center gap-2">
+            <span className="hud-dot" />
+            <span className="text-[9px] font-bold tracking-[0.2em] text-[#C1FF07] uppercase font-outfit">
+              Portal de Alta Performance
+            </span>
+          </div>
+          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight font-outfit m-0 text-white leading-tight">
+            {greeting}, <span className="text-[#C1FF07]">{user ? getFirstName(user.name) : 'Membro'}</span>.
+          </h1>
+          <p className="text-white/50 text-xs md:text-sm m-0 max-w-[450px] font-inter">
+            Aqui está o seu resumo executivo para hoje. Acelere sua carreira com mentorias reais.
+          </p>
+        </div>
       </section>
+
 
       {/* Row of 4 Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {/* Card 1: Módulo Atual */}
-        <div id="onboarding-progress" className="glass-panel p-5 flex flex-col justify-between relative overflow-hidden" style={{ minHeight: '140px' }}>
-          <div className="flex justify-between items-start">
+        <div id="onboarding-progress" className="hud-card p-5 flex flex-col justify-between relative overflow-hidden" style={{ minHeight: '140px' }}>
+          <div className="hud-corner-tl" />
+          <div className="hud-corner-br" />
+          <div className="flex justify-between items-start z-10">
             <div>
               <p className="text-[10px] text-text-secondary uppercase tracking-wider font-bold mb-1">Módulo Atual</p>
               <span className="text-[11px] text-text-muted">Aulas Semanais</span>
             </div>
-            <TrendingUp size={18} className="text-[#C1FF07]" />
+            <div className="flex items-center gap-1.5">
+              <span className="hud-crosshair"><span className="hud-crosshair-dot" /></span>
+              <TrendingUp size={18} className="text-[#C1FF07]" />
+            </div>
           </div>
-          <div className="mt-4">
+          <div className="mt-4 z-10">
             <h3 className="text-xl font-bold font-outfit m-0">{stats.percentLessons}% <span className="text-xs text-text-muted font-normal">Concluído</span></h3>
             
             {/* Sparkline Curve */}
@@ -259,15 +284,20 @@ export default function DashboardPage() {
         </div>
 
         {/* Card 2: Próxima Mentoria */}
-        <div id="onboarding-events" className="glass-panel p-5 flex flex-col justify-between" style={{ minHeight: '140px' }}>
-          <div className="flex justify-between items-start">
+        <div id="onboarding-events" className="hud-card p-5 flex flex-col justify-between relative" style={{ minHeight: '140px' }}>
+          <div className="hud-corner-tl" />
+          <div className="hud-corner-br" />
+          <div className="flex justify-between items-start z-10">
             <div>
               <p className="text-[10px] text-text-secondary uppercase tracking-wider font-bold mb-1">Próxima Mentoria</p>
-              <span className="text-[11px] text-text-muted">Ao vivo</span>
+              <div className="flex items-center gap-1.5">
+                <span className="hud-dot" />
+                <span className="text-[11px] text-text-muted font-semibold text-[#C1FF07]">Ao vivo</span>
+              </div>
             </div>
             <CalendarIcon size={18} className="text-[#C1FF07]" />
           </div>
-          <div className="mt-4">
+          <div className="mt-4 z-10">
             {latestEvent ? (
               <div>
                 <h4 className="text-xs font-bold truncate mb-1 leading-snug">{latestEvent.title}</h4>
@@ -277,22 +307,28 @@ export default function DashboardPage() {
               <h4 className="text-xs font-bold text-text-secondary m-0">Nenhum evento agendado.</h4>
             )}
           </div>
+          {/* Subtle Cyberpunk hatch background pattern */}
+          <div className="absolute bottom-0 left-0 right-0 z-0">
+            <div className="hud-stripes-muted" />
+          </div>
         </div>
 
         {/* Card 3: Suas Missões */}
-        <div className="glass-panel p-5 flex flex-col justify-between" style={{ minHeight: '140px' }}>
-          <div className="flex justify-between items-start">
+        <div className="hud-card p-5 flex flex-col justify-between relative" style={{ minHeight: '140px' }}>
+          <div className="hud-corner-tl" />
+          <div className="hud-corner-br" />
+          <div className="flex justify-between items-start z-10">
             <div>
               <p className="text-[10px] text-text-secondary uppercase tracking-wider font-bold mb-1">Suas Missões</p>
               <span className="text-[11px] text-text-muted">{stats.completedMissions} de {stats.totalMissions} concluídas</span>
             </div>
             <Trophy size={18} className="text-[#C1FF07]" />
           </div>
-          <div className="mt-4 flex flex-col gap-2">
+          <div className="mt-4 flex flex-col gap-2 z-10">
             <h3 className="text-xl font-bold font-outfit m-0">
               {stats.totalMissions > 0 ? Math.round((stats.completedMissions / stats.totalMissions) * 100) : 0}% <span className="text-xs text-text-muted font-normal">Concluído</span>
             </h3>
-            <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
+            <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden border border-white/[0.04]">
               <div 
                 className="h-full bg-gradient-to-r from-primary-lemon to-primary-lemon-hover rounded-full transition-all duration-1000"
                 style={{ width: `${stats.totalMissions > 0 ? (stats.completedMissions / stats.totalMissions) * 100 : 0}%` }} 
@@ -302,16 +338,21 @@ export default function DashboardPage() {
         </div>
 
         {/* Card 4: Próximos Eventos */}
-        <div className="glass-panel p-5 flex flex-col justify-between" style={{ minHeight: '140px' }}>
-          <div className="flex justify-between items-start">
+        <div className="hud-card p-5 flex flex-col justify-between relative" style={{ minHeight: '140px' }}>
+          <div className="hud-corner-tl" />
+          <div className="hud-corner-br" />
+          <div className="flex justify-between items-start z-10">
             <div>
               <p className="text-[10px] text-text-secondary uppercase tracking-wider font-bold mb-1">Próximos Eventos</p>
               <span className="text-[11px] text-text-muted">Cronograma</span>
             </div>
             <MoreHorizontal size={18} className="text-[#C1FF07]" />
           </div>
-          <div className="mt-4">
+          <div className="mt-4 z-10">
             <h4 className="text-xs font-bold text-text-secondary m-0">Nenhum evento previsto.</h4>
+          </div>
+          <div className="absolute bottom-0 left-0 right-0 z-0">
+            <div className="hud-stripes-muted" />
           </div>
         </div>
       </div>
@@ -342,7 +383,7 @@ export default function DashboardPage() {
               >
                 <div className="absolute inset-0 z-0">
                   <img 
-                    src={course.cover_image_url || 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=600&auto=format&fit=crop'} 
+                    src={course.cover_image_url || '/bbm_neon_masterclass.png'} 
                     alt={course.title} 
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                   />

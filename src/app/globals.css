@@ -104,25 +104,240 @@ h1, h2, h3, h4, h5, h6 {
   border-radius: 4px !important;
   box-shadow: none !important;
   transition: all 0.2s ease-in-out;
+  position: relative;
+}
+
+.glass-panel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 6px;
+  height: 6px;
+  border-top: 1.5px solid var(--color-primary-lemon);
+  border-left: 1.5px solid var(--color-primary-lemon);
+  opacity: 0.6;
+}
+
+.glass-panel::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 6px;
+  height: 6px;
+  border-bottom: 1.5px solid var(--color-primary-lemon);
+  border-right: 1.5px solid var(--color-primary-lemon);
+  opacity: 0.6;
 }
 
 .glass-panel-hover:hover {
   background-color: var(--color-glass-hover-bg);
-  border-color: var(--color-glass-hover-border) !important;
+  border-color: rgba(193, 255, 7, 0.2) !important;
   transform: translateY(-2px);
-  box-shadow: none !important;
+  box-shadow: 0 0 15px rgba(193, 255, 7, 0.05) !important;
 }
 
 /* SOLID OPAQUE MODAL CARDS — SCI-FI HUD Style */
 .modal-card {
   background-color: var(--color-modal-bg) !important;
-  border: 1px solid var(--color-glass-border) !important;
+  border: 1px solid rgba(193, 255, 7, 0.2) !important;
   border-radius: 4px !important;
-  box-shadow:
-    0 20px 40px rgba(0, 0, 0, 0.9) !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.9), 0 0 20px rgba(193, 255, 7, 0.03) !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
+  position: relative;
 }
+
+.modal-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 12px;
+  height: 12px;
+  border-top: 2px solid var(--color-primary-lemon);
+  border-left: 2px solid var(--color-primary-lemon);
+}
+
+.modal-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 12px;
+  height: 12px;
+  border-bottom: 2px solid var(--color-primary-lemon);
+  border-right: 2px solid var(--color-primary-lemon);
+}
+
+/* ==========================================================================
+   CYBERPUNK SCI-FI HUD CARD & WIDGET DESIGN SYSTEM
+   Inspired by custom technology interfaces
+   ========================================================================== */
+
+.hud-card {
+  position: relative;
+  background-color: var(--color-modal-bg);
+  border: 1px solid rgba(193, 255, 7, 0.15) !important;
+  box-shadow: 0 0 15px rgba(193, 255, 7, 0.03), inset 0 0 10px rgba(193, 255, 7, 0.02) !important;
+  border-radius: 2px;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Angled corners HUD border accents */
+.hud-corner-tl {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 8px;
+  height: 8px;
+  border-top: 2px solid var(--color-primary-lemon);
+  border-left: 2px solid var(--color-primary-lemon);
+}
+
+.hud-corner-tr {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 8px;
+  height: 8px;
+  border-top: 2px solid var(--color-primary-lemon);
+  border-right: 2px solid var(--color-primary-lemon);
+}
+
+.hud-corner-bl {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 8px;
+  height: 8px;
+  border-bottom: 2px solid var(--color-primary-lemon);
+  border-left: 2px solid var(--color-primary-lemon);
+}
+
+.hud-corner-br {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 8px;
+  height: 8px;
+  border-bottom: 2px solid var(--color-primary-lemon);
+  border-right: 2px solid var(--color-primary-lemon);
+}
+
+.hud-card-hover:hover {
+  border-color: rgba(193, 255, 7, 0.45) !important;
+  box-shadow: 0 0 25px rgba(193, 255, 7, 0.1), inset 0 0 15px rgba(193, 255, 7, 0.05) !important;
+  transform: translateY(-2px);
+}
+
+/* Diagonal stripes background/header accent */
+.hud-stripes {
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(193, 255, 7, 0.2),
+    rgba(193, 255, 7, 0.2) 3px,
+    transparent 3px,
+    transparent 6px
+  );
+  height: 6px;
+  width: 100%;
+}
+
+.hud-stripes-muted {
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.05),
+    rgba(255, 255, 255, 0.05) 3px,
+    transparent 3px,
+    transparent 6px
+  );
+  height: 4px;
+  width: 100%;
+}
+
+/* Target Crosshair Widget */
+.hud-crosshair {
+  position: relative;
+  width: 14px;
+  height: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.hud-crosshair::before, .hud-crosshair::after {
+  content: '';
+  position: absolute;
+  background-color: var(--color-primary-lemon);
+  opacity: 0.7;
+}
+.hud-crosshair::before {
+  width: 100%;
+  height: 1px;
+}
+.hud-crosshair::after {
+  width: 1px;
+  height: 100%;
+}
+.hud-crosshair-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background-color: var(--color-primary-lemon);
+  box-shadow: 0 0 4px var(--color-primary-lemon);
+  z-index: 10;
+}
+
+/* Neon dot status indicator */
+.hud-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--color-primary-lemon);
+  box-shadow: 0 0 8px var(--color-primary-lemon);
+  display: inline-block;
+  animation: hud-pulse 1.5s infinite alternate;
+}
+
+.hud-dot-off {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.2);
+  display: inline-block;
+}
+
+@keyframes hud-pulse {
+  0% { opacity: 0.4; box-shadow: 0 0 2px var(--color-primary-lemon); }
+  100% { opacity: 1; box-shadow: 0 0 10px var(--color-primary-lemon); }
+}
+
+/* Circuit-like connection line decor */
+.hud-line-y {
+  position: relative;
+  width: 1px;
+  background: linear-gradient(to bottom, transparent, var(--color-primary-lemon) 30%, var(--color-primary-lemon) 70%, transparent);
+}
+.hud-line-y::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: -2px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: var(--color-primary-lemon);
+  box-shadow: 0 0 6px var(--color-primary-lemon);
+}
+
+.hud-line-x {
+  position: relative;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--color-primary-lemon) 30%, var(--color-primary-lemon) 70%, transparent);
+}
+
 
 /* ==========================================================================
    Standardized Button Design System — PRIMARY = LEMON (#C1FF07)
