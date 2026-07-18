@@ -458,17 +458,6 @@ export default function CalendarioPage() {
           >
             Experiências
           </button>
-          <button 
-            onClick={() => setFilterType('mentoria')} 
-            className={`px-3 py-1.5 rounded text-[10px] font-extrabold uppercase tracking-wider cursor-pointer border transition-all duration-200 ${
-              filterType === 'mentoria' 
-                ? 'bg-primary-lemon/10 text-primary-lemon border-primary-lemon/30' 
-                : 'border-transparent text-text-secondary hover:text-text-base'
-            }`}
-            style={{ background: filterType === 'mentoria' ? undefined : 'transparent' }}
-          >
-            Mentorias
-          </button>
         </div>
 
         {/* View Mode Toggle */}

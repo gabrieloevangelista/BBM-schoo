@@ -21,9 +21,10 @@ function ConfirmModal({ title, message, onConfirm, onCancel }: ConfirmModalProps
   return (
     <div className="fixed inset-0 bg-[#010103]/85 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 animate-fade-in">
       <div 
-        className="glass-panel w-full max-w-[420px] p-6 flex flex-col gap-5 border border-white/10"
+        className="glass-panel w-full max-w-[420px] p-6 flex flex-col gap-5 border"
         style={{ 
-          backgroundColor: '#171821', 
+          backgroundColor: 'var(--color-modal-bg)', 
+          borderColor: 'var(--color-glass-border)',
           borderRadius: '4px',
           boxShadow: '0 20px 40px rgba(0,0,0,0.6)'
         }}
@@ -36,14 +37,17 @@ function ConfirmModal({ title, message, onConfirm, onCancel }: ConfirmModalProps
             }`}>
               <ShieldAlert size={18} />
             </div>
-            <h3 className="text-sm font-extrabold text-white uppercase tracking-wider font-outfit m-0">
+            <h3 
+              className="text-sm font-extrabold uppercase tracking-wider font-outfit m-0"
+              style={{ color: 'var(--color-text-base)' }}
+            >
               {title}
             </h3>
           </div>
           {onCancel && (
             <button 
               onClick={onCancel}
-              className="p-1 bg-transparent border-0 text-white/40 hover:text-white cursor-pointer transition duration-150"
+              className="p-1 bg-transparent border-0 text-text-secondary hover:text-text-base cursor-pointer transition duration-150"
               style={{ minWidth: 'auto' }}
             >
               <X size={16} />

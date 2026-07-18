@@ -297,7 +297,8 @@ export default function ComunidadePage() {
           body: formData
         });
         if (!uploadRes.ok) {
-          throw new Error('Falha no upload do arquivo.');
+          const errData = await uploadRes.json().catch(() => ({}));
+          throw new Error(errData.error || 'Falha no upload do arquivo.');
         }
         const uploadData = await uploadRes.json();
         const persistedUrl = uploadData.file_url;
@@ -317,9 +318,9 @@ export default function ComunidadePage() {
         } else {
           doUpload(persistedUrl, 'status');
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error(err);
-        customAlert('Erro ao realizar upload do Story.');
+        customAlert(err.message || 'Erro ao realizar upload do Story.');
       }
     };
 
@@ -912,13 +913,12 @@ export default function ComunidadePage() {
                     )}
                   </div>
                   <div 
-                    className="absolute bg-primary-lemon text-black rounded-full flex items-center justify-center" 
+                    className="absolute rounded-full flex items-center justify-center story-add-plus" 
                     style={{ 
                       width: '18px', 
                       height: '18px', 
                       bottom: '-2px', 
-                      right: '-2px', 
-                      border: '2px solid #111' 
+                      right: '-2px'
                     }}
                   >
                     <Plus size={12} strokeWidth={4} />

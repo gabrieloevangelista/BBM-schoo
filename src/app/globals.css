@@ -1162,3 +1162,17 @@ input[type="datetime-local"].form-input::-webkit-datetime-edit-minute-field:focu
 .scrollbar-none::-webkit-scrollbar {
   display: none;  /* Chrome, Safari and Opera */
 }
+
+/* Story add plus button theme adaptations */
+.story-add-plus {
+  background-color: var(--color-primary-lemon) !important;
+  color: #000000 !important;
+  border: 2px solid #111111 !important;
+}
+
+[data-theme="light"] .story-add-plus {
+  background-color: #599000 !important;
+  color: #ffffff !important;
+  border: 2px solid #ffffff !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
