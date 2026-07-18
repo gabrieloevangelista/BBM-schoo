@@ -870,7 +870,11 @@ export default function ComunidadePage() {
         {/* Left column - Feed */}
         <div className="lg:col-span-8 flex flex-col gap-6">
           {/* Stories Bar */}
-          <section className="glass-panel p-4 flex flex-col gap-2">
+          <section className="hud-card p-4 flex flex-col gap-2 relative">
+            <div className="hud-corner-tl" />
+            <div className="hud-corner-tr" />
+            <div className="hud-corner-bl" />
+            <div className="hud-corner-br" />
             <div className="flex justify-between items-center w-full px-1">
               <span className="text-xs font-bold text-text-secondary uppercase tracking-wider">Stories</span>
               {archivedStories.length > 0 && (
@@ -972,7 +976,11 @@ export default function ComunidadePage() {
           </section>
 
           {/* Post Creator Panel */}
-          <section className="glass-panel p-5">
+          <section className="hud-card p-5 relative">
+            <div className="hud-corner-tl" />
+            <div className="hud-corner-tr" />
+            <div className="hud-corner-bl" />
+            <div className="hud-corner-br" />
             <form onSubmit={handleCreatePost}>
               <div className="flex gap-3.5 items-start mb-4">
                 {user?.img ? (
@@ -1017,12 +1025,11 @@ export default function ComunidadePage() {
                   <button 
                     type="button" 
                     onClick={() => setPostType('feed')}
-                    className={`px-3 py-1.5 rounded-full text-[10px] font-bold cursor-pointer transition-all duration-200 flex items-center gap-1 ${
+                    className={`px-3 py-1.5 rounded-sm text-[10px] font-extrabold cursor-pointer transition-all duration-200 flex items-center gap-1.5 uppercase font-outfit ${
                       postType === 'feed' 
-                        ? 'bg-white/10 text-white border border-white/20' 
-                        : 'border border-transparent text-text-secondary hover:text-white'
+                        ? 'border border-[#C1FF07] text-[#C1FF07] bg-[#C1FF07]/5' 
+                        : 'border border-white/5 text-text-secondary hover:text-white hover:bg-white/5'
                     }`}
-                    style={{ background: postType === 'feed' ? 'rgba(255,255,255,0.06)' : 'transparent' }}
                   >
                     <MessageSquare size={12} />
                     <span>Feed Geral</span>
@@ -1030,12 +1037,11 @@ export default function ComunidadePage() {
                   <button 
                     type="button" 
                     onClick={() => setPostType('status')}
-                    className={`px-3 py-1.5 rounded-full text-[10px] font-bold cursor-pointer transition-all duration-200 flex items-center gap-1 ${
+                    className={`px-3 py-1.5 rounded-sm text-[10px] font-extrabold cursor-pointer transition-all duration-200 flex items-center gap-1.5 uppercase font-outfit ${
                       postType === 'status' 
-                        ? 'bg-white/10 text-white border border-white/20' 
-                        : 'border border-transparent text-text-secondary hover:text-white'
+                        ? 'border border-[#C1FF07] text-[#C1FF07] bg-[#C1FF07]/5' 
+                        : 'border border-white/5 text-text-secondary hover:text-white hover:bg-white/5'
                     }`}
-                    style={{ background: postType === 'status' ? 'rgba(255,255,255,0.06)' : 'transparent' }}
                   >
                     <Users size={12} />
                     <span>Status / Story</span>
@@ -1043,12 +1049,11 @@ export default function ComunidadePage() {
                   <button 
                     type="button" 
                     onClick={() => setPostType('reels')}
-                    className={`px-3 py-1.5 rounded-full text-[10px] font-bold cursor-pointer transition-all duration-200 flex items-center gap-1 ${
+                    className={`px-3 py-1.5 rounded-sm text-[10px] font-extrabold cursor-pointer transition-all duration-200 flex items-center gap-1.5 uppercase font-outfit ${
                       postType === 'reels' 
-                        ? 'bg-white/10 text-white border border-white/20' 
-                        : 'border border-transparent text-text-secondary hover:text-white'
+                        ? 'border border-[#C1FF07] text-[#C1FF07] bg-[#C1FF07]/5' 
+                        : 'border border-white/5 text-text-secondary hover:text-white hover:bg-white/5'
                     }`}
-                    style={{ background: postType === 'reels' ? 'rgba(255,255,255,0.06)' : 'transparent' }}
                   >
                     <Film size={12} />
                     <span>Reels Interno</span>
@@ -1175,7 +1180,9 @@ export default function ComunidadePage() {
                 const isAdmin = user?.member_type === 'admin';
 
                 return (
-                  <article key={post.id} className="glass-panel p-6">
+                  <article key={post.id} className="hud-card p-6 relative">
+                    <div className="hud-corner-tl" />
+                    <div className="hud-corner-br" />
                     {/* Post Header */}
                     <div className="flex justify-between items-center mb-4">
                       <div className="flex gap-3 items-center">
@@ -1329,7 +1336,15 @@ export default function ComunidadePage() {
 
         {/* Right column - Masters sidebar */}
         <aside className="lg:col-span-4 flex flex-col gap-6">
-          <div className="glass-panel p-5 flex flex-col gap-4">
+          <div className="hud-card p-5 flex flex-col gap-4 relative">
+            <div className="hud-corner-tl" />
+            <div className="hud-corner-tr" />
+            <div className="hud-corner-bl" />
+            <div className="hud-corner-br" />
+            <div className="absolute bottom-0 left-0 right-0 z-0">
+              <div className="hud-stripes-muted" />
+            </div>
+            <div className="relative z-10 flex flex-col gap-4 w-full">
             <h3 className="text-sm font-bold text-white font-outfit flex items-center gap-2 uppercase tracking-wider">
               <Users size={16} className="text-primary-lemon" />
               <span>Masters</span>
@@ -1393,6 +1408,7 @@ export default function ComunidadePage() {
                   Nenhum membro encontrado.
                 </div>
               )}
+            </div>
             </div>
           </div>
         </aside>
