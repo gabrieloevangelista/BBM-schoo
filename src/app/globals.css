@@ -829,22 +829,25 @@ input[type="datetime-local"].form-input::-webkit-datetime-edit-minute-field:focu
    Ghost Loading / Skeleton Styles — HUD pulse
    ========================================================================== */
 
-@keyframes skeleton-pulse {
+@keyframes skeleton-shimmer {
   0% {
-    background-color: rgba(193, 255, 7, 0.01);
-  }
-  50% {
-    background-color: rgba(193, 255, 7, 0.04);
+    background-position: -200% 0;
   }
   100% {
-    background-color: rgba(193, 255, 7, 0.01);
+    background-position: 200% 0;
   }
 }
 
 .skeleton {
-  animation: skeleton-pulse 1.5s infinite ease-in-out;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.02) 25%,
+    rgba(255, 255, 255, 0.07) 37%,
+    rgba(255, 255, 255, 0.02) 63%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s infinite ease-in-out;
   border-radius: 4px;
-  background-color: rgba(193, 255, 7, 0.02);
 }
 
 .skeleton-text {
@@ -861,9 +864,10 @@ input[type="datetime-local"].form-input::-webkit-datetime-edit-minute-field:focu
 
 .skeleton-card {
   background-color: rgba(255, 255, 255, 0.015);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 4px;
-  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
 }
 
 /* ==========================================================================
@@ -1078,19 +1082,20 @@ input[type="datetime-local"].form-input::-webkit-datetime-edit-minute-field:focu
 
 /* Skeleton */
 [data-theme="light"] .skeleton {
-  animation-name: skeleton-pulse-light;
-  background-color: rgba(0, 0, 0, 0.04);
+  background: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0.04) 25%,
+    rgba(0, 0, 0, 0.09) 37%,
+    rgba(0, 0, 0, 0.04) 63%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s infinite ease-in-out;
 }
 
 [data-theme="light"] .skeleton-card {
-  background-color: #f8f9fa;
-  border-color: rgba(0, 0, 0, 0.06);
-}
-
-@keyframes skeleton-pulse-light {
-  0% { background-color: rgba(0, 0, 0, 0.04); }
-  50% { background-color: rgba(0, 0, 0, 0.08); }
-  100% { background-color: rgba(0, 0, 0, 0.04); }
+  background-color: #ffffff;
+  border-color: rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
 }
 
 /* Force inline style color text that pages may hardcode (avoid matching background-color) */
