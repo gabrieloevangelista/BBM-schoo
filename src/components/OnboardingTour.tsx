@@ -86,7 +86,7 @@ const TOUR_STEPS: TourStep[] = [
   },
   {
     id: 'nav-missoes',
-    targetSelector: '#tour-nav-missoes',
+    targetSelector: '#tour-nav-missoes, #onboarding-missions',
     category: 'Desafios Práticos',
     title: 'Missões & Entregas',
     description: 'Coloque a teoria em prática! Submeta projetos e resoluções para receber avaliação individual e feedbacks da banca de mentores.',
@@ -191,13 +191,26 @@ export default function OnboardingTour() {
     target.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
     const rect = target.getBoundingClientRect();
-    const padding = 8;
-    const spotRect: SpotlightRect = {
-      top: Math.max(0, rect.top - padding),
-      left: Math.max(0, rect.left - padding),
-      width: rect.width + padding * 2,
-      height: rect.height + padding * 2
-    };
+    const isSquare = Math.abs(rect.width - rect.height) <= 8;
+    const padding = isSquare ? 5 : 8;
+    
+    let spotRect: SpotlightRect;
+    if (isSquare) {
+      const squareSize = Math.max(rect.width, rect.height) + padding * 2;
+      spotRect = {
+        top: rect.top + (rect.height / 2) - (squareSize / 2),
+        left: rect.left + (rect.width / 2) - (squareSize / 2),
+        width: squareSize,
+        height: squareSize
+      };
+    } else {
+      spotRect = {
+        top: Math.max(0, rect.top - padding),
+        left: Math.max(0, rect.left - padding),
+        width: rect.width + padding * 2,
+        height: rect.height + padding * 2
+      };
+    }
     setSpotlight(spotRect);
 
     // Calculate tooltip position
@@ -225,6 +238,15 @@ export default function OnboardingTour() {
     } else if (placement === 'bottom') {
       left = spotRect.left + (spotRect.width / 2) - (cardWidth / 2);
       top = spotRect.top + spotRect.height + margin;
+
+      // If overflowing below screen, place above if possible or neatly clamp
+      if (top + cardHeight > window.innerHeight - 16) {
+        if (spotRect.top - cardHeight - margin > 16) {
+          top = spotRect.top - cardHeight - margin;
+        } else {
+          top = Math.max(16, window.innerHeight - cardHeight - 24);
+        }
+      }
     } else if (placement === 'top') {
       left = spotRect.left + (spotRect.width / 2) - (cardWidth / 2);
       top = spotRect.top - cardHeight - margin;
@@ -280,13 +302,15 @@ export default function OnboardingTour() {
 
   return (
     <div className="fixed inset-0 z-[9999] pointer-events-auto">
-      {/* Dimmed Background Overlay */}
+      {/* Light, Translucent Backdrop (transparent when spotlight is active so target is crystal clear) */}
       <div 
-        className="absolute inset-0 bg-black/80 transition-opacity duration-300"
+        className={`absolute inset-0 transition-opacity duration-300 ${
+          isCentered || !spotlight ? 'bg-black/25 backdrop-blur-[1px]' : 'bg-transparent'
+        }`}
         onClick={markAsCompleted}
       />
 
-      {/* Dynamic Cutout Spotlight with Neon HUD Glow */}
+      {/* Dynamic Cutout Spotlight with Clean Border (No AI Glow) */}
       {spotlight && !isCentered && (
         <div 
           style={{
@@ -295,39 +319,28 @@ export default function OnboardingTour() {
             left: `${spotlight.left}px`,
             width: `${spotlight.width}px`,
             height: `${spotlight.height}px`,
-            boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.78), 0 0 25px rgba(193, 255, 7, 0.45)',
+            boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.35)',
             border: '2px solid #C1FF07',
-            borderRadius: '8px',
+            borderRadius: '6px',
             pointerEvents: 'none',
-            transition: 'all 0.35s cubic-bezier(0.16, 1, 0.3, 1)'
+            transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
           }}
           className="z-[10000]"
-        >
-          {/* HUD Tech Corner Accents */}
-          <span className="absolute -top-1 -left-1 w-2.5 h-2.5 border-t-2 border-l-2 border-white" />
-          <span className="absolute -top-1 -right-1 w-2.5 h-2.5 border-t-2 border-r-2 border-white" />
-          <span className="absolute -bottom-1 -left-1 w-2.5 h-2.5 border-b-2 border-l-2 border-white" />
-          <span className="absolute -bottom-1 -right-1 w-2.5 h-2.5 border-b-2 border-r-2 border-white" />
-        </div>
+        />
       )}
 
-      {/* Floating HUD Tooltip Card */}
+      {/* Floating Tour Card */}
       <div
         ref={tourCardRef}
         style={{
           position: 'fixed',
           top: `${tooltipPos.top}px`,
           left: `${tooltipPos.left}px`,
-          width: 'min(420px, calc(100vw - 32px))',
+          width: 'min(400px, calc(100vw - 32px))',
           transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
         }}
-        className="z-[10001] bg-[#12131a] text-white border border-[#C1FF07]/30 rounded-xl p-5 shadow-[0_20px_50px_rgba(0,0,0,0.95)] backdrop-blur-xl relative overflow-hidden"
+        className="z-[10001] bg-[#14151e] text-white border border-white/10 rounded-xl p-5 shadow-2xl backdrop-blur-2xl relative overflow-hidden"
       >
-        {/* HUD Corners */}
-        <div className="hud-corner-tl" />
-        <div className="hud-corner-tr" />
-        <div className="hud-corner-bl" />
-        <div className="hud-corner-br" />
 
         {/* Top Header */}
         <div className="flex items-center justify-between gap-2 mb-3">
@@ -415,7 +428,7 @@ export default function OnboardingTour() {
                   setCurrentStep(prev => prev + 1);
                 }
               }}
-              className="btn-primary py-1.5 px-4 text-xs font-bold rounded-lg cursor-pointer flex items-center gap-1.5 shadow-[0_0_15px_rgba(193,255,7,0.3)]"
+              className="btn-primary py-1.5 px-4 text-xs font-bold rounded-lg cursor-pointer flex items-center gap-1.5 transition-transform active:scale-95"
             >
               {isLastStep ? (
                 <>

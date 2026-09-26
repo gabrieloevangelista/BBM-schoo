@@ -199,7 +199,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Card 3: Suas Missões */}
-        <div className="hud-card p-5 flex flex-col justify-between relative" style={{ minHeight: '140px' }}>
+        <div id="onboarding-missions" className="hud-card p-5 flex flex-col justify-between relative" style={{ minHeight: '140px' }}>
           <div className="hud-corner-tl" />
           <div className="hud-corner-br" />
           <div className="flex justify-between items-start z-10">

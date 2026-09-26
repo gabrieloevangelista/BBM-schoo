@@ -172,7 +172,6 @@ export default function NavigationWrapper({ children }: { children: React.ReactN
     if (item.role === 'all') return true;
     if (user.member_type === 'admin') return true;
     if (item.role === 'mentor' && user.member_type === 'mentor') return true;
-    return false;
   });
 
   // Tour target IDs helper
@@ -183,8 +182,60 @@ export default function NavigationWrapper({ children }: { children: React.ReactN
       case 'Masterclasses': return 'tour-nav-masterclasses';
       case 'Recursos': return 'tour-nav-recursos';
       case 'Calendário': return 'tour-nav-calendario';
+      case 'Missões': return 'tour-nav-missoes';
       default: return undefined;
     }
+  };
+
+  // Helper styles for navigation items depending on sidebarExpanded state
+  const getNavItemClass = (isActive: boolean) => {
+    if (sidebarExpanded) {
+      return `flex items-center w-full px-3.5 py-2.5 rounded-lg no-underline font-outfit font-medium text-sm transition-all duration-200 gap-3 cursor-pointer ${
+        isActive
+          ? theme === 'light'
+            ? 'bg-[#5a9200]/10 text-[#5a9200] font-bold border border-[#5a9200]/25 shadow-sm'
+            : 'bg-[#C1FF07]/10 text-[#C1FF07] font-bold border border-[#C1FF07]/25'
+          : theme === 'light'
+            ? 'text-gray-500 hover:bg-black/5 hover:text-gray-900 border border-transparent'
+            : 'text-gray-400 hover:bg-white/5 hover:text-white border border-transparent'
+      }`;
+    }
+    // Minimized square button with centered icon (clean square, subtle rounded-md)
+    return `flex items-center justify-center w-11 h-11 aspect-square mx-auto rounded-lg no-underline font-outfit font-medium transition-all duration-200 cursor-pointer p-0 ${
+      isActive
+        ? theme === 'light'
+          ? 'bg-[#5a9200]/10 text-[#5a9200] font-bold border border-[#5a9200]/25 shadow-sm'
+          : 'bg-[#C1FF07]/10 text-[#C1FF07] font-bold border border-[#C1FF07]/25'
+        : theme === 'light'
+          ? 'text-gray-500 hover:bg-black/5 hover:text-gray-900 border border-transparent'
+          : 'text-gray-400 hover:bg-white/5 hover:text-white border border-transparent'
+    }`;
+  };
+
+  const getDisabledItemClass = () => {
+    if (sidebarExpanded) {
+      return 'flex items-center w-full px-3.5 py-2.5 rounded-lg text-text-muted/60 font-outfit font-medium text-sm gap-3 cursor-not-allowed select-none';
+    }
+    return 'flex items-center justify-center w-11 h-11 aspect-square mx-auto rounded-lg text-text-muted/40 font-outfit cursor-not-allowed select-none p-0';
+  };
+
+  const getFooterBtnClass = (variant: 'normal' | 'tour' | 'danger' = 'normal') => {
+    if (sidebarExpanded) {
+      return `flex items-center w-full px-3.5 py-2.5 rounded-lg border-0 bg-transparent text-left font-outfit font-medium text-sm transition-all duration-200 gap-3 cursor-pointer ${
+        variant === 'danger'
+          ? 'hover:bg-red-950/20 text-text-secondary hover:text-red-400'
+          : variant === 'tour'
+            ? 'hover:bg-[#C1FF07]/10 text-[#C1FF07]'
+            : 'hover:bg-white/5 text-text-secondary hover:text-white'
+      }`;
+    }
+    return `flex items-center justify-center w-11 h-11 aspect-square mx-auto rounded-lg border-0 bg-transparent font-outfit font-medium transition-all duration-200 cursor-pointer p-0 ${
+      variant === 'danger'
+        ? 'hover:bg-red-950/20 text-red-500 hover:text-red-400'
+        : variant === 'tour'
+          ? 'hover:bg-[#C1FF07]/10 text-[#C1FF07]'
+          : 'hover:bg-white/5 text-text-secondary hover:text-white'
+    }`;
   };
 
   // Unread notification count
@@ -196,7 +247,7 @@ export default function NavigationWrapper({ children }: { children: React.ReactN
       {/* Sidebar (Desktop & Tablet) */}
       <aside 
         className={`fixed top-0 left-0 h-screen backdrop-blur-2xl flex flex-col z-50 transition-all duration-300 ${
-          sidebarExpanded ? 'w-[260px]' : 'w-[85px]'
+          sidebarExpanded ? 'w-[260px]' : 'w-[80px]'
         } max-md:hidden ${theme === 'light' ? 'bg-white border-r border-black/8 shadow-[2px_0_20px_rgba(0,0,0,0.06)]' : 'bg-[#171821]/90 border-r border-white/10'}`}
       >
         {/* Sidebar Header Logo */}
@@ -217,16 +268,16 @@ export default function NavigationWrapper({ children }: { children: React.ReactN
               <ChevronLeft size={18} />
             </button>
           ) : (
-            <button onClick={toggleSidebar} className={`border-0 p-1 rounded cursor-pointer ${theme === 'light' ? 'text-gray-500 hover:text-gray-900' : 'text-gray-400 hover:text-white'}`} style={{ minWidth: 'auto' }}>
+            <button onClick={toggleSidebar} className={`border-0 p-1.5 rounded-lg cursor-pointer flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/5 ${theme === 'light' ? 'text-gray-500 hover:text-gray-900' : 'text-gray-400 hover:text-white'}`} style={{ minWidth: 'auto' }}>
               <ChevronRight size={18} />
             </button>
           )}
         </div>
 
         {/* Sidebar Nav Links */}
-        <nav className="flex-grow py-5 px-3.5 flex flex-col gap-4 overflow-y-auto scrollbar-none">
+        <nav className={`flex-grow py-5 flex flex-col gap-4 overflow-y-auto scrollbar-none ${sidebarExpanded ? 'px-3.5' : 'px-2 items-center'}`}>
           {/* Group 1: Principal */}
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-1.5 w-full">
             {filteredItems.filter(item => ['Visão geral', 'Comunidade', 'Masterclasses', 'Recursos', 'Calendário', 'Missões', 'Oportunidades', 'Projetos'].includes(item.label)).map(item => {
               const Icon = item.icon;
               const isBreve = item.badge === 'BREVE';
@@ -236,7 +287,7 @@ export default function NavigationWrapper({ children }: { children: React.ReactN
                 return (
                   <div
                     key={item.label}
-                    className="flex items-center p-3 rounded-lg text-text-muted/60 font-outfit font-medium text-sm gap-3 cursor-not-allowed select-none"
+                    className={getDisabledItemClass()}
                     title="Esta funcionalidade estará disponível em breve!"
                   >
                     <Icon size={20} className="flex-shrink-0 opacity-40" />
@@ -255,15 +306,7 @@ export default function NavigationWrapper({ children }: { children: React.ReactN
                   id={getTourId(item.label)}
                   key={item.path} 
                   href={item.path} 
-                  className={`flex items-center p-3 rounded no-underline font-outfit font-medium text-sm transition-all duration-200 gap-3 cursor-pointer ${
-                    isActive 
-                      ? theme === 'light'
-                        ? 'bg-[#5a9200]/10 text-[#5a9200] font-bold'
-                        : 'bg-[#C1FF07]/10 text-[#C1FF07] font-bold'
-                      : theme === 'light' 
-                        ? 'text-gray-500 hover:bg-black/5 hover:text-gray-900' 
-                        : 'text-gray-400 hover:bg-white/5 hover:text-white'
-                  }`}
+                  className={getNavItemClass(isActive)}
                   title={!sidebarExpanded ? item.label : undefined}
                 >
                   <Icon size={20} className="flex-shrink-0" />
@@ -299,7 +342,7 @@ export default function NavigationWrapper({ children }: { children: React.ReactN
 
           {/* Group 2: Administration (if admin/mentor and contains admin links) */}
           {(user.member_type === 'admin' || user.member_type === 'mentor') && filteredItems.some(item => ['Gerenciar Membros', 'Gerenciar Masterclasses', 'Gerenciar Banners', 'Gerenciar Missões'].includes(item.label)) && (
-            <div className={`pt-3 border-t flex flex-col gap-1.5 ${theme === 'light' ? 'border-black/8' : 'border-white/8'}`}>
+            <div className={`pt-3 border-t flex flex-col gap-1.5 w-full ${theme === 'light' ? 'border-black/8' : 'border-white/8'}`}>
               {sidebarExpanded && <span className={`text-[10px] font-bold tracking-wider px-3 mb-1.5 uppercase font-outfit ${theme === 'light' ? 'text-gray-400' : 'text-gray-500'}`}>Administração</span>}
               {filteredItems.filter(item => ['Gerenciar Membros', 'Gerenciar Masterclasses', 'Gerenciar Banners', 'Gerenciar Missões'].includes(item.label)).map(item => {
                 const Icon = item.icon;
@@ -308,15 +351,7 @@ export default function NavigationWrapper({ children }: { children: React.ReactN
                   <Link 
                     key={item.path} 
                     href={item.path} 
-                    className={`flex items-center p-3 rounded no-underline font-outfit font-medium text-sm transition-all duration-200 gap-3 cursor-pointer ${
-                      isActive 
-                        ? theme === 'light'
-                          ? 'bg-[#5a9200]/10 text-[#5a9200] font-bold'
-                          : 'bg-[#C1FF07]/10 text-[#C1FF07] font-bold'
-                        : theme === 'light' 
-                          ? 'text-gray-500 hover:bg-black/5 hover:text-gray-900' 
-                          : 'text-gray-400 hover:bg-white/5 hover:text-white'
-                    }`}
+                    className={getNavItemClass(isActive)}
                     title={!sidebarExpanded ? item.label : undefined}
                   >
                     <Icon size={20} className="flex-shrink-0" />
@@ -328,7 +363,7 @@ export default function NavigationWrapper({ children }: { children: React.ReactN
           )}
 
           {/* Group 3: Account */}
-          <div className={`pt-3 border-t flex flex-col gap-1.5 ${theme === 'light' ? 'border-black/8' : 'border-white/8'}`}>
+          <div className={`pt-3 border-t flex flex-col gap-1.5 w-full ${theme === 'light' ? 'border-black/8' : 'border-white/8'}`}>
             {sidebarExpanded && <span className={`text-[10px] font-bold tracking-wider px-3 mb-1.5 uppercase font-outfit ${theme === 'light' ? 'text-gray-400' : 'text-gray-500'}`}>Minha Conta</span>}
             {filteredItems.filter(item => item.label === 'Meu Perfil').map(item => {
               const Icon = item.icon;
@@ -337,15 +372,7 @@ export default function NavigationWrapper({ children }: { children: React.ReactN
                 <Link 
                   key={item.path} 
                   href={item.path} 
-                  className={`flex items-center p-3 rounded no-underline font-outfit font-medium text-sm transition-all duration-200 gap-3 cursor-pointer ${
-                    isActive 
-                      ? theme === 'light'
-                        ? 'bg-[#5a9200]/10 text-[#5a9200] font-bold'
-                        : 'bg-[#C1FF07]/10 text-[#C1FF07] font-bold'
-                      : theme === 'light' 
-                        ? 'text-gray-500 hover:bg-black/5 hover:text-gray-900' 
-                        : 'text-gray-400 hover:bg-white/5 hover:text-white'
-                  }`}
+                  className={getNavItemClass(isActive)}
                   title={!sidebarExpanded ? item.label : undefined}
                 >
                   <Icon size={20} className="flex-shrink-0" />
@@ -357,10 +384,10 @@ export default function NavigationWrapper({ children }: { children: React.ReactN
         </nav>
 
         {/* Logout & Support Section */}
-        <div className={`p-3.5 border-t flex flex-col gap-1 ${theme === 'light' ? 'border-black/8' : 'border-white/10'}`}>
+        <div className={`p-3 border-t flex flex-col gap-1.5 ${theme === 'light' ? 'border-black/8' : 'border-white/10'} ${!sidebarExpanded ? 'items-center px-2' : ''}`}>
           <button
             onClick={() => window.dispatchEvent(new CustomEvent('bbm:start-tour'))}
-            className="flex items-center p-3 rounded-lg w-full border-0 bg-transparent text-left hover:bg-white/5 text-text-secondary hover:text-[#C1FF07] font-outfit font-medium text-sm transition-all duration-200 gap-3 cursor-pointer"
+            className={getFooterBtnClass('tour')}
             title="Iniciar Tour Guiado"
           >
             <Compass size={20} className="flex-shrink-0 text-[#C1FF07]" />
@@ -368,14 +395,16 @@ export default function NavigationWrapper({ children }: { children: React.ReactN
           </button>
           <Link
             href="mailto:suporte@bbmschool.com.br"
-            className="flex items-center p-3 rounded-lg w-full border-0 bg-transparent text-left hover:bg-white/5 text-text-secondary hover:text-white no-underline font-outfit font-medium text-sm transition-all duration-200 gap-3 cursor-pointer"
+            className={getFooterBtnClass('normal')}
+            title={!sidebarExpanded ? 'Suporte' : undefined}
           >
             <HelpCircle size={20} className="flex-shrink-0 text-text-secondary" />
             {sidebarExpanded && <span>Suporte</span>}
           </Link>
           <button 
             onClick={logout} 
-            className="flex items-center p-3 rounded-lg w-full border-0 bg-transparent text-left hover:bg-red-950/20 text-text-secondary hover:text-red-400 font-outfit font-medium text-sm transition-all duration-200 gap-3 cursor-pointer"
+            className={getFooterBtnClass('danger')}
+            title={!sidebarExpanded ? 'Sair da conta' : undefined}
           >
             <LogOut size={20} className="flex-shrink-0 text-red-500" />
             {sidebarExpanded && <span className="text-red-400">Sair</span>}
@@ -386,7 +415,7 @@ export default function NavigationWrapper({ children }: { children: React.ReactN
       {/* Main Content Area Container */}
       <div 
         className={`flex-grow flex flex-col h-screen overflow-hidden transition-all duration-300 ${
-          sidebarExpanded ? 'md:ml-[260px]' : 'md:ml-[85px]'
+          sidebarExpanded ? 'md:ml-[260px]' : 'md:ml-[80px]'
         }`}
       >
         
