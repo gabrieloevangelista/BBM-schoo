@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import mockDbData from '@/data/mockDb.json';
 
 // Define DB Types (same as before to avoid breaking UI)
 export interface Member {
@@ -250,101 +251,110 @@ export interface DatabaseSchema {
 }
 
 export async function getDb(): Promise<DatabaseSchema> {
-  const [
-    { data: members }, { data: courses }, { data: modules }, { data: lessons },
-    { data: resources }, { data: member_connections }, { data: community_posts },
-    { data: lesson_comments }, { data: notifications }, { data: calendar_events },
-    { data: ecosystem_banners }, { data: missions }, { data: mission_submissions },
-    { data: story_views }, { data: user_lesson_progress }, { data: webhook_logs },
-    { data: community_comments }, { data: comment_replies }
-  ] = await Promise.all([
-    supabase.from('members').select('*'),
-    supabase.from('courses').select('*'),
-    supabase.from('modules').select('*'),
-    supabase.from('lessons').select('*'),
-    supabase.from('resources').select('*'),
-    supabase.from('member_connections').select('*'),
-    supabase.from('community_posts').select('*'),
-    supabase.from('lesson_comments').select('*'),
-    supabase.from('notifications').select('*'),
-    supabase.from('calendar_events').select('*'),
-    supabase.from('ecosystem_banners').select('*'),
-    supabase.from('missions').select('*'),
-    supabase.from('mission_submissions').select('*'),
-    supabase.from('story_views').select('*'),
-    supabase.from('user_lesson_progress').select('*'),
-    supabase.from('webhook_logs').select('*'),
-    supabase.from('community_comments').select('*'),
-    supabase.from('comment_replies').select('*')
-  ]);
+  try {
+    const [
+      { data: members, error: errMembers }, { data: courses }, { data: modules }, { data: lessons },
+      { data: resources }, { data: member_connections }, { data: community_posts },
+      { data: lesson_comments }, { data: notifications }, { data: calendar_events },
+      { data: ecosystem_banners }, { data: missions }, { data: mission_submissions },
+      { data: story_views }, { data: user_lesson_progress }, { data: webhook_logs },
+      { data: community_comments }, { data: comment_replies }
+    ] = await Promise.all([
+      supabase.from('members').select('*'),
+      supabase.from('courses').select('*'),
+      supabase.from('modules').select('*'),
+      supabase.from('lessons').select('*'),
+      supabase.from('resources').select('*'),
+      supabase.from('member_connections').select('*'),
+      supabase.from('community_posts').select('*'),
+      supabase.from('lesson_comments').select('*'),
+      supabase.from('notifications').select('*'),
+      supabase.from('calendar_events').select('*'),
+      supabase.from('ecosystem_banners').select('*'),
+      supabase.from('missions').select('*'),
+      supabase.from('mission_submissions').select('*'),
+      supabase.from('story_views').select('*'),
+      supabase.from('user_lesson_progress').select('*'),
+      supabase.from('webhook_logs').select('*'),
+      supabase.from('community_comments').select('*'),
+      supabase.from('comment_replies').select('*')
+    ]);
 
-  // Reconstruct nested comments for posts
-  const mappedPosts = (community_posts || []).map(post => {
-    const postComments = (community_comments || []).filter(c => c.post_id === post.id);
-    return {
-      ...post,
-      comments: postComments.map(c => ({
-        ...c,
-        replies: (comment_replies || []).filter(r => r.comment_id === c.id)
-      }))
-    };
-  });
+    if (!errMembers && members && members.length > 0) {
+      // Reconstruct nested comments for posts
+      const mappedPosts = (community_posts || []).map(post => {
+        const postComments = (community_comments || []).filter(c => c.post_id === post.id);
+        return {
+          ...post,
+          comments: postComments.map(c => ({
+            ...c,
+            replies: (comment_replies || []).filter(r => r.comment_id === c.id)
+          }))
+        };
+      });
 
-  // Deserialize custom fields from bio column
-  const mappedMembers = (members || []).map(m => {
-    let bio = m.bio || '';
-    let linkedin = '';
-    let instagram = '';
-    let website = '';
-    let badges: string[] = [];
-    let hidden_badges: string[] = [];
+      // Deserialize custom fields from bio column
+      const mappedMembers = (members || []).map(m => {
+        let bio = m.bio || '';
+        let linkedin = '';
+        let instagram = '';
+        let website = '';
+        let badges: string[] = [];
+        let hidden_badges: string[] = [];
 
-    if (bio.includes('|||')) {
-      const parts = bio.split('|||');
-      bio = parts[0].trim();
-      try {
-        const meta = JSON.parse(parts[1]);
-        linkedin = meta.linkedin || '';
-        instagram = meta.instagram || '';
-        website = meta.website || '';
-        badges = meta.badges || [];
-        hidden_badges = meta.hidden_badges || [];
-      } catch (e) {
-        console.error('Failed to parse member meta:', e);
-      }
+        if (bio.includes('|||')) {
+          const parts = bio.split('|||');
+          bio = parts[0].trim();
+          try {
+            const meta = JSON.parse(parts[1]);
+            linkedin = meta.linkedin || '';
+            instagram = meta.instagram || '';
+            website = meta.website || '';
+            badges = meta.badges || [];
+            hidden_badges = meta.hidden_badges || [];
+          } catch (e) {
+            console.error('Failed to parse member meta:', e);
+          }
+        }
+
+        return {
+          ...m,
+          bio,
+          linkedin,
+          instagram,
+          website,
+          badges,
+          hidden_badges
+        };
+      });
+
+      return {
+        members: mappedMembers || [],
+        courses: courses || [],
+        modules: modules || [],
+        lessons: lessons || [],
+        resources: resources || [],
+        member_connections: member_connections || [],
+        community_posts: mappedPosts,
+        lesson_comments: lesson_comments || [],
+        notifications: notifications || [],
+        calendar_events: calendar_events || [],
+        ecosystem_banners: ecosystem_banners || [],
+        missions: missions || [],
+        mission_submissions: mission_submissions || [],
+        story_views: story_views || [],
+        investment_opportunities: [],
+        projects: [],
+        user_lesson_progress: user_lesson_progress || [],
+        webhook_logs: webhook_logs || []
+      };
     }
+  } catch (err) {
+    console.warn('Supabase offline or unreachable, serving local fallback data:', err);
+  }
 
-    return {
-      ...m,
-      bio,
-      linkedin,
-      instagram,
-      website,
-      badges,
-      hidden_badges
-    };
-  });
-
-  return {
-    members: mappedMembers || [],
-    courses: courses || [],
-    modules: modules || [],
-    lessons: lessons || [],
-    resources: resources || [],
-    member_connections: member_connections || [],
-    community_posts: mappedPosts,
-    lesson_comments: lesson_comments || [],
-    notifications: notifications || [],
-    calendar_events: calendar_events || [],
-    ecosystem_banners: ecosystem_banners || [],
-    missions: missions || [],
-    mission_submissions: mission_submissions || [],
-    story_views: story_views || [],
-    investment_opportunities: [],
-    projects: [],
-    user_lesson_progress: user_lesson_progress || [],
-    webhook_logs: webhook_logs || []
-  };
+  // Fallback to local mockDbData
+  return mockDbData as unknown as DatabaseSchema;
 }
 
 export async function saveDb(db: DatabaseSchema): Promise<void> {

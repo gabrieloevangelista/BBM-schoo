@@ -23,8 +23,6 @@ export default function DashboardPage() {
   const { user } = useAuth();
   
   const [greeting, setGreeting] = useState('');
-  const [showTutorial, setShowTutorial] = useState(false);
-  const [currentStep, setCurrentStep] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
   // Dashboard Stats Mock
@@ -47,13 +45,7 @@ export default function DashboardPage() {
     else if (hr < 18) setGreeting('Boa tarde');
     else setGreeting('Boa noite');
 
-    // 2. Check tutorial status
-    const skip = localStorage.getItem('bbm_skip_tutorial');
-    if (!skip) {
-      setShowTutorial(true);
-    }
-
-    // 3. Load DB data
+    // 2. Load DB data
     const fetchDashboardDetails = async () => {
       try {
         const response = await fetch('/api/db');
@@ -105,61 +97,6 @@ export default function DashboardPage() {
     fetchDashboardDetails();
   }, []);
 
-  const tutorialSteps = [
-    {
-      title: 'Boas-vindas à BBM School!',
-      content: 'Este é o seu portal de alta performance. Preparamos uma rápida introdução para você dominar todas as ferramentas e oportunidades disponíveis.'
-    },
-    {
-      title: 'Aulas & Masterclasses',
-      content: 'Acesse "Aulas" na barra lateral para ver o currículo completo das masterclasses de engenharia imobiliária, captações de crédito e incorporação.'
-    },
-    {
-      title: 'Simulação de Financiamento',
-      content: 'Simule orçamentos de projetos e condições exclusivas de captação de recursos no simulador de crédito da BBM School com taxas diferenciadas.'
-    },
-    {
-      title: 'Central de Recursos',
-      content: 'Faça downloads de planilhas de estudo de viabilidade, minutas de contratos e projetos executivos prontos para negócios.'
-    },
-    {
-      title: 'Comunidade & networking',
-      content: 'Publique dúvidas, compartilhe conquistas, assista a stories status e envie solicitações de conexões de negócios com outros membros na aba Comunidade.'
-    },
-    {
-      title: 'Missions & Entregas',
-      content: 'Coloque as aulas em prática resolvendo as missões propostas. Envie seus trabalhos para que os mentores avaliem e deem feedback.'
-    }
-  ];
-
-  const handleNextStep = () => {
-    if (currentStep < tutorialSteps.length - 1) {
-      setCurrentStep(currentStep + 1);
-    } else {
-      handleSkipTutorial();
-    }
-  };
-
-  const handlePrevStep = () => {
-    if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
-    }
-  };
-
-  const handleSkipTutorial = () => {
-    setShowTutorial(false);
-  };
-
-  const skipTutorial = () => {
-    localStorage.setItem('bbm_skip_tutorial', 'true');
-    setShowTutorial(false);
-  };
-
-  const handleDontShowAgain = () => {
-    localStorage.setItem('bbm_skip_tutorial', 'true');
-    setShowTutorial(false);
-  };
-
   const getFirstName = (fullName: string) => {
     return fullName ? fullName.split(' ')[0] : 'Membro';
   };
@@ -174,59 +111,6 @@ export default function DashboardPage() {
 
   return (
     <div className="relative flex flex-col gap-8">
-      
-      {/* Onboarding Tutorial Modal / Step Overlay */}
-      {showTutorial && (
-        <div className="fixed inset-0 bg-black/85 z-50 flex items-center justify-center p-5">
-          <div className="modal-card w-full max-w-[450px] p-8 relative">
-            <div className="flex justify-between items-center mb-4">
-              <span className="badge badge-lemon text-xs">
-                Etapa {currentStep + 1} de {tutorialSteps.length}
-              </span>
-              <button 
-                onClick={handleSkipTutorial}
-                className="border-0 bg-transparent text-text-secondary hover:text-white cursor-pointer text-xs font-semibold py-1 px-2"
-              >
-                Pular
-              </button>
-            </div>
-
-            <h3 className="text-lg font-bold mb-3 font-outfit">
-              {tutorialSteps[currentStep].title}
-            </h3>
-            
-            <p className="text-text-secondary text-sm leading-relaxed mb-6">
-              {tutorialSteps[currentStep].content}
-            </p>
-
-            <div className="flex justify-between items-center gap-3.5 flex-wrap">
-              <button 
-                onClick={handleDontShowAgain}
-                className="bg-transparent border-0 text-text-muted hover:text-text-secondary cursor-pointer text-xs transition-colors"
-              >
-                Não mostrar novamente
-              </button>
-
-              <div className="flex gap-2">
-                {currentStep > 0 && (
-                  <button 
-                    onClick={handlePrevStep} 
-                    className="btn-secondary py-1 px-3"
-                  >
-                    Voltar
-                  </button>
-                )}
-                <button 
-                  onClick={handleNextStep} 
-                  className="btn-primary py-1 px-3"
-                >
-                  {currentStep === tutorialSteps.length - 1 ? 'Finalizar' : 'Avançar'}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Welcome & Executive Summary Header */}
       <section 

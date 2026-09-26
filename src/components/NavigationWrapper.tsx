@@ -28,9 +28,11 @@ import {
   Sun,
   Moon,
   Users,
-  HelpCircle
+  HelpCircle,
+  Compass
 } from 'lucide-react';
 import { Notification } from '@/lib/db';
+import OnboardingTour from '@/components/OnboardingTour';
 
 export default function NavigationWrapper({ children }: { children: React.ReactNode }) {
   const { user, logout, isLoading } = useAuth();
@@ -173,6 +175,18 @@ export default function NavigationWrapper({ children }: { children: React.ReactN
     return false;
   });
 
+  // Tour target IDs helper
+  const getTourId = (label: string) => {
+    switch (label) {
+      case 'Visão geral': return 'tour-nav-dashboard';
+      case 'Comunidade': return 'tour-nav-comunidade';
+      case 'Masterclasses': return 'tour-nav-masterclasses';
+      case 'Recursos': return 'tour-nav-recursos';
+      case 'Calendário': return 'tour-nav-calendario';
+      default: return undefined;
+    }
+  };
+
   // Unread notification count
   const unreadCount = notifications.filter(n => !n.is_read).length;
 
@@ -238,6 +252,7 @@ export default function NavigationWrapper({ children }: { children: React.ReactN
 
               return (
                 <Link 
+                  id={getTourId(item.label)}
                   key={item.path} 
                   href={item.path} 
                   className={`flex items-center p-3 rounded no-underline font-outfit font-medium text-sm transition-all duration-200 gap-3 cursor-pointer ${
@@ -343,6 +358,14 @@ export default function NavigationWrapper({ children }: { children: React.ReactN
 
         {/* Logout & Support Section */}
         <div className={`p-3.5 border-t flex flex-col gap-1 ${theme === 'light' ? 'border-black/8' : 'border-white/10'}`}>
+          <button
+            onClick={() => window.dispatchEvent(new CustomEvent('bbm:start-tour'))}
+            className="flex items-center p-3 rounded-lg w-full border-0 bg-transparent text-left hover:bg-white/5 text-text-secondary hover:text-[#C1FF07] font-outfit font-medium text-sm transition-all duration-200 gap-3 cursor-pointer"
+            title="Iniciar Tour Guiado"
+          >
+            <Compass size={20} className="flex-shrink-0 text-[#C1FF07]" />
+            {sidebarExpanded && <span className="text-[#C1FF07] font-semibold">Tour Guiado</span>}
+          </button>
           <Link
             href="mailto:suporte@bbmschool.com.br"
             className="flex items-center p-3 rounded-lg w-full border-0 bg-transparent text-left hover:bg-white/5 text-text-secondary hover:text-white no-underline font-outfit font-medium text-sm transition-all duration-200 gap-3 cursor-pointer"
@@ -439,6 +462,7 @@ export default function NavigationWrapper({ children }: { children: React.ReactN
             {/* Notification Bell */}
             <div className="relative">
               <button 
+                id="tour-header-notifications"
                 onClick={() => setShowNotifications(!showNotifications)} 
                 className="relative flex items-center justify-center p-2 rounded-full border border-transparent hover:bg-white/5 cursor-pointer transition-colors"
                 style={{ color: unreadCount > 0 ? 'var(--color-primary-lemon)' : 'var(--color-text-secondary)', minWidth: 'auto' }}
@@ -519,6 +543,7 @@ export default function NavigationWrapper({ children }: { children: React.ReactN
             {/* Profile Avatar Indicator */}
             <div className="flex items-center gap-3">
               <div 
+                id="tour-header-profile"
                 onClick={() => router.push(`/perfil/${user.username}`)}
                 className="cursor-pointer flex items-center gap-3"
               >
@@ -548,6 +573,9 @@ export default function NavigationWrapper({ children }: { children: React.ReactN
         <main className="flex-grow px-4 py-6 pb-24 md:p-10 md:pb-10 overflow-y-auto overflow-x-hidden w-full max-w-full">
           {children}
         </main>
+
+        {/* Dynamic Interactive Onboarding Tour */}
+        <OnboardingTour />
       </div>
 
       {/* Bottom Navigation Tab Bar (Mobile Only) */}
