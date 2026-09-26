@@ -144,7 +144,7 @@ export interface Notification {
   user_id: string | null;
   title: string;
   description?: string;
-  type: 'mentoria' | 'atualizacao' | 'masterclass' | 'oportunidade' | 'recurso';
+  type: 'mentoria' | 'atualizacao' | 'masterclass' | 'oportunidade' | 'recurso' | 'online' | 'presencial' | 'experiencia';
   link?: string;
   is_read: boolean;
   created_at: string;
@@ -153,7 +153,7 @@ export interface Notification {
 export interface CalendarEvent {
   id: string;
   title: string;
-  event_type: 'mentoria' | 'atualizacao';
+  event_type: 'mentoria' | 'atualizacao' | 'online' | 'presencial' | 'experiencia';
   event_date: string; 
   start_time: string; 
   end_time: string; 

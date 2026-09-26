@@ -82,7 +82,7 @@ export default function LoginPage() {
 
         {/* Logo */}
         <div className="relative z-10">
-          <img src="/logo_BBM school H cópia.png" alt="BBM School" className="h-8 object-contain" />
+          <img src="/logo_bbm_school_h.png" alt="BBM School" className="h-8 object-contain" />
         </div>
 
         {/* Center content */}
@@ -125,7 +125,7 @@ export default function LoginPage() {
 
         {/* Mobile logo */}
         <div className="lg:hidden mb-10 self-start">
-          <img src="/logo_BBM school H cópia.png" alt="BBM School" className="h-7 object-contain" />
+          <img src="/logo_bbm_school_h.png" alt="BBM School" className="h-7 object-contain" />
         </div>
 
         <div className="w-full max-w-[380px] flex flex-col gap-8">

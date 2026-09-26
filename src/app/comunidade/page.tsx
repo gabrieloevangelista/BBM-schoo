@@ -1237,7 +1237,7 @@ export default function ComunidadePage() {
                     <div className="flex items-center justify-between border-t border-white/5 pt-4 mb-4">
                       <div className="flex gap-4">
                         <button 
-                          onClick={() => handleLikeToggle(post.id)}
+                          onClick={() => handleLikePost(post.id)}
                           className={`flex items-center gap-1.5 text-xs font-bold transition-all duration-200 cursor-pointer ${
                             isLiked ? 'text-red-500' : 'text-text-secondary hover:text-white'
                           }`}
@@ -1257,7 +1257,7 @@ export default function ComunidadePage() {
                       </div>
 
                       <button 
-                        onClick={() => handleSaveToggle(post.id)}
+                        onClick={() => handleSavePost(post.id)}
                         className={`flex items-center gap-1.5 text-xs font-bold transition-all duration-200 cursor-pointer ${
                           isSaved ? 'text-primary-lemon' : 'text-text-secondary hover:text-white'
                         }`}

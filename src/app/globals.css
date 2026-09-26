@@ -7,7 +7,7 @@
   --color-bg-deep: #12131a;
   --color-bg-card: rgba(255, 255, 255, 0.02);
   --color-bg-card-hover: rgba(255, 255, 255, 0.04);
-  --color-text-base: var(--color-text-base);
+  --color-text-base: #f1f3f4;
   --color-text-secondary: #9aa0a6;
   --color-text-muted: #5f6368;
   --color-accent-red: #ff5252;
