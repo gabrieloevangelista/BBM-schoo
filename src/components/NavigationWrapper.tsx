@@ -33,6 +33,7 @@ import {
 } from 'lucide-react';
 import { Notification } from '@/lib/db';
 import OnboardingTour from '@/components/OnboardingTour';
+import WeatherWidget from '@/components/WeatherWidget';
 
 export default function NavigationWrapper({ children }: { children: React.ReactNode }) {
   const { user, logout, isLoading } = useAuth();
@@ -477,7 +478,10 @@ export default function NavigationWrapper({ children }: { children: React.ReactN
             </h2>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Live Weather Forecast Widget */}
+            <WeatherWidget />
+
             {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
