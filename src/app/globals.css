@@ -100,145 +100,65 @@ h1, h2, h3, h4, h5, h6 {
 
 .glass-panel {
   background-color: var(--color-glass-bg);
-  border: 1px solid var(--color-glass-border) !important;
-  border-radius: 4px !important;
-  box-shadow: none !important;
+  border: 1px solid var(--color-glass-border);
+  border-radius: 8px;
+  box-shadow: none;
   transition: all 0.2s ease-in-out;
   position: relative;
 }
 
-.glass-panel::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 6px;
-  height: 6px;
-  border-top: 1.5px solid var(--color-primary-lemon);
-  border-left: 1.5px solid var(--color-primary-lemon);
-  opacity: 0.6;
-}
-
-.glass-panel::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 6px;
-  height: 6px;
-  border-bottom: 1.5px solid var(--color-primary-lemon);
-  border-right: 1.5px solid var(--color-primary-lemon);
-  opacity: 0.6;
-}
-
 .glass-panel-hover:hover {
   background-color: var(--color-glass-hover-bg);
-  border-color: rgba(193, 255, 7, 0.2) !important;
-  transform: translateY(-2px);
-  box-shadow: 0 0 15px rgba(193, 255, 7, 0.05) !important;
+  border-color: rgba(193, 255, 7, 0.25);
+  transform: translateY(-1px);
 }
 
-/* SOLID OPAQUE MODAL CARDS — SCI-FI HUD Style */
+/* SOLID OPAQUE MODAL CARDS — Clean Modern Style */
 .modal-card {
-  background-color: var(--color-modal-bg) !important;
-  border: 1px solid rgba(193, 255, 7, 0.2) !important;
-  border-radius: 4px !important;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.9), 0 0 20px rgba(193, 255, 7, 0.03) !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
+  background-color: var(--color-modal-bg);
+  border: 1px solid var(--color-glass-border);
+  border-radius: 12px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
   position: relative;
 }
 
-.modal-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 12px;
-  height: 12px;
-  border-top: 2px solid var(--color-primary-lemon);
-  border-left: 2px solid var(--color-primary-lemon);
-}
-
-.modal-card::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 12px;
-  height: 12px;
-  border-bottom: 2px solid var(--color-primary-lemon);
-  border-right: 2px solid var(--color-primary-lemon);
-}
-
 /* ==========================================================================
-   CYBERPUNK SCI-FI HUD CARD & WIDGET DESIGN SYSTEM
-   Inspired by custom technology interfaces
+   CLEAN EXECUTIVE CARD & WIDGET STYLES (No AI Slop)
    ========================================================================== */
 
 .hud-card {
   position: relative;
-  background-color: var(--color-modal-bg);
-  border: 1px solid rgba(193, 255, 7, 0.15) !important;
-  box-shadow: 0 0 15px rgba(193, 255, 7, 0.03), inset 0 0 10px rgba(193, 255, 7, 0.02) !important;
-  border-radius: 2px;
+  background-color: var(--color-glass-bg);
+  border: 1px solid var(--color-glass-border);
+  border-radius: 8px;
   overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition: all 0.2s ease-in-out;
 }
 
-/* Angled corners HUD border accents */
-.hud-corner-tl {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 8px;
-  height: 8px;
-  border-top: 2px solid var(--color-primary-lemon);
-  border-left: 2px solid var(--color-primary-lemon);
+.hud-card:hover {
+  border-color: rgba(255, 255, 255, 0.18);
+  transform: translateY(-1px);
 }
 
-.hud-corner-tr {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 8px;
-  height: 8px;
-  border-top: 2px solid var(--color-primary-lemon);
-  border-right: 2px solid var(--color-primary-lemon);
-}
-
-.hud-corner-bl {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 8px;
-  height: 8px;
-  border-bottom: 2px solid var(--color-primary-lemon);
-  border-left: 2px solid var(--color-primary-lemon);
-}
-
+/* Suppressed legacy HUD corner brackets */
+.hud-corner-tl,
+.hud-corner-tr,
+.hud-corner-bl,
 .hud-corner-br {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 8px;
-  height: 8px;
-  border-bottom: 2px solid var(--color-primary-lemon);
-  border-right: 2px solid var(--color-primary-lemon);
+  display: none !important;
 }
 
 .hud-card-hover:hover {
-  border-color: rgba(193, 255, 7, 0.45) !important;
-  box-shadow: 0 0 25px rgba(193, 255, 7, 0.1), inset 0 0 15px rgba(193, 255, 7, 0.05) !important;
-  transform: translateY(-2px);
+  border-color: rgba(193, 255, 7, 0.3) !important;
+  transform: translateY(-1px);
 }
 
 /* Post creator selection buttons */
 .hud-post-type-btn {
   padding: 6px 12px;
-  border-radius: 2px;
-  font-size: 10px;
-  font-weight: 800;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
   text-transform: uppercase;
   font-family: var(--font-outfit);
   cursor: pointer;
@@ -252,12 +172,12 @@ h1, h2, h3, h4, h5, h6 {
 .hud-post-type-btn.active {
   border: 1px solid var(--color-primary-lemon) !important;
   color: var(--color-primary-lemon) !important;
-  background-color: rgba(193, 255, 7, 0.05) !important;
+  background-color: rgba(193, 255, 7, 0.08) !important;
 }
 
 /* Inactive style (Dark theme default) */
 .hud-post-type-btn.inactive {
-  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
   color: var(--color-text-secondary) !important;
   background-color: transparent !important;
 }
@@ -271,11 +191,11 @@ h1, h2, h3, h4, h5, h6 {
 [data-theme="light"] .hud-post-type-btn.active {
   border-color: #5a9200 !important;
   color: #5a9200 !important;
-  background-color: rgba(90, 146, 0, 0.05) !important;
+  background-color: rgba(90, 146, 0, 0.08) !important;
 }
 
 [data-theme="light"] .hud-post-type-btn.inactive {
-  border-color: rgba(0, 0, 0, 0.06) !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
   color: #5f6368 !important;
 }
 
@@ -284,70 +204,20 @@ h1, h2, h3, h4, h5, h6 {
   background-color: rgba(0, 0, 0, 0.04) !important;
 }
 
-/* Diagonal stripes background/header accent */
-.hud-stripes {
-  background: repeating-linear-gradient(
-    45deg,
-    rgba(193, 255, 7, 0.2),
-    rgba(193, 255, 7, 0.2) 3px,
-    transparent 3px,
-    transparent 6px
-  );
-  height: 6px;
-  width: 100%;
-}
-
-.hud-stripes-muted {
-  background: repeating-linear-gradient(
-    45deg,
-    rgba(255, 255, 255, 0.05),
-    rgba(255, 255, 255, 0.05) 3px,
-    transparent 3px,
-    transparent 6px
-  );
-  height: 4px;
-  width: 100%;
-}
-
-/* Target Crosshair Widget */
+/* Suppressed legacy decorative stripes & crosshairs */
+.hud-stripes,
+.hud-stripes-muted,
 .hud-crosshair {
-  position: relative;
-  width: 14px;
-  height: 14px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-.hud-crosshair::before, .hud-crosshair::after {
-  content: '';
-  position: absolute;
-  background-color: var(--color-primary-lemon);
-  opacity: 0.7;
-}
-.hud-crosshair::before {
-  width: 100%;
-  height: 1px;
-}
-.hud-crosshair::after {
-  width: 1px;
-  height: 100%;
-}
-.hud-crosshair-dot {
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background-color: var(--color-primary-lemon);
-  box-shadow: 0 0 4px var(--color-primary-lemon);
-  z-index: 10;
+  display: none !important;
 }
 
-/* Neon dot status indicator */
+/* Clean semantic status indicator dot */
 .hud-dot {
   width: 6px;
   height: 6px;
   border-radius: 50%;
   background-color: var(--color-primary-lemon);
-  box-shadow: 0 0 8px var(--color-primary-lemon);
+  display: inline-block;
   display: inline-block;
   animation: hud-pulse 1.5s infinite alternate;
 }
@@ -361,32 +231,13 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 @keyframes hud-pulse {
-  0% { opacity: 0.4; box-shadow: 0 0 2px var(--color-primary-lemon); }
-  100% { opacity: 1; box-shadow: 0 0 10px var(--color-primary-lemon); }
+  0% { opacity: 0.4; }
+  100% { opacity: 1; }
 }
 
-/* Circuit-like connection line decor */
-.hud-line-y {
-  position: relative;
-  width: 1px;
-  background: linear-gradient(to bottom, transparent, var(--color-primary-lemon) 30%, var(--color-primary-lemon) 70%, transparent);
-}
-.hud-line-y::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: -2px;
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background-color: var(--color-primary-lemon);
-  box-shadow: 0 0 6px var(--color-primary-lemon);
-}
-
+.hud-line-y,
 .hud-line-x {
-  position: relative;
-  height: 1px;
-  background: linear-gradient(to right, transparent, var(--color-primary-lemon) 30%, var(--color-primary-lemon) 70%, transparent);
+  display: none !important;
 }
 
 

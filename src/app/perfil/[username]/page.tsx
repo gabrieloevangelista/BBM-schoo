@@ -1180,9 +1180,6 @@ export default function MemberProfilePage() {
                             backgroundColor: 'rgba(255, 255, 255, 0.01)'
                           }}
                         >
-                          <div className="hud-corner-tl" style={{ borderColor: badge.color }} />
-                          <div className="hud-corner-br" style={{ borderColor: badge.color }} />
-                          
                           {/* Flat Simple Trophy Emblem */}
                           <div 
                             className="w-10 h-10 rounded-full border-2 flex items-center justify-center relative flex-shrink-0" 

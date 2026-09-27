@@ -22,15 +22,9 @@ interface SkeletonCardProps {
   useHudCorners?: boolean;
 }
 
-export function SkeletonCard({ children, style = {}, className = '', useHudCorners = true }: SkeletonCardProps) {
+export function SkeletonCard({ children, style = {}, className = '' }: SkeletonCardProps) {
   return (
-    <div className={`skeleton-card relative overflow-hidden ${className}`} style={style}>
-      {useHudCorners && (
-        <>
-          <div className="hud-corner-tl" style={{ opacity: 0.15, pointerEvents: 'none' }} />
-          <div className="hud-corner-br" style={{ opacity: 0.15, pointerEvents: 'none' }} />
-        </>
-      )}
+    <div className={`skeleton-card relative overflow-hidden rounded-xl ${className}`} style={style}>
       <div className="relative z-10 w-full h-full flex flex-col">{children}</div>
     </div>
   );

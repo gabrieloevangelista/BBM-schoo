@@ -871,11 +871,7 @@ export default function ComunidadePage() {
         {/* Left column - Feed */}
         <div className="lg:col-span-8 flex flex-col gap-6">
           {/* Stories Bar */}
-          <section className="hud-card p-4 flex flex-col gap-2 relative">
-            <div className="hud-corner-tl" />
-            <div className="hud-corner-tr" />
-            <div className="hud-corner-bl" />
-            <div className="hud-corner-br" />
+          <section className="glass-panel p-4 flex flex-col gap-2 relative">
             <div className="flex justify-between items-center w-full px-1">
               <span className="text-xs font-bold text-text-secondary uppercase tracking-wider">Stories</span>
               {archivedStories.length > 0 && (
@@ -976,11 +972,7 @@ export default function ComunidadePage() {
           </section>
 
           {/* Post Creator Panel */}
-          <section className="hud-card p-5 relative">
-            <div className="hud-corner-tl" />
-            <div className="hud-corner-tr" />
-            <div className="hud-corner-bl" />
-            <div className="hud-corner-br" />
+          <section className="glass-panel p-5 relative">
             <form onSubmit={handleCreatePost}>
               <div className="flex gap-3.5 items-start mb-4">
                 {user?.img ? (
@@ -1168,9 +1160,7 @@ export default function ComunidadePage() {
                 const isAdmin = user?.member_type === 'admin';
 
                 return (
-                  <article key={post.id} className="hud-card p-6 relative">
-                    <div className="hud-corner-tl" />
-                    <div className="hud-corner-br" />
+                  <article key={post.id} className="glass-panel p-6 relative">
                     {/* Post Header */}
                     <div className="flex justify-between items-center mb-4">
                       <div className="flex gap-3 items-center">
@@ -1324,14 +1314,7 @@ export default function ComunidadePage() {
 
         {/* Right column - Masters sidebar */}
         <aside className="lg:col-span-4 flex flex-col gap-6">
-          <div className="hud-card p-5 flex flex-col gap-4 relative">
-            <div className="hud-corner-tl" />
-            <div className="hud-corner-tr" />
-            <div className="hud-corner-bl" />
-            <div className="hud-corner-br" />
-            <div className="absolute bottom-0 left-0 right-0 z-0">
-              <div className="hud-stripes-muted" />
-            </div>
+          <div className="glass-panel p-5 flex flex-col gap-4 relative">
             <div className="relative z-10 flex flex-col gap-4 w-full">
             <h3 className="text-sm font-bold text-white font-outfit flex items-center gap-2 uppercase tracking-wider">
               <Users size={16} className="text-primary-lemon" />
