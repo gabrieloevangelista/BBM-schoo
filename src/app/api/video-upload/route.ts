@@ -29,10 +29,11 @@ export async function POST(req: NextRequest) {
       uploadUrl: upload.url,
       uploadId: upload.id,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Erro ao gerar upload de vídeo:', error);
+    const msg = error instanceof Error ? error.message : 'Falha ao inicializar o upload de vídeo.';
     return NextResponse.json(
-      { error: error.message || 'Falha ao inicializar o upload de vídeo.' },
+      { error: msg },
       { status: 500 }
     );
   }
@@ -91,10 +92,11 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({
       status: upload.status || 'waiting',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Erro ao consultar status do vídeo:', error);
+    const msg = error instanceof Error ? error.message : 'Falha ao consultar processamento.';
     return NextResponse.json(
-      { error: error.message || 'Falha ao consultar processamento.' },
+      { error: msg },
       { status: 500 }
     );
   }

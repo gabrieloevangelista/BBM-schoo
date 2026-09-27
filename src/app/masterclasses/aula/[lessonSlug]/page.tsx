@@ -138,7 +138,7 @@ export default function LessonDetailPage() {
 
         // 4. Load comments for this lesson
         // In database structure lesson_comments has fields. Let's filter by lesson_id
-        let rawComments = db.lesson_comments?.filter((c: any) => c.lesson_id === foundLesson.id) || [];
+        const rawComments = db.lesson_comments?.filter((c: any) => c.lesson_id === foundLesson.id) || [];
         
         // Let's adapt our mockDb comments: if lesson_comments is empty, let's load/simulate some
         setComments(rawComments);

@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     }
 
     // Generate username: only lowercase letters, numbers, underscores or periods
-    let username = email.split('@')[0].toLowerCase().replace(/[^a-z0-9_.]/g, '.');
+    const username = email.split('@')[0].toLowerCase().replace(/[^a-z0-9_.]/g, '.');
     // Ensure username is unique
     let usernameCount = 1;
     let finalUsername = username;

@@ -151,10 +151,10 @@ export function LessonVideoUploader({
         }
       }, 2000);
 
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Falha no upload do vídeo:', err);
       setStatus('error');
-      setErrorMessage(err.message || 'Erro inesperado ao realizar upload.');
+      setErrorMessage(err instanceof Error ? err.message : 'Erro inesperado ao realizar upload.');
     }
   };
 

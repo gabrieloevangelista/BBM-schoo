@@ -104,13 +104,13 @@ export default function ComunidadePage() {
         const db = await response.json();
         
         // 1. Filter normal timeline posts: feed & reels
-        let timelineList = db.community_posts.filter((p: CommunityPost) => p.post_type !== 'status');
+        const timelineList = db.community_posts.filter((p: CommunityPost) => p.post_type !== 'status');
         timelineList.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
         setPosts(timelineList);
 
         // 2. Filter stories: status posts created in the last 24 hours
         const nowTime = new Date().getTime();
-        let storyList = db.community_posts.filter((p: CommunityPost) => {
+        const storyList = db.community_posts.filter((p: CommunityPost) => {
           if (p.post_type !== 'status') return false;
           const postTime = new Date(p.created_at).getTime();
           return (nowTime - postTime) < 24 * 60 * 60 * 1000;
@@ -120,7 +120,7 @@ export default function ComunidadePage() {
 
         // 2.5 Archived stories: user's status posts older than 24 hours
         if (user) {
-          let archivedList = db.community_posts.filter((p: CommunityPost) => {
+          const archivedList = db.community_posts.filter((p: CommunityPost) => {
             if (p.post_type !== 'status' || p.user_id !== user.id) return false;
             const postTime = new Date(p.created_at).getTime();
             return (nowTime - postTime) >= 24 * 60 * 60 * 1000;
@@ -1474,7 +1474,7 @@ export default function ComunidadePage() {
               {(!activeStory.image_url && !activeStory.video_url) && (
                 <div style={{ padding: '30px', textAlign: 'center' }}>
                   <p style={{ color: '#fff', fontSize: '1.25rem', fontFamily: 'var(--font-outfit)', fontWeight: 'bold' }}>
-                    "{activeStory.content}"
+                    &quot;{activeStory.content}&quot;
                   </p>
                 </div>
               )}

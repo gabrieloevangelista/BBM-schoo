@@ -313,7 +313,7 @@ export default function StudentMissionsPage() {
 
                       {submission.feedback && (
                         <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '8px', fontStyle: 'italic' }}>
-                          <strong>Feedback do Mentor:</strong> "{submission.feedback}"
+                          <strong>Feedback do Mentor:</strong> &quot;{submission.feedback}&quot;
                         </p>
                       )}
 

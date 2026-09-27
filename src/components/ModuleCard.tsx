@@ -48,7 +48,7 @@ export function ModuleCard({
         {/* Top Tech Header Bar */}
         <div className="absolute top-0 left-0 right-0 z-30 px-3 py-2 flex items-center justify-between bg-black/60 backdrop-blur-sm border-b border-white/10 pointer-events-none">
           <span className="font-mono text-[9px] font-bold tracking-widest text-[#C1FF07] uppercase">
-            // MOD_{modCode}
+            {'//'} MOD_{modCode}
           </span>
           <span className="font-mono text-[9px] text-white/50 tracking-wider flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-none bg-[#C1FF07] animate-pulse" />
@@ -86,7 +86,7 @@ export function ModuleCard({
           {/* Metadata pill & stats */}
           <div className="flex items-center gap-2 mb-2">
             <span className="font-mono text-[10px] font-bold uppercase tracking-widest text-[#C1FF07] px-2 py-0.5 rounded-none bg-[#C1FF07]/10 border border-[#C1FF07]/30">
-              SYS // MÓDULO {modCode}
+              SYS {'//'} MÓDULO {modCode}
             </span>
 
             {typeof lessonCount === 'number' && (

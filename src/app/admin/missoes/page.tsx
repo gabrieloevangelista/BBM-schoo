@@ -392,7 +392,7 @@ export default function MissoesAdminPage() {
                         </p>
                         {sub.feedback && (
                           <p style={{ color: 'var(--text-muted)', fontSize: '0.75rem', marginTop: '4px', fontStyle: 'italic' }}>
-                            Feedback: "{sub.feedback}"
+                            Feedback: &quot;{sub.feedback}&quot;
                           </p>
                         )}
                       </div>
@@ -445,7 +445,7 @@ export default function MissoesAdminPage() {
                   <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                     {m.has_text_question && (
                       <span className="badge badge-gray flex items-center gap-1" style={{ fontSize: '0.7rem' }}>
-                        <HelpCircle size={12} /> Pergunta Textual: "{m.text_question}"
+                        <HelpCircle size={12} /> Pergunta Textual: &quot;{m.text_question}&quot;
                       </span>
                     )}
                     {m.has_form_link && (
@@ -455,7 +455,7 @@ export default function MissoesAdminPage() {
                     )}
                     {m.has_file_upload && (
                       <span className="badge badge-gray flex items-center gap-1" style={{ fontSize: '0.7rem' }}>
-                        <Folder size={12} /> Upload Anexo: "{m.file_upload_label}"
+                        <Folder size={12} /> Upload Anexo: &quot;{m.file_upload_label}&quot;
                       </span>
                     )}
                   </div>

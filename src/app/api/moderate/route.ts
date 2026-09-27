@@ -37,7 +37,7 @@ export async function POST(req: Request) {
             ? 'https://api.sightengine.com/1.0/video/sync.json' 
             : 'https://api.sightengine.com/1.0/check.json';
           
-          let formData = new FormData();
+          const formData = new FormData();
           formData.append('models', 'nudity-2.0,wad,offensive,gore,tobacco,gambling,scam');
           formData.append('api_user', apiUser);
           formData.append('api_secret', apiSecret);

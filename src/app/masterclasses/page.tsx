@@ -88,7 +88,7 @@ export default function MasterclassesPage() {
           {/* Hero Content */}
           <div className="absolute bottom-0 left-0 right-6 md:right-12 p-6 md:p-10 z-20 max-w-lg flex flex-col gap-3">
             <span className="font-mono uppercase tracking-widest text-[9px] font-bold text-[#C1FF07] px-2.5 py-1 bg-black/80 border border-[#C1FF07]/40 rounded-none self-start">
-              SYS // DESTAQUE BBM
+              SYS {'//'} DESTAQUE BBM
             </span>
             <h1 className="text-xl md:text-3xl font-extrabold tracking-tight font-outfit m-0 leading-tight text-white uppercase">
               {featuredCourse.title}
@@ -136,7 +136,7 @@ export default function MasterclassesPage() {
       <div className="flex flex-col gap-3 w-full max-w-full overflow-hidden">
         <div className="flex items-center justify-between px-1">
           <h2 className="text-sm font-mono uppercase tracking-widest text-text-secondary">
-            // 01_PROGRAMAS DE MENTORIA
+            {'//'} 01_PROGRAMAS DE MENTORIA
           </h2>
         </div>
         <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-none snap-x snap-mandatory px-1 w-full">
@@ -153,7 +153,7 @@ export default function MasterclassesPage() {
                 
                 <div className="relative z-20 p-3 md:p-5 flex flex-col gap-0.5 md:gap-1 mt-auto">
                   <span className="font-mono text-[8px] md:text-[9px] font-bold uppercase tracking-widest text-[#C1FF07]">
-                    SYS // CURSO COMPLETO
+                    SYS {'//'} CURSO COMPLETO
                   </span>
                   <h3 className="text-white text-xs md:text-base font-bold leading-tight font-outfit uppercase m-0 drop-shadow-lg">
                     {course.title}
@@ -168,7 +168,7 @@ export default function MasterclassesPage() {
       <div className="flex flex-col gap-3 w-full max-w-full overflow-hidden">
         <div className="flex items-center justify-between px-1">
           <h2 className="text-sm font-mono uppercase tracking-widest text-text-secondary">
-            // 02_AULAS RECENTES
+            {'//'} 02_AULAS RECENTES
           </h2>
         </div>
         {lessons.length === 0 ? (
@@ -224,7 +224,7 @@ export default function MasterclassesPage() {
       <div className="flex flex-col gap-3 w-full max-w-full overflow-hidden">
         <div className="flex items-center justify-between px-1">
           <h2 className="text-sm font-mono uppercase tracking-widest text-text-secondary">
-            // 03_MÓDULOS & ÁREAS DE FOCO
+            {'//'} 03_MÓDULOS & ÁREAS DE FOCO
           </h2>
           <span className="text-[11px] font-mono text-text-muted font-bold">
             [{modules.length} {modules.length === 1 ? 'MÓDULO' : 'MÓDULOS'}]
