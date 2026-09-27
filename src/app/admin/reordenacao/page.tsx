@@ -6,7 +6,8 @@ import {
   GraduationCap, Users, MessageSquare, UserPlus, Box,
   Edit2, Trash2, ChevronDown, ChevronUp, Image as ImageIcon,
   Play, Plus, ArrowLeft, GripVertical, Check, Video, Paperclip, X,
-  Minimize2, Search, Filter, AlertTriangle, AlignLeft, Upload
+  Minimize2, Search, Filter, AlertTriangle, AlignLeft, Upload,
+  Calendar, Clock
 } from 'lucide-react';
 import { CustomSelect } from '@/components/CustomSelect';
 import { useAuth } from '@/context/AuthContext';
@@ -34,55 +35,96 @@ const selectClass = "bg-[var(--color-input-bg)] border border-[var(--color-input
 
 const CustomDateTimePicker = ({ value, onChange }: { value: string, onChange: (val: string) => void }) => {
   const parseValue = (val: string) => {
-    if (!val) return new Date();
+    if (!val) {
+      const now = new Date();
+      now.setHours(now.getHours() + 1, 0, 0, 0);
+      return now;
+    }
     const d = new Date(val);
     return isNaN(d.getTime()) ? new Date() : d;
   };
 
   const d = parseValue(value);
-  const day = String(d.getDate()).padStart(2, '0');
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const year = String(d.getFullYear());
-  const hours = String(d.getHours()).padStart(2, '0');
-  const minutes = String(d.getMinutes()).padStart(2, '0');
+  const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  const timeStr = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
 
-  const handleChange = (type: 'day'|'month'|'year'|'hours'|'minutes', val: string) => {
-    let newD = day, newM = month, newY = year, newH = hours, newMin = minutes;
-    if (type === 'day') newD = val;
-    if (type === 'month') newM = val;
-    if (type === 'year') newY = val;
-    if (type === 'hours') newH = val;
-    if (type === 'minutes') newMin = val;
-    
-    onChange(`${newY}-${newM}-${newD}T${newH}:${newMin}:00`);
+  const handleDateChange = (newDate: string) => {
+    if (!newDate) return;
+    onChange(`${newDate}T${timeStr}:00`);
   };
 
+  const handleTimeChange = (newTime: string) => {
+    if (!newTime) return;
+    onChange(`${dateStr}T${newTime}:00`);
+  };
+
+  const setQuickDate = (offsetDays: number, hour: number, minute: number) => {
+    const target = new Date();
+    target.setDate(target.getDate() + offsetDays);
+    target.setHours(hour, minute, 0, 0);
+    const targetDateStr = `${target.getFullYear()}-${String(target.getMonth() + 1).padStart(2, '0')}-${String(target.getDate()).padStart(2, '0')}`;
+    const targetTimeStr = `${String(target.getHours()).padStart(2, '0')}:${String(target.getMinutes()).padStart(2, '0')}`;
+    onChange(`${targetDateStr}T${targetTimeStr}:00`);
+  };
+
+  const formattedHuman = d.toLocaleDateString('pt-BR', {
+    weekday: 'short',
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  });
+
   return (
-    <>
-      <div className="md:hidden">
-        <input 
-          type="datetime-local" 
-          className={inputClass} 
-          value={value ? value.slice(0, 16) : ''} 
-          onChange={(e) => onChange(e.target.value)}
-        />
-      </div>
-      <div className="hidden md:flex items-center gap-2">
-        <div className="flex gap-1">
-          <CustomSelect className="min-w-[70px]" value={day} onChange={v => handleChange('day', v)} options={Array.from({length: 31}, (_, i) => ({value: String(i+1).padStart(2,'0'), label: String(i+1).padStart(2,'0')}))} />
-          <span className="text-text-secondary self-center">/</span>
-          <CustomSelect className="min-w-[70px]" value={month} onChange={v => handleChange('month', v)} options={Array.from({length: 12}, (_, i) => ({value: String(i+1).padStart(2,'0'), label: String(i+1).padStart(2,'0')}))} />
-          <span className="text-text-secondary self-center">/</span>
-          <CustomSelect className="min-w-[90px]" value={year} onChange={v => handleChange('year', v)} options={Array.from({length: 5}, (_, i) => ({value: String(new Date().getFullYear() + i), label: String(new Date().getFullYear() + i)}))} />
+    <div className="flex flex-col gap-2.5 pt-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+        {/* Date Input */}
+        <div className="relative flex items-center">
+          <Calendar className="absolute left-3 text-text-muted pointer-events-none" size={15} />
+          <input 
+            type="date"
+            className="w-full bg-[var(--color-input-bg)] border border-[var(--color-input-border)] hover:border-white/20 focus:border-[#C1FF07]/50 rounded-lg pl-9 pr-3 py-2.5 text-xs font-medium text-text-base outline-none transition-colors [color-scheme:dark]"
+            value={dateStr}
+            onChange={(e) => handleDateChange(e.target.value)}
+          />
         </div>
-        <span className="text-text-secondary text-xs uppercase font-bold mx-1">às</span>
-        <div className="flex gap-1">
-          <CustomSelect className="min-w-[70px]" value={hours} onChange={v => handleChange('hours', v)} options={Array.from({length: 24}, (_, i) => ({value: String(i).padStart(2,'0'), label: String(i).padStart(2,'0')}))} />
-          <span className="text-text-secondary self-center">:</span>
-          <CustomSelect className="min-w-[70px]" value={minutes} onChange={v => handleChange('minutes', v)} options={Array.from({length: 60}, (_, i) => ({value: String(i).padStart(2,'0'), label: String(i).padStart(2,'0')}))} />
+
+        {/* Time Input */}
+        <div className="relative flex items-center">
+          <Clock className="absolute left-3 text-text-muted pointer-events-none" size={15} />
+          <input 
+            type="time"
+            className="w-full bg-[var(--color-input-bg)] border border-[var(--color-input-border)] hover:border-white/20 focus:border-[#C1FF07]/50 rounded-lg pl-9 pr-3 py-2.5 text-xs font-medium text-text-base outline-none transition-colors [color-scheme:dark]"
+            value={timeStr}
+            onChange={(e) => handleTimeChange(e.target.value)}
+          />
         </div>
       </div>
-    </>
+
+      {/* Quick shortcuts & human confirmation */}
+      <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-white/5">
+        <div className="flex items-center gap-1.5 text-[11px] text-text-muted">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#C1FF07]" />
+          <span>Liberação: <strong className="text-text-base font-semibold capitalize">{formattedHuman}</strong> às <strong className="text-text-base font-semibold">{timeStr}</strong></span>
+        </div>
+
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => setQuickDate(1, 9, 0)}
+            className="text-[10px] font-bold text-text-secondary hover:text-[#C1FF07] hover:bg-white/5 px-2 py-0.5 rounded transition-colors"
+          >
+            Amanhã 09h
+          </button>
+          <button
+            type="button"
+            onClick={() => setQuickDate(7, 9, 0)}
+            className="text-[10px] font-bold text-text-secondary hover:text-[#C1FF07] hover:bg-white/5 px-2 py-0.5 rounded transition-colors"
+          >
+            Em 7 dias
+          </button>
+        </div>
+      </div>
+    </div>
   );
 };
 
@@ -744,7 +786,16 @@ export default function AdminContentManager() {
                   <span className="text-[10px] font-bold text-text-secondary uppercase tracking-widest">Agendar Publicação</span>
                   <Switch 
                     checked={lessonForm.status === 'agendado'} 
-                    onChange={checked => setLessonForm({...lessonForm, status: checked ? 'agendado' : 'rascunho'})} 
+                    onChange={checked => {
+                      if (checked && !lessonForm.scheduled_at) {
+                        const next = new Date();
+                        next.setHours(next.getHours() + 1, 0, 0, 0);
+                        const dStr = `${next.getFullYear()}-${String(next.getMonth() + 1).padStart(2, '0')}-${String(next.getDate()).padStart(2, '0')}T${String(next.getHours()).padStart(2, '0')}:00:00`;
+                        setLessonForm({...lessonForm, status: 'agendado', scheduled_at: dStr});
+                      } else {
+                        setLessonForm({...lessonForm, status: checked ? 'agendado' : 'rascunho'});
+                      }
+                    }} 
                   />
                 </div>
                 {lessonForm.status === 'agendado' && (
