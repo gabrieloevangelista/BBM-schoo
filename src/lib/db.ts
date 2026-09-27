@@ -58,6 +58,8 @@ export interface Lesson {
   long_description?: string;
   duration: string;
   video_url?: string;
+  playback_id?: string;
+  asset_id?: string;
   thumbnail_url?: string;
   cover_image_url?: string;
   instructor_name?: string;

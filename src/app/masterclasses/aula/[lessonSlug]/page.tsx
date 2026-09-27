@@ -493,10 +493,11 @@ export default function LessonDetailPage() {
 
           {/* Mux Video Player */}
           <section className="glass-panel overflow-hidden bg-black aspect-video flex items-center justify-center relative">
-            {lesson.video_url ? (
+            {(lesson.playback_id || lesson.video_url) ? (
               <MuxPlayer 
                 ref={videoRef}
-                src={lesson.video_url}
+                playbackId={lesson.playback_id || undefined}
+                src={!lesson.playback_id ? lesson.video_url : undefined}
                 onTimeUpdate={handleTimeUpdate}
                 style={{ width: '100%', height: '100%', display: 'block' }}
                 poster={lesson.cover_image_url || lesson.thumbnail_url}

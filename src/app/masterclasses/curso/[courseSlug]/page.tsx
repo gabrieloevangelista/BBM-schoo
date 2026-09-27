@@ -18,7 +18,6 @@ export default function CourseModulesPage() {
   const [lessonsByModule, setLessonsByModule] = useState<Record<string, Lesson[]>>({});
   const [completedLessonIds, setCompletedLessonIds] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
-  const [hoveredLessonId, setHoveredLessonId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchCourseData = async () => {
@@ -170,29 +169,22 @@ export default function CourseModulesPage() {
                   <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-none snap-x snap-mandatory px-1 scroll-smooth">
                     {moduleLessons.map(lesson => {
                       const isCompleted = completedLessonIds.has(lesson.id);
-                      const isHovered = hoveredLessonId === lesson.id;
                       
                       // Fallback premium cover images
                       const defaultCover = 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=400';
                       const coverSrc = lesson.cover_image_url || lesson.thumbnail_url || defaultCover;
-                      
-                      // Mux Animated GIF playback (use a fallback test ID if no custom playback ID in video_url)
-                      const testPlaybackId = 'q4v4v3J6ZgZ7J9gO0200gZ02q7e9V4z00a300';
-                      const muxGifUrl = `https://image.mux.com/${testPlaybackId}/animated.gif?width=320`;
 
                       return (
                         <Link 
                           key={lesson.id}
                           href={`/masterclasses/aula/${lesson.slug}`}
                           className="w-[200px] sm:w-[280px] md:w-[320px] aspect-[16/10] rounded-xl overflow-hidden relative flex-shrink-0 snap-start group cursor-pointer no-underline border border-white/10 flex flex-col justify-end"
-                          onMouseEnter={() => setHoveredLessonId(lesson.id)}
-                          onMouseLeave={() => setHoveredLessonId(null)}
                         >
                           <div className="absolute inset-0 z-0">
                             <img 
-                              src={isHovered ? muxGifUrl : coverSrc} 
+                              src={coverSrc} 
                               alt={lesson.title} 
-                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                              className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
                             />
                           </div>
                           <div className="absolute inset-0 z-10 bg-gradient-to-t from-[#0a0a0c] via-[#0a0a0c]/60 to-transparent opacity-90" />

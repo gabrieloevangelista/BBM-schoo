@@ -11,11 +11,12 @@ import {
 import { CustomSelect } from '@/components/CustomSelect';
 import { useAuth } from '@/context/AuthContext';
 import Switch from '@/components/Switch';
+import { LessonVideoUploader } from '@/components/LessonVideoUploader';
 
 // Types
 interface Course { id: string; title: string; slug: string; description: string; is_published?: boolean; cover_image_url?: string; }
 interface Module { id: string; course_id: string; title: string; description?: string; is_published?: boolean; cover_image_url?: string; sequence_order?: number; status?: 'published'|'rascunho'|'agendado'; }
-interface Lesson { id: string; module_id: string; title: string; duration: string; instructor_name: string; video_url: string; cover_image_url: string; sequence_order: number; is_published?: boolean; status?: 'published'|'rascunho'|'agendado'; scheduled_at?: string; description?: string; }
+interface Lesson { id: string; module_id: string; title: string; duration: string; instructor_name: string; video_url: string; cover_image_url: string; sequence_order: number; is_published?: boolean; status?: 'published'|'rascunho'|'agendado'; scheduled_at?: string; description?: string; playback_id?: string; asset_id?: string; }
 interface Resource { id: string; lesson_id: string; title: string; category: string; file_url: string; }
 
 type ViewType = 'masterclasses' | 'modules' | 'lesson' | 'editCourse' | 'editModule';
@@ -701,28 +702,27 @@ export default function AdminContentManager() {
         </FormField>
 
         <FormField label="Vídeo da Aula">
-          <div className="border border-[var(--color-input-border)] rounded-md p-4 flex flex-col md:flex-row items-start md:items-center justify-between bg-[var(--color-input-bg)] gap-4">
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded bg-[#C1FF07]/10 flex items-center justify-center text-[#C1FF07]">
-                <Video size={20} />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-sm font-bold text-text-base">
-                  {lessonForm.video_url ? 'Upload Concluído' : 'Nenhum vídeo enviado'}
-                </span>
-                <span className="text-[10px] text-text-secondary">
-                  {lessonForm.video_url ? 'O vídeo está pronto para ser assistido' : 'Suba um arquivo de vídeo do seu dispositivo'}
-                </span>
-              </div>
-            </div>
-            <label className="outline-btn text-[10px] font-bold uppercase tracking-widest px-4 py-2.5 flex items-center gap-2 cursor-pointer whitespace-nowrap">
-              <Upload size={14} /> Substituir Aula
-              <input type="file" className="hidden" accept="video/*" onChange={e => {
-                const file = e.target.files?.[0];
-                if (file) setLessonForm({...lessonForm, video_url: URL.createObjectURL(file)});
-              }} />
-            </label>
-          </div>
+          <LessonVideoUploader
+            currentVideoUrl={lessonForm.video_url}
+            currentPlaybackId={lessonForm.playback_id}
+            currentDuration={lessonForm.duration}
+            onUploadSuccess={({ streamUrl, playbackId, durationFormatted, thumbnailUrl }) => {
+              setLessonForm(prev => ({
+                ...prev,
+                video_url: streamUrl || prev.video_url,
+                playback_id: playbackId || prev.playback_id,
+                duration: durationFormatted || prev.duration,
+                cover_image_url: prev.cover_image_url || thumbnailUrl || '',
+              }));
+            }}
+            onRemoveVideo={() => {
+              setLessonForm(prev => ({
+                ...prev,
+                video_url: '',
+                playback_id: '',
+              }));
+            }}
+          />
         </FormField>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

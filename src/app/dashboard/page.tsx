@@ -122,11 +122,7 @@ export default function DashboardPage() {
         <div className="absolute inset-0 bg-gradient-to-r from-[#12131a] via-[#12131a]/80 to-transparent z-0" />
         
         <div className="relative z-10 flex flex-col gap-1.5">
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] font-bold tracking-[0.18em] text-[#C1FF07] uppercase font-outfit">
-              Portal Executivo
-            </span>
-          </div>
+
           <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight font-outfit m-0 text-white leading-tight">
             {greeting}, <span className="text-[#C1FF07]">{user ? getFirstName(user.name) : 'Membro'}</span>.
           </h1>

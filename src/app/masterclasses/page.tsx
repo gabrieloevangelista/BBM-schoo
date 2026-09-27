@@ -6,6 +6,7 @@ import { useAuth } from '@/context/AuthContext';
 import { MasterclassesSkeleton } from '@/components/SkeletonLoaders';
 import { Play, Info, ArrowRight, Clock, Video } from 'lucide-react';
 import { Course, Lesson, Module } from '@/lib/db';
+import { ModuleCard } from '@/components/ModuleCard';
 
 export default function MasterclassesPage() {
   const { user } = useAuth();
@@ -186,33 +187,32 @@ export default function MasterclassesPage() {
         )}
       </div>
 
-      {/* Row 3: Modules and Chapters Carousel */}
+      {/* Row 3: Modules and Chapters Carousel (Card-21 Style) */}
       <div className="flex flex-col gap-3 w-full max-w-full overflow-hidden">
-        <h2 className="text-lg font-bold font-outfit px-1">Módulos & Áreas de Foco</h2>
-        <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-none snap-x snap-mandatory px-1 w-full">
-          {modules.map(m => {
+        <div className="flex items-center justify-between px-1">
+          <h2 className="text-lg font-bold font-outfit">Módulos & Áreas de Foco</h2>
+          <span className="text-xs text-text-muted font-medium font-outfit">
+            {modules.length} {modules.length === 1 ? 'módulo' : 'módulos'}
+          </span>
+        </div>
+        <div className="flex gap-4 overflow-x-auto pb-6 scrollbar-none snap-x snap-mandatory px-1 w-full">
+          {modules.map((m, idx) => {
             const course = courses.find(c => c.id === m.course_id);
             const courseSlug = course ? course.slug : '';
+            const moduleLessons = lessons.filter(l => l.module_id === m.id);
+            const fallbackCover = 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=600';
+            
             return (
-              <Link 
-                key={m.id} 
+              <ModuleCard
+                key={m.id}
+                title={m.title}
+                description={m.description}
+                imageUrl={m.cover_image_url || fallbackCover}
                 href={courseSlug ? `/masterclasses/curso/${courseSlug}` : '/masterclasses'}
-                className="w-[200px] sm:w-[280px] md:w-[320px] aspect-[16/10] rounded-xl overflow-hidden relative flex-shrink-0 snap-start group cursor-pointer no-underline border border-white/10 flex flex-col justify-end"
-              >
-                <div className="absolute inset-0 z-0">
-                  <img src={m.cover_image_url} alt={m.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" />
-                </div>
-                <div className="absolute inset-0 z-10 bg-gradient-to-t from-[#0a0a0c] via-[#0a0a0c]/60 to-transparent opacity-90" />
-                
-                <div className="relative z-20 p-3 md:p-5 flex flex-col gap-0.5 md:gap-1 mt-auto">
-                  <span className="text-[8px] md:text-[10px] font-extrabold uppercase tracking-wider text-[#C1FF07] font-outfit drop-shadow-md">
-                    MÓDULO
-                  </span>
-                  <h3 className="text-white text-xs md:text-lg font-bold leading-tight mt-1 font-outfit drop-shadow-lg m-0">
-                    {m.title}
-                  </h3>
-                </div>
-              </Link>
+                moduleNumber={idx + 1}
+                lessonCount={moduleLessons.length}
+                actionLabel="Acessar Módulo"
+              />
             );
           })}
         </div>
