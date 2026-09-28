@@ -138,7 +138,7 @@ export default function OportunidadesPage() {
                     
                     <button 
                       onClick={() => setSelectedOpp(opp)}
-                      className="px-4 py-2 bg-gradient-to-r from-primary-lemon to-primary-lemon-hover text-bg-deep rounded-lg text-xs font-bold hover:shadow-[0_0_12px_rgba(193,255,7,0.2)] cursor-pointer transition-all duration-200 flex items-center gap-1 font-outfit"
+                      className="btn-primary text-xs flex items-center gap-1.5"
                     >
                       <span>Avaliar Programa</span>
                       <ArrowRight size={12} />
@@ -171,7 +171,7 @@ export default function OportunidadesPage() {
               <img 
                 src={selectedOpp.image_url} 
                 alt={selectedOpp.title} 
-                className="w-full h-52 object-cover rounded-xl"
+                className="w-full h-52 object-cover rounded-none border border-white/10"
               />
             )}
 
@@ -190,8 +190,8 @@ export default function OportunidadesPage() {
             </div>
 
             {/* Term Sheet Summary */}
-            <div className="bg-white/1 border border-white/5 rounded-xl p-5 flex flex-col gap-3">
-              <h4 className="text-[10px] text-primary-lemon font-bold uppercase tracking-wider">
+            <div className="bg-white/1 border border-white/10 rounded-none p-5 flex flex-col gap-3">
+              <h4 className="text-[10px] text-primary-lemon font-bold uppercase tracking-wider font-outfit">
                 Detalhamento do Acompanhamento
               </h4>
               
@@ -217,14 +217,14 @@ export default function OportunidadesPage() {
 
             {/* Call to action */}
             {interestRegistered ? (
-              <div className="p-4 rounded-lg bg-accent-green/10 border border-accent-green/30 text-accent-green text-xs font-semibold text-center flex items-center justify-center gap-2">
+              <div className="p-4 rounded-none bg-accent-green/10 border border-accent-green/30 text-accent-green text-xs font-semibold text-center flex items-center justify-center gap-2">
                 <CheckCircle size={18} />
                 <span>Interesse registrado! Nossa equipe entrará em contato para agendar sua entrevista de diagnóstico.</span>
               </div>
             ) : (
               <button 
                 onClick={() => handleManifestInterest(selectedOpp.id)}
-                className="w-full py-3.5 bg-gradient-to-r from-primary-lemon to-primary-lemon-hover text-bg-deep font-bold rounded-lg hover:shadow-[0_0_12px_rgba(193,255,7,0.2)] transition-all duration-200 cursor-pointer text-xs flex items-center justify-center gap-2 font-outfit"
+                className="btn-primary w-full py-3.5 text-xs flex items-center justify-center gap-2"
                 disabled={registering}
               >
                 <FileCheck size={18} />

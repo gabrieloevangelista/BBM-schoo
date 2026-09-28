@@ -24,7 +24,7 @@ interface SkeletonCardProps {
 
 export function SkeletonCard({ children, style = {}, className = '' }: SkeletonCardProps) {
   return (
-    <div className={`skeleton-card relative overflow-hidden rounded-xl ${className}`} style={style}>
+    <div className={`skeleton-card relative overflow-hidden rounded-none ${className}`} style={style}>
       <div className="relative z-10 w-full h-full flex flex-col">{children}</div>
     </div>
   );

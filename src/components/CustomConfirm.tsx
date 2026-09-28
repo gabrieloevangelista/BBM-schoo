@@ -21,19 +21,18 @@ function ConfirmModal({ title, message, onConfirm, onCancel }: ConfirmModalProps
   return (
     <div className="fixed inset-0 bg-[#010103]/85 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 animate-fade-in">
       <div 
-        className="glass-panel w-full max-w-[420px] p-6 flex flex-col gap-5 border"
+        className="glass-panel w-full max-w-[420px] p-6 flex flex-col gap-5 border border-[#C1FF07]/30"
         style={{ 
           backgroundColor: 'var(--color-modal-bg)', 
-          borderColor: 'var(--color-glass-border)',
-          borderRadius: '4px',
-          boxShadow: '0 20px 40px rgba(0,0,0,0.6)'
+          borderRadius: '0px',
+          boxShadow: '0 20px 40px rgba(0,0,0,0.8)'
         }}
       >
         {/* Header */}
         <div className="flex justify-between items-start gap-4">
           <div className="flex items-center gap-3">
-            <div className={`w-8 h-8 rounded flex items-center justify-center flex-shrink-0 ${
-              isDelete ? 'bg-red-500/10 text-red-500' : 'bg-[#C1FF07]/10 text-[#C1FF07]'
+            <div className={`w-8 h-8 rounded-none border flex items-center justify-center flex-shrink-0 ${
+              isDelete ? 'bg-red-500/10 border-red-500/30 text-red-500' : 'bg-[#C1FF07]/10 border-[#C1FF07]/30 text-[#C1FF07]'
             }`}>
               <ShieldAlert size={18} />
             </div>
@@ -47,7 +46,7 @@ function ConfirmModal({ title, message, onConfirm, onCancel }: ConfirmModalProps
           {onCancel && (
             <button 
               onClick={onCancel}
-              className="p-1 bg-transparent border-0 text-text-secondary hover:text-text-base cursor-pointer transition duration-150"
+              className="p-1 bg-transparent border border-transparent hover:border-white/20 text-text-secondary hover:text-text-base cursor-pointer transition duration-150 rounded-none"
               style={{ minWidth: 'auto' }}
             >
               <X size={16} />
@@ -61,12 +60,12 @@ function ConfirmModal({ title, message, onConfirm, onCancel }: ConfirmModalProps
         </div>
 
         {/* Action Buttons */}
-        <div className="flex justify-end gap-3 pt-2 border-t border-white/[0.04]">
+        <div className="flex justify-end gap-3 pt-3 border-t border-white/[0.04]">
           {onCancel && (
             <button
               onClick={onCancel}
-              className="outline-btn text-[10px] font-extrabold uppercase tracking-wider"
-              style={{ padding: '8px 16px', minWidth: 'auto' }}
+              className="outline-btn text-xs font-bold uppercase tracking-wider"
+              style={{ padding: '8px 18px' }}
             >
               Cancelar
             </button>
@@ -74,19 +73,10 @@ function ConfirmModal({ title, message, onConfirm, onCancel }: ConfirmModalProps
           
           <button
             onClick={onConfirm}
-            className={`text-[10px] font-extrabold uppercase tracking-wider ${
-              isDelete 
-                ? 'bg-red-500 hover:bg-red-600 border border-red-500 text-white' 
-                : 'btn-primary'
+            className={`text-xs font-bold uppercase tracking-wider ${
+              isDelete ? 'btn-danger' : 'btn-primary'
             }`}
-            style={{ 
-              padding: '8px 16px', 
-              minWidth: 'auto',
-              borderRadius: '2px',
-              backgroundColor: isDelete ? '#ef4444' : 'var(--color-primary-lemon)',
-              borderColor: isDelete ? '#ef4444' : 'var(--color-primary-lemon)',
-              color: isDelete ? '#fff' : 'var(--color-switch-active-text)'
-            }}
+            style={{ padding: '8px 18px' }}
           >
             {isDelete ? 'Confirmar Exclusão' : 'Confirmar'}
           </button>

@@ -339,13 +339,13 @@ export default function OnboardingTour() {
           width: 'min(400px, calc(100vw - 32px))',
           transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
         }}
-        className="z-[10001] bg-[#14151e] text-white border border-white/10 rounded-xl p-5 shadow-2xl backdrop-blur-2xl relative overflow-hidden"
+        className="z-[10001] bg-[#14151e] text-white border border-[#C1FF07]/30 rounded-none p-5 shadow-2xl backdrop-blur-2xl relative overflow-hidden"
       >
 
         {/* Top Header */}
         <div className="flex items-center justify-between gap-2 mb-3">
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[#C1FF07] animate-pulse" />
+            <span className="w-2 h-2 rounded-none bg-[#C1FF07] animate-pulse" />
             <span className="text-[10px] font-bold font-outfit uppercase tracking-widest text-[#C1FF07]">
               {currentStepData.category}
             </span>
@@ -357,7 +357,7 @@ export default function OnboardingTour() {
 
           <button
             onClick={markAsCompleted}
-            className="p-1 rounded-md text-text-muted hover:text-white hover:bg-white/10 transition-colors border-0 bg-transparent cursor-pointer"
+            className="p-1 rounded-none text-text-muted hover:text-white hover:bg-white/10 transition-colors border border-transparent hover:border-white/20 bg-transparent cursor-pointer"
             title="Fechar e não mostrar novamente"
           >
             <X size={16} />
@@ -366,11 +366,11 @@ export default function OnboardingTour() {
 
         {/* Title & Icon */}
         <div className="flex items-start gap-3 mb-2.5">
-          <div className="p-2 rounded-lg bg-[#C1FF07]/10 text-[#C1FF07] border border-[#C1FF07]/20 flex-shrink-0">
+          <div className="p-2 rounded-none bg-[#C1FF07]/10 text-[#C1FF07] border border-[#C1FF07]/30 flex-shrink-0">
             <StepIcon size={20} />
           </div>
           <div>
-            <h3 className="text-base font-extrabold font-outfit text-white leading-tight m-0">
+            <h3 className="text-base font-extrabold font-outfit text-white leading-tight m-0 uppercase tracking-tight">
               {currentStepData.title}
             </h3>
           </div>
@@ -381,13 +381,13 @@ export default function OnboardingTour() {
           {currentStepData.description}
         </p>
 
-        {/* Progress Dots Bar */}
+        {/* Progress Dots Bar — Sci-Fi Segments */}
         <div className="flex items-center gap-1.5 mb-5">
           {TOUR_STEPS.map((step, idx) => (
             <button
               key={step.id}
               onClick={() => setCurrentStep(idx)}
-              className={`h-1.5 rounded-full transition-all duration-300 border-0 cursor-pointer p-0 ${
+              className={`h-1.5 rounded-none transition-all duration-300 border-0 cursor-pointer p-0 ${
                 idx === currentStep 
                   ? 'w-6 bg-[#C1FF07]' 
                   : idx < currentStep 
@@ -403,7 +403,7 @@ export default function OnboardingTour() {
         <div className="flex items-center justify-between gap-3 pt-3 border-t border-white/10 flex-wrap">
           <button
             onClick={markAsCompleted}
-            className="flex items-center gap-1.5 text-xs text-text-muted hover:text-white bg-transparent border-0 cursor-pointer transition-colors p-0 font-medium"
+            className="flex items-center gap-1.5 text-xs text-text-muted hover:text-white bg-transparent border-0 cursor-pointer transition-colors p-0 font-medium uppercase font-outfit tracking-wider"
           >
             <EyeOff size={13} />
             <span>Pular tour</span>
@@ -413,7 +413,7 @@ export default function OnboardingTour() {
             {currentStep > 0 && (
               <button
                 onClick={() => setCurrentStep(prev => prev - 1)}
-                className="py-1.5 px-3 rounded-lg text-xs font-semibold text-white/80 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 cursor-pointer transition-all flex items-center gap-1"
+                className="outline-btn py-1.5 px-3 text-xs"
               >
                 <ArrowLeft size={14} />
                 <span>Voltar</span>
@@ -428,7 +428,7 @@ export default function OnboardingTour() {
                   setCurrentStep(prev => prev + 1);
                 }
               }}
-              className="btn-primary py-1.5 px-4 text-xs font-bold rounded-lg cursor-pointer flex items-center gap-1.5 transition-transform active:scale-95"
+              className="btn-primary py-1.5 px-4 text-xs font-bold"
             >
               {isLastStep ? (
                 <>

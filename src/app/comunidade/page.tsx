@@ -1002,7 +1002,7 @@ export default function ComunidadePage() {
                       <button 
                         type="button" 
                         onClick={handleRemoveAttachment} 
-                        className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-black/60 hover:bg-black/85 flex items-center justify-center text-white cursor-pointer border-0 transition duration-150"
+                        className="absolute top-1.5 right-1.5 w-6 h-6 rounded-none bg-black/60 hover:bg-black/90 flex items-center justify-center text-white cursor-pointer border border-white/20 hover:border-red-500/60 hover:text-red-400 transition duration-150"
                         style={{ minWidth: 'auto' }}
                       >
                         <X size={14} />
@@ -1051,7 +1051,7 @@ export default function ComunidadePage() {
                   />
                   <label 
                     htmlFor="post-file-upload" 
-                    className="p-1.5 text-text-secondary hover:text-white cursor-pointer transition duration-150 rounded hover:bg-white/5 flex items-center justify-center"
+                    className="p-1.5 text-text-secondary hover:text-white cursor-pointer transition duration-150 rounded-none border border-white/10 hover:border-[#C1FF07]/40 hover:bg-white/5 flex items-center justify-center"
                     title="Anexar foto ou vídeo"
                   >
                     <ImageIcon size={16} />
@@ -1059,7 +1059,7 @@ export default function ComunidadePage() {
                 </div>
 
                 <div className="flex gap-2.5 items-center justify-end">
-                  <button type="submit" className="px-4 py-1.5 bg-gradient-to-r from-primary-lemon to-primary-lemon-hover text-bg-deep font-bold rounded-lg text-xs flex items-center gap-1.5 cursor-pointer hover:shadow-[0_0_12px_rgba(193,255,7,0.2)] transition-all duration-200 uppercase font-outfit" style={{ borderRadius: '2px' }}>
+                  <button type="submit" className="btn-primary text-xs flex items-center gap-1.5">
                     <span>Publicar</span>
                   </button>
                 </div>
@@ -1423,11 +1423,11 @@ export default function ComunidadePage() {
           >
             {/* Nav Arrows inside Modal for Mobile/Clarity */}
             {currentStoryIndex > 0 && (
-              <button onClick={prevStory} className="absolute left-2 top-1/2 -translate-y-1/2 z-50 bg-black/40 text-white rounded-full p-2 border border-white/20 hover:bg-black/80">
+              <button onClick={prevStory} className="absolute left-2 top-1/2 -translate-y-1/2 z-50 bg-black/60 text-white rounded-none p-2 border border-white/20 hover:border-[#C1FF07]/60 hover:text-[#C1FF07] hover:bg-black/90 transition-colors">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
               </button>
             )}
-            <button onClick={nextStory} className="absolute right-2 top-1/2 -translate-y-1/2 z-50 bg-black/40 text-white rounded-full p-2 border border-white/20 hover:bg-black/80">
+            <button onClick={nextStory} className="absolute right-2 top-1/2 -translate-y-1/2 z-50 bg-black/60 text-white rounded-none p-2 border border-white/20 hover:border-[#C1FF07]/60 hover:text-[#C1FF07] hover:bg-black/90 transition-colors">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
             </button>
 

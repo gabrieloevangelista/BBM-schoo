@@ -178,7 +178,7 @@ export default function CourseModulesPage() {
                         <Link 
                           key={lesson.id}
                           href={`/masterclasses/aula/${lesson.slug}`}
-                          className="w-[200px] sm:w-[280px] md:w-[320px] aspect-[16/10] rounded-xl overflow-hidden relative flex-shrink-0 snap-start group cursor-pointer no-underline border border-white/10 flex flex-col justify-end"
+                          className="w-[200px] sm:w-[280px] md:w-[320px] aspect-[16/10] rounded-none overflow-hidden relative flex-shrink-0 snap-start group cursor-pointer no-underline border border-white/15 hover:border-[#C1FF07]/60 flex flex-col justify-end transition-all"
                         >
                           <div className="absolute inset-0 z-0">
                             <img 
@@ -192,7 +192,7 @@ export default function CourseModulesPage() {
                           <div className="relative z-20 p-3 md:p-5 flex flex-col gap-0.5 md:gap-1 mt-auto">
                             <div className="flex items-center gap-1.5 text-[8px] md:text-[10px] text-[#C1FF07] font-extrabold uppercase tracking-wider font-outfit drop-shadow-md">
                               {isCompleted ? (
-                                <span className="bg-emerald-500 text-[#010103] px-1.5 py-0.5 rounded-sm flex items-center gap-0.5 shadow-md font-bold">
+                                <span className="bg-emerald-500 text-[#010103] px-1.5 py-0.5 rounded-none flex items-center gap-0.5 shadow-md font-bold">
                                   <CheckCircle size={10} /> Concluída
                                 </span>
                               ) : (

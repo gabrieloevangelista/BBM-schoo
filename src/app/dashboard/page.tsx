@@ -232,7 +232,7 @@ export default function DashboardPage() {
               <Link 
                 key={course.id} 
                 href={`/masterclasses/curso/${course.slug}`} 
-                className="relative overflow-hidden rounded-xl aspect-[16/10] w-full group no-underline flex flex-col justify-end border border-white/10"
+                className="relative overflow-hidden rounded-none aspect-[16/10] w-full group no-underline flex flex-col justify-end border border-white/10 hover:border-[#C1FF07]/60 transition-all duration-300"
               >
                 <div className="absolute inset-0 z-0">
                   <img 

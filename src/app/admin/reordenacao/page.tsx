@@ -479,16 +479,16 @@ export default function AdminContentManager() {
 
         <FormField label="Imagem de Capa (Thumbnail)">
           {courseForm.cover_image_url ? (
-            <div className="relative w-full h-[200px] rounded-lg border border-[var(--color-glass-border)] overflow-hidden">
+            <div className="relative w-full h-[200px] rounded-none border border-white/10 overflow-hidden">
               <img src={courseForm.cover_image_url} alt="Capa" className="w-full h-full object-cover" />
-              <button onClick={() => setCourseForm({...courseForm, cover_image_url: ''})} className="absolute top-3 right-3 w-8 h-8 rounded bg-black/60 border border-white/10 flex items-center justify-center text-red-400 hover:bg-red-400/20 transition-colors">
+              <button onClick={() => setCourseForm({...courseForm, cover_image_url: ''})} className="absolute top-3 right-3 w-8 h-8 rounded-none bg-black/60 border border-white/10 flex items-center justify-center text-red-400 hover:bg-red-400/20 transition-colors">
                 <Trash2 size={14} />
               </button>
             </div>
           ) : null}
-          <label className="mt-2 border border-dashed border-[var(--color-input-border)] rounded-lg p-6 flex flex-col items-center justify-center gap-2 hover:bg-[var(--color-glass-hover-bg)] transition-colors cursor-pointer text-text-secondary hover:text-text-base">
+          <label className="mt-2 border border-dashed border-[var(--color-input-border)] rounded-none p-6 flex flex-col items-center justify-center gap-2 hover:bg-[var(--color-glass-hover-bg)] transition-colors cursor-pointer text-text-secondary hover:text-text-base">
             <Upload size={24} />
-            <span className="text-xs font-bold">Arraste ou clique para subir a imagem de capa</span>
+            <span className="text-xs font-bold uppercase tracking-wider font-outfit">Arraste ou clique para subir a imagem de capa</span>
             <input type="file" className="hidden" accept="image/*" onChange={e => {
               const file = e.target.files?.[0];
               if (file) setCourseForm({...courseForm, cover_image_url: URL.createObjectURL(file)});
@@ -497,10 +497,10 @@ export default function AdminContentManager() {
         </FormField>
 
         <div className="flex items-center gap-4 mt-6 pt-6 border-t border-[var(--color-glass-border)]">
-          <button onClick={() => setView('masterclasses')} className="flex-1 glass-panel text-text-base text-xs font-bold uppercase tracking-widest py-4 rounded transition-colors text-center hover:bg-[var(--color-glass-hover-bg)]">
+          <button onClick={() => setView('masterclasses')} className="flex-1 outline-btn text-xs font-bold uppercase tracking-widest py-3 text-center">
             Cancelar
           </button>
-          <button onClick={handleSaveCourse} disabled={!courseForm.title.trim() || isSavingWithAi} className="flex-1 btn-primary text-xs font-bold uppercase tracking-widest py-4 rounded disabled:opacity-40">
+          <button onClick={handleSaveCourse} disabled={!courseForm.title.trim() || isSavingWithAi} className="flex-1 btn-primary text-xs font-bold uppercase tracking-widest py-3 disabled:opacity-40">
             {isSavingWithAi ? 'Gerando Capa via IA...' : (courseEditId ? 'Salvar Alterações' : 'Criar Masterclass')}
           </button>
         </div>
@@ -519,10 +519,10 @@ export default function AdminContentManager() {
       <div className="flex flex-col gap-6 animate-fade-in max-w-5xl mx-auto w-full">
         <div className="flex justify-between items-center glass-panel p-4">
           <div className="flex items-center gap-3">
-            <button onClick={() => setView('masterclasses')} className="text-text-secondary hover:text-text-base p-1 rounded transition-colors">
+            <button onClick={() => setView('masterclasses')} className="text-text-secondary hover:text-text-base p-1 rounded-none border border-transparent hover:border-white/20 transition-colors">
               <ArrowLeft size={20} />
             </button>
-            <h2 className="text-lg font-bold text-text-base">Módulos da Masterclass</h2>
+            <h2 className="text-lg font-bold text-text-base font-outfit uppercase tracking-tight">Módulos da Masterclass</h2>
           </div>
           <div className="flex items-center gap-3">
             <button 
@@ -571,11 +571,11 @@ export default function AdminContentManager() {
                   </div>
                   
                   <div className="flex items-center gap-3">
-                    <span className="text-[10px] uppercase tracking-wider text-green-400 font-bold px-2 py-0.5 rounded border border-green-400/20 bg-green-400/10">Publicado</span>
-                    <span className="text-[10px] font-bold text-text-secondary bg-[var(--color-glass-bg)] px-2 py-0.5 rounded">{moduleLessons.length} conteúdos</span>
+                    <span className="text-[10px] uppercase tracking-wider text-green-400 font-bold px-2 py-0.5 rounded-none border border-green-400/20 bg-green-400/10 font-outfit">Publicado</span>
+                    <span className="text-[10px] font-bold text-text-secondary bg-[var(--color-glass-bg)] border border-white/5 px-2 py-0.5 rounded-none font-outfit">{moduleLessons.length} conteúdos</span>
                     <div className="flex items-center gap-1">
-                      <button onClick={() => { setModuleEditId(module.id); setModuleForm({ title: module.title, description: module.description || '', cover_image_url: module.cover_image_url || '' }); setView('editModule'); }} className="p-1.5 text-text-secondary hover:text-text-base rounded hover:bg-[var(--color-glass-hover-bg)] transition-colors"><Edit2 size={14}/></button>
-                      <button onClick={() => handleDeleteModule(module.id)} className="p-1.5 text-red-400/70 hover:text-red-400 rounded hover:bg-red-400/10 transition-colors"><Trash2 size={14}/></button>
+                      <button onClick={() => { setModuleEditId(module.id); setModuleForm({ title: module.title, description: module.description || '', cover_image_url: module.cover_image_url || '' }); setView('editModule'); }} className="p-1.5 text-text-secondary hover:text-text-base rounded-none border border-transparent hover:border-white/20 hover:bg-[var(--color-glass-hover-bg)] transition-colors"><Edit2 size={14}/></button>
+                      <button onClick={() => handleDeleteModule(module.id)} className="p-1.5 text-red-400/70 hover:text-red-400 rounded-none border border-transparent hover:border-red-500/30 hover:bg-red-400/10 transition-colors"><Trash2 size={14}/></button>
                     </div>
                     <ChevronUp size={18} className="text-text-secondary ml-2" />
                   </div>
@@ -614,10 +614,10 @@ export default function AdminContentManager() {
                         )}
                       </div>
                       <div className="flex items-center gap-4">
-                        <span className="text-[9px] uppercase tracking-wider text-green-400/70 font-bold">Publicado</span>
+                        <span className="text-[9px] uppercase tracking-wider text-green-400/70 font-bold font-outfit">Publicado</span>
                         <div className="flex items-center gap-1 opacity-0 group-hover/lesson:opacity-100 transition-opacity">
-                          <button onClick={() => { setLessonForm(lesson); setView('lesson'); }} className="p-1 text-text-secondary hover:text-text-base rounded hover:bg-[var(--color-glass-hover-bg)]"><Edit2 size={12}/></button>
-                          <button onClick={() => handleDeleteLesson(lesson.id)} className="p-1 text-red-400/50 hover:text-red-400 rounded hover:bg-red-400/10"><Trash2 size={12}/></button>
+                          <button onClick={() => { setLessonForm(lesson); setView('lesson'); }} className="p-1 text-text-secondary hover:text-text-base rounded-none border border-transparent hover:border-white/20 hover:bg-[var(--color-glass-hover-bg)]"><Edit2 size={12}/></button>
+                          <button onClick={() => handleDeleteLesson(lesson.id)} className="p-1 text-red-400/50 hover:text-red-400 rounded-none border border-transparent hover:border-red-500/30 hover:bg-red-400/10"><Trash2 size={12}/></button>
                         </div>
                       </div>
                     </div>
@@ -629,7 +629,7 @@ export default function AdminContentManager() {
                         setLessonForm({ id: crypto.randomUUID(), module_id: module.id, title: '', duration: '', instructor_name: '', video_url: '', cover_image_url: '', sequence_order: moduleLessons.length, is_published: false, status: 'rascunho', scheduled_at: '', description: '' });
                         setView('lesson');
                       }}
-                      className="w-6 h-6 rounded-full border border-[var(--color-input-border)] flex items-center justify-center text-text-secondary hover:text-text-base hover:border-text-base transition-all ml-12"
+                      className="w-6 h-6 rounded-none border border-white/20 hover:border-[#C1FF07]/60 hover:text-[#C1FF07] flex items-center justify-center text-text-secondary transition-all ml-12 cursor-pointer"
                     >
                       <Plus size={14} />
                     </button>
@@ -671,16 +671,16 @@ export default function AdminContentManager() {
 
         <FormField label="Imagem de Capa (Thumbnail)">
           {moduleForm.cover_image_url ? (
-            <div className="relative w-full h-[200px] rounded-lg border border-[var(--color-glass-border)] overflow-hidden">
+            <div className="relative w-full h-[200px] rounded-none border border-white/10 overflow-hidden">
               <img src={moduleForm.cover_image_url} alt="Capa" className="w-full h-full object-cover" />
-              <button onClick={() => setModuleForm({...moduleForm, cover_image_url: ''})} className="absolute top-3 right-3 w-8 h-8 rounded bg-black/60 border border-white/10 flex items-center justify-center text-red-400 hover:bg-red-400/20 transition-colors">
+              <button onClick={() => setModuleForm({...moduleForm, cover_image_url: ''})} className="absolute top-3 right-3 w-8 h-8 rounded-none bg-black/60 border border-white/10 flex items-center justify-center text-red-400 hover:bg-red-400/20 transition-colors">
                 <Trash2 size={14} />
               </button>
             </div>
           ) : null}
-          <label className="mt-2 border border-dashed border-[var(--color-input-border)] rounded-lg p-6 flex flex-col items-center justify-center gap-2 hover:bg-[var(--color-glass-hover-bg)] transition-colors cursor-pointer text-text-secondary hover:text-text-base">
+          <label className="mt-2 border border-dashed border-[var(--color-input-border)] rounded-none p-6 flex flex-col items-center justify-center gap-2 hover:bg-[var(--color-glass-hover-bg)] transition-colors cursor-pointer text-text-secondary hover:text-text-base">
             <Upload size={24} />
-            <span className="text-xs font-bold">Arraste ou clique para subir a imagem</span>
+            <span className="text-xs font-bold uppercase tracking-wider font-outfit">Arraste ou clique para subir a imagem</span>
             <input type="file" className="hidden" accept="image/*" onChange={e => {
               const file = e.target.files?.[0];
               if (file) setModuleForm({...moduleForm, cover_image_url: URL.createObjectURL(file)});
@@ -704,10 +704,10 @@ export default function AdminContentManager() {
         </FormField>
 
         <div className="flex items-center gap-4 mt-6 pt-6 border-t border-[var(--color-glass-border)]">
-          <button onClick={() => setView('modules')} className="flex-1 glass-panel text-text-base text-xs font-bold uppercase tracking-widest py-4 rounded transition-colors text-center hover:bg-[var(--color-glass-hover-bg)]">
+          <button onClick={() => setView('modules')} className="flex-1 outline-btn text-xs font-bold uppercase tracking-widest py-3 text-center">
             Cancelar
           </button>
-          <button onClick={handleSaveModule} disabled={!moduleForm.title.trim() || isSavingWithAi} className="flex-1 btn-primary text-xs font-bold uppercase tracking-widest py-4 rounded disabled:opacity-40">
+          <button onClick={handleSaveModule} disabled={!moduleForm.title.trim() || isSavingWithAi} className="flex-1 btn-primary text-xs font-bold uppercase tracking-widest py-3 disabled:opacity-40">
             {isSavingWithAi ? 'Gerando Capa via IA...' : (moduleEditId ? 'Salvar Alterações' : 'Criar Módulo')}
           </button>
         </div>
@@ -856,10 +856,10 @@ export default function AdminContentManager() {
         </div>
 
         <div className="flex items-center gap-4 mt-6 pt-6 border-t border-[var(--color-glass-border)]">
-          <button onClick={() => setView('modules')} className="flex-1 glass-panel text-text-base text-xs font-bold uppercase tracking-widest py-4 rounded transition-colors text-center hover:bg-[var(--color-glass-hover-bg)]">
+          <button onClick={() => setView('modules')} className="flex-1 outline-btn text-xs font-bold uppercase tracking-widest py-3 text-center">
             Cancelar
           </button>
-          <button onClick={handleSaveLesson} className="flex-1 btn-primary text-xs font-bold uppercase tracking-widest py-4 rounded">
+          <button onClick={handleSaveLesson} className="flex-1 btn-primary text-xs font-bold uppercase tracking-widest py-3">
             Salvar Alterações
           </button>
         </div>
@@ -890,21 +890,21 @@ export default function AdminContentManager() {
       {/* Custom Confirm Dialog */}
       {confirmDialog && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-5" onClick={() => setConfirmDialog(null)}>
-          <div className="modal-card max-w-[420px] w-full p-6 flex flex-col gap-5" onClick={e => e.stopPropagation()}>
+          <div className="modal-card max-w-[420px] w-full p-6 flex flex-col gap-5 rounded-none border border-[#C1FF07]/30" onClick={e => e.stopPropagation()}>
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-red-400/10 flex items-center justify-center text-red-400 flex-shrink-0">
+              <div className="w-10 h-10 rounded-none border border-red-500/30 bg-red-400/10 flex items-center justify-center text-red-400 flex-shrink-0">
                 <AlertTriangle size={20} />
               </div>
               <div>
-                <h3 className="text-base font-bold text-text-base">Confirmar Exclusão</h3>
+                <h3 className="text-base font-bold text-text-base uppercase tracking-tight font-outfit">Confirmar Exclusão</h3>
                 <p className="text-xs text-text-secondary mt-1">{confirmDialog.message}</p>
               </div>
             </div>
             <div className="flex items-center gap-3 pt-2">
-              <button onClick={() => setConfirmDialog(null)} className="flex-1 glass-panel text-text-base text-xs font-bold uppercase tracking-widest py-3 rounded transition-colors text-center hover:bg-[var(--color-glass-hover-bg)]">
+              <button onClick={() => setConfirmDialog(null)} className="flex-1 outline-btn text-xs font-bold uppercase tracking-widest py-2.5 text-center">
                 Cancelar
               </button>
-              <button onClick={confirmDialog.onConfirm} className="flex-1 bg-red-500 hover:bg-red-600 text-white text-xs font-bold uppercase tracking-widest py-3 rounded transition-colors">
+              <button onClick={confirmDialog.onConfirm} className="flex-1 btn-danger text-xs font-bold uppercase tracking-widest py-2.5">
                 Excluir
               </button>
             </div>

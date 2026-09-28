@@ -190,22 +190,22 @@ export default function NavigationWrapper({ children }: { children: React.ReactN
   // Helper styles for navigation items depending on sidebarExpanded state
   const getNavItemClass = (isActive: boolean) => {
     if (sidebarExpanded) {
-      return `flex items-center w-full px-3.5 py-2.5 rounded-lg no-underline font-outfit font-medium text-sm transition-all duration-200 gap-3 cursor-pointer ${
+      return `flex items-center w-full px-3.5 py-2.5 rounded-none no-underline font-outfit font-medium text-sm transition-all duration-200 gap-3 cursor-pointer ${
         isActive
           ? theme === 'light'
-            ? 'bg-[#5a9200]/10 text-[#5a9200] font-bold border border-[#5a9200]/25 shadow-sm'
-            : 'bg-[#C1FF07]/10 text-[#C1FF07] font-bold border border-[#C1FF07]/25'
+            ? 'bg-[#5a9200]/10 text-[#5a9200] font-bold border-l-3 border-[#5a9200]'
+            : 'bg-[#C1FF07]/10 text-[#C1FF07] font-bold border-l-3 border-[#C1FF07]'
           : theme === 'light'
-            ? 'text-gray-500 hover:bg-black/5 hover:text-gray-900 border border-transparent'
-            : 'text-gray-400 hover:bg-white/5 hover:text-white border border-transparent'
+            ? 'text-gray-500 hover:bg-black/5 hover:text-gray-900 border-l-3 border-transparent'
+            : 'text-gray-400 hover:bg-white/5 hover:text-white border-l-3 border-transparent'
       }`;
     }
-    // Minimized square button with centered icon (clean square, subtle rounded-md)
-    return `flex items-center justify-center w-11 h-11 aspect-square mx-auto rounded-lg no-underline font-outfit font-medium transition-all duration-200 cursor-pointer p-0 ${
+    // Minimized square button with centered icon (clean sci-fi sharp square)
+    return `flex items-center justify-center w-11 h-11 aspect-square mx-auto rounded-none no-underline font-outfit font-medium transition-all duration-200 cursor-pointer p-0 ${
       isActive
         ? theme === 'light'
-          ? 'bg-[#5a9200]/10 text-[#5a9200] font-bold border border-[#5a9200]/25 shadow-sm'
-          : 'bg-[#C1FF07]/10 text-[#C1FF07] font-bold border border-[#C1FF07]/25'
+          ? 'bg-[#5a9200]/10 text-[#5a9200] font-bold border border-[#5a9200]/40'
+          : 'bg-[#C1FF07]/10 text-[#C1FF07] font-bold border border-[#C1FF07]/40'
         : theme === 'light'
           ? 'text-gray-500 hover:bg-black/5 hover:text-gray-900 border border-transparent'
           : 'text-gray-400 hover:bg-white/5 hover:text-white border border-transparent'
@@ -214,14 +214,14 @@ export default function NavigationWrapper({ children }: { children: React.ReactN
 
   const getDisabledItemClass = () => {
     if (sidebarExpanded) {
-      return 'flex items-center w-full px-3.5 py-2.5 rounded-lg text-text-muted/60 font-outfit font-medium text-sm gap-3 cursor-not-allowed select-none';
+      return 'flex items-center w-full px-3.5 py-2.5 rounded-none text-text-muted/60 font-outfit font-medium text-sm gap-3 cursor-not-allowed select-none';
     }
-    return 'flex items-center justify-center w-11 h-11 aspect-square mx-auto rounded-lg text-text-muted/40 font-outfit cursor-not-allowed select-none p-0';
+    return 'flex items-center justify-center w-11 h-11 aspect-square mx-auto rounded-none text-text-muted/40 font-outfit cursor-not-allowed select-none p-0';
   };
 
   const getFooterBtnClass = (variant: 'normal' | 'tour' | 'danger' = 'normal') => {
     if (sidebarExpanded) {
-      return `flex items-center w-full px-3.5 py-2.5 rounded-lg border-0 bg-transparent text-left font-outfit font-medium text-sm transition-all duration-200 gap-3 cursor-pointer ${
+      return `flex items-center w-full px-3.5 py-2.5 rounded-none border-0 bg-transparent text-left font-outfit font-medium text-sm transition-all duration-200 gap-3 cursor-pointer ${
         variant === 'danger'
           ? 'hover:bg-red-950/20 text-text-secondary hover:text-red-400'
           : variant === 'tour'
@@ -229,7 +229,7 @@ export default function NavigationWrapper({ children }: { children: React.ReactN
             : 'hover:bg-white/5 text-text-secondary hover:text-white'
       }`;
     }
-    return `flex items-center justify-center w-11 h-11 aspect-square mx-auto rounded-lg border-0 bg-transparent font-outfit font-medium transition-all duration-200 cursor-pointer p-0 ${
+    return `flex items-center justify-center w-11 h-11 aspect-square mx-auto rounded-none border-0 bg-transparent font-outfit font-medium transition-all duration-200 cursor-pointer p-0 ${
       variant === 'danger'
         ? 'hover:bg-red-950/20 text-red-500 hover:text-red-400'
         : variant === 'tour'
@@ -264,11 +264,11 @@ export default function NavigationWrapper({ children }: { children: React.ReactN
             )}
           </Link>
           {sidebarExpanded ? (
-            <button onClick={toggleSidebar} className={`border-0 p-1 rounded cursor-pointer ${theme === 'light' ? 'text-gray-500 hover:text-gray-900' : 'text-gray-400 hover:text-white'}`} style={{ minWidth: 'auto' }}>
+            <button onClick={toggleSidebar} className={`border border-white/10 p-1.5 rounded-none cursor-pointer transition-colors ${theme === 'light' ? 'text-gray-500 hover:text-gray-900 hover:bg-black/5' : 'text-gray-400 hover:text-white hover:bg-white/5 hover:border-[#C1FF07]/40'}`} style={{ minWidth: 'auto' }}>
               <ChevronLeft size={18} />
             </button>
           ) : (
-            <button onClick={toggleSidebar} className={`border-0 p-1.5 rounded-lg cursor-pointer flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/5 ${theme === 'light' ? 'text-gray-500 hover:text-gray-900' : 'text-gray-400 hover:text-white'}`} style={{ minWidth: 'auto' }}>
+            <button onClick={toggleSidebar} className={`border border-white/10 p-1.5 rounded-none cursor-pointer flex items-center justify-center transition-colors ${theme === 'light' ? 'text-gray-500 hover:text-gray-900 hover:bg-black/5' : 'text-gray-400 hover:text-white hover:bg-white/5 hover:border-[#C1FF07]/40'}`} style={{ minWidth: 'auto' }}>
               <ChevronRight size={18} />
             </button>
           )}
@@ -477,11 +477,11 @@ export default function NavigationWrapper({ children }: { children: React.ReactN
             </h2>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
-              className={`flex items-center justify-center p-2 rounded-full border border-transparent cursor-pointer transition-colors hover:text-[#C1FF07] ${theme === 'light' ? 'text-gray-500 hover:bg-black/5' : 'text-gray-400 hover:bg-white/5'}`}
+              className={`flex items-center justify-center p-2 rounded-none border border-white/10 hover:border-[#C1FF07]/40 cursor-pointer transition-colors hover:text-[#C1FF07] ${theme === 'light' ? 'text-gray-500 hover:bg-black/5' : 'text-gray-400 hover:bg-white/5'}`}
               style={{ minWidth: 'auto' }}
               title={theme === 'dark' ? 'Mudar para tema claro' : 'Mudar para tema escuro'}
             >
@@ -493,20 +493,20 @@ export default function NavigationWrapper({ children }: { children: React.ReactN
               <button 
                 id="tour-header-notifications"
                 onClick={() => setShowNotifications(!showNotifications)} 
-                className="relative flex items-center justify-center p-2 rounded-full border border-transparent hover:bg-white/5 cursor-pointer transition-colors"
+                className="relative flex items-center justify-center p-2 rounded-none border border-white/10 hover:border-[#C1FF07]/40 hover:bg-white/5 cursor-pointer transition-colors"
                 style={{ color: unreadCount > 0 ? 'var(--color-primary-lemon)' : 'var(--color-text-secondary)', minWidth: 'auto' }}
               >
                 <Bell size={20} />
                 {unreadCount > 0 && (
-                  <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-accent-red rounded-full border border-bg-deep" />
+                  <span className="absolute top-1 right-1 w-2 h-2 bg-accent-red rounded-none" />
                 )}
               </button>
 
               {/* Opaque Solid Notifications Dropdown */}
               {showNotifications && (
-                <div className={`absolute top-[50px] right-0 w-80 max-h-[400px] overflow-y-auto z-50 p-4 rounded-2xl flex flex-col ${theme === 'light' ? 'bg-white border border-black/8 shadow-[0_20px_50px_rgba(0,0,0,0.12)]' : 'bg-[#0a0a0f] border border-[#C1FF07]/30 shadow-[0_20px_50px_rgba(0,0,0,0.95)]'}`}>
+                <div className={`absolute top-[50px] right-0 w-80 max-h-[400px] overflow-y-auto z-50 p-4 rounded-none flex flex-col ${theme === 'light' ? 'bg-white border border-black/8 shadow-[0_20px_50px_rgba(0,0,0,0.12)]' : 'bg-[#0a0a0f] border border-[#C1FF07]/40 shadow-[0_20px_50px_rgba(0,0,0,0.95)]'}`}>
                   <div className={`flex justify-between items-center pb-2.5 mb-3 border-b ${theme === 'light' ? 'border-black/8' : 'border-white/10'}`}>
-                    <h3 className="text-sm font-bold text-primary-lemon font-outfit">Notificações</h3>
+                    <h3 className="text-sm font-bold text-primary-lemon font-outfit uppercase tracking-wider">Notificações</h3>
                     <div className="flex gap-2">
                       <button onClick={handleMarkAllAsRead} className={`border-0 text-xs bg-transparent cursor-pointer py-0.5 px-1.5 ${theme === 'light' ? 'text-gray-500 hover:text-gray-900' : 'text-gray-400 hover:text-white'}`}>
                         Lidas
@@ -528,7 +528,7 @@ export default function NavigationWrapper({ children }: { children: React.ReactN
                           <div 
                             key={n.id} 
                             onClick={() => handleNotificationClick(n)}
-                            className={`p-2.5 rounded-lg border-l-4 transition-all duration-200 cursor-pointer ${
+                            className={`p-2.5 rounded-none border-l-4 transition-all duration-200 cursor-pointer ${
                               n.is_read 
                                 ? theme === 'light' ? 'bg-transparent border-l-transparent hover:bg-black/5' : 'bg-transparent border-l-transparent hover:bg-white/5'
                                 : 'bg-primary-lemon/4 border-l-primary-lemon hover:bg-primary-lemon/8'

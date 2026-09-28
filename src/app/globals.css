@@ -101,7 +101,7 @@ h1, h2, h3, h4, h5, h6 {
 .glass-panel {
   background-color: var(--color-glass-bg);
   border: 1px solid var(--color-glass-border);
-  border-radius: 8px;
+  border-radius: 0px;
   box-shadow: none;
   transition: all 0.2s ease-in-out;
   position: relative;
@@ -109,16 +109,16 @@ h1, h2, h3, h4, h5, h6 {
 
 .glass-panel-hover:hover {
   background-color: var(--color-glass-hover-bg);
-  border-color: rgba(193, 255, 7, 0.25);
+  border-color: rgba(193, 255, 7, 0.35);
   transform: translateY(-1px);
 }
 
-/* SOLID OPAQUE MODAL CARDS — Clean Modern Style */
+/* SOLID OPAQUE MODAL CARDS — Sci-Fi Sharp Style */
 .modal-card {
   background-color: var(--color-modal-bg);
   border: 1px solid var(--color-glass-border);
-  border-radius: 12px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  border-radius: 0px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
   position: relative;
 }
 
@@ -130,7 +130,7 @@ h1, h2, h3, h4, h5, h6 {
   position: relative;
   background-color: var(--color-glass-bg);
   border: 1px solid var(--color-glass-border);
-  border-radius: 8px;
+  border-radius: 0px;
   overflow: hidden;
   transition: all 0.2s ease-in-out;
 }
@@ -155,11 +155,12 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Post creator selection buttons */
 .hud-post-type-btn {
-  padding: 6px 12px;
-  border-radius: 6px;
+  padding: 6px 14px;
+  border-radius: 0px !important; /* Sci-Fi Sharp */
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
+  letter-spacing: 0.05em;
   font-family: var(--font-outfit);
   cursor: pointer;
   transition: all 0.2s ease-in-out;
@@ -242,156 +243,263 @@ h1, h2, h3, h4, h5, h6 {
 
 
 /* ==========================================================================
-   Standardized Button Design System — PRIMARY = LEMON (#C1FF07)
+   Standardized Button Design System — SCI-FI HUD CYBERNETIC
+   Primary: Lemon #C1FF07 | Geometric Sharp Chamfer | No AI Slop
    ========================================================================== */
 
-/* ==========================================================================
-   Global Button Reset — always inline row, never stacked
-   ========================================================================== */
-
-button, a.btn-primary, a.btn-secondary, a.outline-btn, a.gold-glow-btn, .btn-primary, .btn-secondary, .outline-btn, .gold-glow-btn {
+/* Universal Reset: Eliminate all round buttons in the app (Sci-Fi requirement) */
+button:not([role="switch"]):not([data-tour-dot="true"]),
+a.btn-primary,
+a.btn-secondary,
+a.outline-btn,
+a.gold-glow-btn,
+a.btn-danger,
+a.btn-scifi,
+.btn-primary,
+.btn-secondary,
+.outline-btn,
+.gold-glow-btn,
+.btn-danger,
+.btn-scifi {
   display: inline-flex !important;
   flex-direction: row !important;
   align-items: center !important;
   justify-content: center !important;
-  gap: 6px !important;
+  gap: 8px !important;
   white-space: nowrap !important;
-}
-
-.btn-primary {
-  background-color: #C1FF07 !important;
-  color: #010103 !important;
-  border: 1px solid #C1FF07 !important;
+  border-radius: 0px !important; /* Absolute zero rounding for Sci-Fi aesthetic */
   font-family: var(--font-outfit) !important;
-  font-weight: 700 !important;
-  font-size: 0.8rem !important;
-  padding: 9px 20px !important;
-  line-height: 1.2 !important;
-  border-radius: 2px !important;
-  transition: all 0.2s ease-in-out !important;
-  cursor: pointer !important;
-  display: inline-flex !important;
-  flex-direction: row !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 8px !important;
-  box-shadow: none !important;
-}
-
-.btn-primary:hover {
-  background-color: #aee600 !important;
-  border-color: #aee600 !important;
-  box-shadow: none !important;
-}
-
-.btn-primary:disabled {
-  opacity: 0.5 !important;
-  cursor: not-allowed !important;
-}
-
-/* GOLD GLOW BUTTON — Now ALSO using LEMON for consistency */
-.gold-glow-btn {
-  background-color: #C1FF07 !important;
-  color: #010103 !important;
-  border: 1px solid #C1FF07 !important;
-  font-family: var(--font-outfit) !important;
-  font-weight: 700 !important;
-  font-size: 0.8rem !important;
-  padding: 9px 20px !important;
-  line-height: 1.2 !important;
-  border-radius: 2px !important;
+  letter-spacing: 0.05em !important;
+  text-transform: uppercase !important;
+  box-sizing: border-box !important;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+/* ── PRIMARY SCI-FI BUTTON (Cyberpunk Chamfered Cut-Corners, No Shadows) ── */
+.btn-primary,
+.gold-glow-btn,
+.btn-scifi-primary {
+  background-color: #C1FF07 !important;
+  color: #010103 !important;
+  border: 1px solid #C1FF07 !important;
+  font-family: var(--font-outfit) !important;
+  font-weight: 800 !important;
+  font-size: 0.8rem !important;
+  padding: 9px 22px !important;
+  line-height: 1.2 !important;
+  border-radius: 0px !important;
   cursor: pointer !important;
-  display: inline-flex !important;
-  flex-direction: row !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 8px !important;
+  clip-path: polygon(
+    0 0,
+    calc(100% - 8px) 0,
+    100% 8px,
+    100% 100%,
+    8px 100%,
+    0 calc(100% - 8px)
+  ) !important;
+  box-shadow: none !important;
+  filter: none !important;
+  position: relative;
+}
+
+.btn-primary:hover,
+.gold-glow-btn:hover,
+.btn-scifi-primary:hover {
+  background-color: #d4ff33 !important;
+  border-color: #d4ff33 !important;
+  filter: none !important;
+  box-shadow: none !important;
+  transform: translateY(-1px) !important;
+}
+
+.btn-primary:active,
+.gold-glow-btn:active,
+.btn-scifi-primary:active {
+  transform: translateY(0) !important;
   box-shadow: none !important;
 }
 
-.gold-glow-btn:hover {
-  background-color: #aee600 !important;
-  border-color: #aee600 !important;
+.btn-primary:disabled,
+.gold-glow-btn:disabled,
+.btn-scifi-primary:disabled {
+  opacity: 0.45 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  filter: none !important;
   box-shadow: none !important;
-  transform: translateY(-1px);
 }
 
-.gold-glow-btn:active {
-  transform: translateY(0);
+/* ── SECONDARY BUTTON (Clean, uniform border, no sci-fi green stripe, no shadow) ── */
+.btn-secondary,
+.btn-sec.outline-btn,
+.btn-scifi-secondary {
+  background-color: rgba(255, 255, 255, 0.03) !important;
+  color: var(--color-text-base) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  font-family: var(--font-outfit) !important;
+  font-weight: 700 !important;
+  font-size: 0.8rem !important;
+  padding: 9px 20px !important;
+  line-height: 1.2 !important;
+  border-radius: 0px !important;
+  cursor: pointer !important;
+  position: relative;
+  box-shadow: none !important;
+  filter: none !important;
 }
 
-.gold-glow-btn:disabled {
-  opacity: 0.5 !important;
+.btn-secondary:hover,
+.btn-sec.outline-btn:hover,
+.btn-scifi-secondary:hover {
+  border-color: rgba(255, 255, 255, 0.35) !important;
+  color: #ffffff !important;
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  box-shadow: none !important;
+  filter: none !important;
+  transform: translateY(-1px) !important;
+}
+
+.btn-secondary:active,
+.btn-sec.outline-btn:active,
+.btn-scifi-secondary:active {
+  transform: translateY(0) !important;
+  box-shadow: none !important;
+}
+
+.btn-secondary:disabled,
+.btn-sec.outline-btn:disabled,
+.btn-scifi-secondary:disabled {
+  opacity: 0.45 !important;
   cursor: not-allowed !important;
   transform: none !important;
   box-shadow: none !important;
 }
 
-/* SECONDARY BUTTON — Transparent with lemon hover */
-.btn-secondary, .btn-sec.outline-btn {
-  background: transparent !important;
-  color: var(--color-text-base) !important;
-  border: 1px solid var(--color-glass-border) !important;
-  font-family: var(--font-outfit) !important;
-  font-weight: 600 !important;
-  font-size: 0.8rem !important;
-  padding: 9px 20px !important;
-  line-height: 1.2 !important;
-  border-radius: 2px !important;
-  transition: all 0.2s ease-in-out !important;
-  cursor: pointer !important;
-  display: inline-flex !important;
-  flex-direction: row !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 8px !important;
-  box-shadow: none !important;
-}
-
-.btn-secondary:hover {
-  border-color: rgba(255, 255, 255, 0.22) !important;
-  color: var(--color-text-base) !important;
-  background-color: rgba(255, 255, 255, 0.04) !important;
-  box-shadow: none !important;
-}
-
-.btn-secondary:disabled {
-  opacity: 0.5 !important;
-  cursor: not-allowed !important;
-}
-
-/* OUTLINE BUTTON — Subtle HUD border, lemon hover */
+/* ── OUTLINE BUTTON (Clean, uniform border, no sci-fi green stripe, no shadow) ── */
 .outline-btn {
   background-color: transparent !important;
   color: var(--color-text-base) !important;
-  border: 1px solid var(--color-glass-border) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
   font-family: var(--font-outfit) !important;
-  font-weight: 600 !important;
+  font-weight: 700 !important;
   font-size: 0.8rem !important;
   padding: 9px 20px !important;
   line-height: 1.2 !important;
-  border-radius: 2px !important;
-  transition: all 0.2s ease-in-out !important;
+  border-radius: 0px !important;
   cursor: pointer !important;
-  display: inline-flex !important;
-  flex-direction: row !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 8px !important;
   box-shadow: none !important;
+  filter: none !important;
 }
 
 .outline-btn:hover {
-  border-color: rgba(255, 255, 255, 0.25) !important;
-  color: var(--color-text-base) !important;
-  background-color: rgba(255, 255, 255, 0.04) !important;
+  border-color: rgba(255, 255, 255, 0.35) !important;
+  color: #ffffff !important;
+  background-color: rgba(255, 255, 255, 0.06) !important;
+  box-shadow: none !important;
+  filter: none !important;
+  transform: translateY(-1px) !important;
+}
+
+.outline-btn:active {
+  transform: translateY(0) !important;
   box-shadow: none !important;
 }
 
 .outline-btn:disabled {
-  opacity: 0.5 !important;
+  opacity: 0.45 !important;
   cursor: not-allowed !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* ── DANGER BUTTON (Clean border, no shadow) ── */
+.btn-danger {
+  background-color: rgba(255, 82, 82, 0.08) !important;
+  color: #ff5252 !important;
+  border: 1px solid rgba(255, 82, 82, 0.4) !important;
+  font-family: var(--font-outfit) !important;
+  font-weight: 700 !important;
+  font-size: 0.8rem !important;
+  padding: 9px 20px !important;
+  line-height: 1.2 !important;
+  border-radius: 0px !important;
+  cursor: pointer !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+.btn-danger:hover {
+  background-color: rgba(255, 82, 82, 0.18) !important;
+  border-color: #ff5252 !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+  filter: none !important;
+  transform: translateY(-1px) !important;
+}
+
+/* ── ICON BUTTON (Clean HUD square, no shadow) ── */
+.btn-icon, .hud-icon-btn {
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  background-color: rgba(0, 0, 0, 0.25) !important;
+  color: var(--color-text-secondary) !important;
+  border-radius: 0px !important;
+  padding: 8px !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.2s ease-in-out !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+.btn-icon:hover, .hud-icon-btn:hover {
+  border-color: rgba(255, 255, 255, 0.35) !important;
+  color: #ffffff !important;
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+/* Light Mode Overrides for Secondary / Outline / Icon buttons (No shadows) */
+[data-theme="light"] .btn-secondary,
+[data-theme="light"] .btn-sec.outline-btn,
+[data-theme="light"] .outline-btn {
+  background-color: rgba(0, 0, 0, 0.02) !important;
+  color: #1a1a1a !important;
+  border: 1px solid rgba(0, 0, 0, 0.15) !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+[data-theme="light"] .btn-secondary:hover,
+[data-theme="light"] .btn-sec.outline-btn:hover,
+[data-theme="light"] .outline-btn:hover {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+  border-color: rgba(0, 0, 0, 0.3) !important;
+  color: #000000 !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+[data-theme="light"] .btn-icon,
+[data-theme="light"] .hud-icon-btn {
+  background-color: rgba(0, 0, 0, 0.02) !important;
+  color: #4b5563 !important;
+  border: 1px solid rgba(0, 0, 0, 0.12) !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+[data-theme="light"] .btn-icon:hover,
+[data-theme="light"] .hud-icon-btn:hover {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+  border-color: rgba(0, 0, 0, 0.25) !important;
+  color: #111827 !important;
+  box-shadow: none !important;
+  filter: none !important;
 }
 
 /* ==========================================================================
@@ -698,7 +806,7 @@ input[type="datetime-local"].form-input::-webkit-datetime-edit-minute-field:focu
   );
   background-size: 200% 100%;
   animation: skeleton-shimmer 1.4s infinite ease-in-out;
-  border-radius: 4px;
+  border-radius: 0px;
 }
 
 .skeleton-text {
@@ -716,7 +824,7 @@ input[type="datetime-local"].form-input::-webkit-datetime-edit-minute-field:focu
 .skeleton-card {
   background-color: rgba(255, 255, 255, 0.015);
   border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
+  border-radius: 0px;
   padding: 24px;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
 }
@@ -770,51 +878,45 @@ input[type="datetime-local"].form-input::-webkit-datetime-edit-minute-field:focu
   color: #6b7280 !important;
 }
 
-/* Primary Button — dark green on light */
-[data-theme="light"] .btn-primary {
+/* Primary Button — dark green on light with Sci-Fi chamfer (No shadows) */
+[data-theme="light"] .btn-primary,
+[data-theme="light"] .gold-glow-btn,
+[data-theme="light"] .btn-scifi-primary {
   background-color: #5a9200 !important;
   border-color: #5a9200 !important;
   color: #ffffff !important;
+  filter: none !important;
+  box-shadow: none !important;
 }
 
-[data-theme="light"] .btn-primary:hover {
+[data-theme="light"] .btn-primary:hover,
+[data-theme="light"] .gold-glow-btn:hover,
+[data-theme="light"] .btn-scifi-primary:hover {
   background-color: #4a7a00 !important;
   border-color: #4a7a00 !important;
+  filter: none !important;
+  box-shadow: none !important;
 }
 
-[data-theme="light"] .gold-glow-btn {
-  background-color: #5a9200 !important;
-  border-color: #5a9200 !important;
-  color: #ffffff !important;
-}
-
-[data-theme="light"] .gold-glow-btn:hover {
-  background-color: #4a7a00 !important;
-  border-color: #4a7a00 !important;
-}
-
-/* Outline / Secondary Buttons */
-[data-theme="light"] .outline-btn {
-  color: #374151 !important;
-  border-color: rgba(0, 0, 0, 0.1) !important;
-  background-color: transparent !important;
-}
-
-[data-theme="light"] .outline-btn:hover {
+/* Outline / Secondary Buttons — light theme (Clean uniform border, no green left stripe, no shadow) */
+[data-theme="light"] .outline-btn,
+[data-theme="light"] .btn-secondary,
+[data-theme="light"] .btn-scifi-secondary {
   color: #1a1a1a !important;
-  border-color: rgba(0, 0, 0, 0.22) !important;
-  background-color: rgba(0, 0, 0, 0.04) !important;
+  border: 1px solid rgba(0, 0, 0, 0.15) !important;
+  background-color: #ffffff !important;
+  box-shadow: none !important;
+  filter: none !important;
 }
 
-[data-theme="light"] .btn-secondary {
-  color: #374151 !important;
-  border-color: rgba(0, 0, 0, 0.1) !important;
-}
-
-[data-theme="light"] .btn-secondary:hover {
+[data-theme="light"] .outline-btn:hover,
+[data-theme="light"] .btn-secondary:hover,
+[data-theme="light"] .btn-scifi-secondary:hover {
   color: #1a1a1a !important;
-  border-color: rgba(0, 0, 0, 0.22) !important;
+  border-color: rgba(0, 0, 0, 0.3) !important;
   background-color: rgba(0, 0, 0, 0.04) !important;
+  box-shadow: none !important;
+  filter: none !important;
 }
 
 /* Form Inputs */

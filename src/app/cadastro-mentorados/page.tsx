@@ -70,19 +70,19 @@ export default function SecretRegistrationPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-bg-deep p-5">
-      <div className="w-full max-w-[460px] p-6 md:p-10 bg-white/3 border border-primary-lemon/15 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.8)] backdrop-blur-md">
+      <div className="w-full max-w-[460px] p-6 md:p-10 bg-white/3 border border-[#C1FF07]/20 rounded-none shadow-[0_20px_50px_rgba(0,0,0,0.8)] backdrop-blur-md">
         
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="w-14 h-14 rounded-2xl bg-primary-lemon/10 border border-primary-lemon flex items-center justify-center mx-auto mb-4 text-primary-lemon shadow-[0_0_15px_rgba(193,255,7,0.1)]">
+          <div className="w-14 h-14 rounded-none bg-primary-lemon/10 border border-primary-lemon flex items-center justify-center mx-auto mb-4 text-primary-lemon shadow-[0_0_15px_rgba(193,255,7,0.1)]">
             <GraduationCap size={28} />
           </div>
-          <h1 className="text-2xl font-extrabold text-white tracking-tight font-outfit">Cadastro de Mentorado</h1>
-          <p className="text-primary-lemon text-sm font-semibold mt-1 font-outfit uppercase tracking-wider">Acesso Secreto</p>
+          <h1 className="text-2xl font-extrabold text-white tracking-tight font-outfit uppercase">Cadastro de Mentorado</h1>
+          <p className="text-primary-lemon text-xs font-semibold mt-1 font-outfit uppercase tracking-widest">Acesso Secreto</p>
         </div>
 
         {errorMsg && (
-          <div className="p-3.5 bg-accent-red/10 border border-accent-red/35 rounded-lg text-accent-red text-xs font-semibold mb-5 flex items-start gap-2.5 leading-normal">
+          <div className="p-3.5 bg-accent-red/10 border-l-2 border-l-accent-red border border-accent-red/35 rounded-none text-accent-red text-xs font-semibold mb-5 flex items-start gap-2.5 leading-normal">
             <ShieldAlert size={16} className="flex-shrink-0 mt-0.5" />
             <span>{errorMsg}</span>
           </div>
@@ -90,10 +90,10 @@ export default function SecretRegistrationPage() {
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs text-text-secondary font-medium font-outfit">Nome Completo</label>
+            <label className="text-xs text-text-secondary font-medium font-outfit uppercase tracking-wider">Nome Completo</label>
             <input 
               type="text" 
-              className="w-full px-4 py-3 bg-white/2 border border-primary-lemon/15 rounded-lg text-white placeholder-text-muted focus:outline-none focus:border-primary-lemon focus:ring-1 focus:ring-primary-lemon transition duration-200 text-sm"
+              className="w-full px-4 py-3 bg-[#111115] border border-white/10 border-l-2 border-l-[#C1FF07]/50 rounded-none text-white placeholder-text-muted focus:outline-none focus:border-[#C1FF07] transition duration-200 text-sm font-outfit"
               placeholder="Digite seu nome completo"
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -102,10 +102,10 @@ export default function SecretRegistrationPage() {
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs text-text-secondary font-medium font-outfit">E-mail</label>
+            <label className="text-xs text-text-secondary font-medium font-outfit uppercase tracking-wider">E-mail</label>
             <input 
               type="email" 
-              className="w-full px-4 py-3 bg-white/2 border border-primary-lemon/15 rounded-lg text-white placeholder-text-muted focus:outline-none focus:border-primary-lemon focus:ring-1 focus:ring-primary-lemon transition duration-200 text-sm"
+              className="w-full px-4 py-3 bg-[#111115] border border-white/10 border-l-2 border-l-[#C1FF07]/50 rounded-none text-white placeholder-text-muted focus:outline-none focus:border-[#C1FF07] transition duration-200 text-sm font-outfit"
               placeholder="Digite seu melhor e-mail"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -114,10 +114,10 @@ export default function SecretRegistrationPage() {
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs text-text-secondary font-medium font-outfit">Senha</label>
+            <label className="text-xs text-text-secondary font-medium font-outfit uppercase tracking-wider">Senha</label>
             <input 
               type="password" 
-              className="w-full px-4 py-3 bg-white/2 border border-primary-lemon/15 rounded-lg text-white placeholder-text-muted focus:outline-none focus:border-primary-lemon focus:ring-1 focus:ring-primary-lemon transition duration-200 text-sm"
+              className="w-full px-4 py-3 bg-[#111115] border border-white/10 border-l-2 border-l-[#C1FF07]/50 rounded-none text-white placeholder-text-muted focus:outline-none focus:border-[#C1FF07] transition duration-200 text-sm font-outfit"
               placeholder="Min. 6 caracteres"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -126,10 +126,10 @@ export default function SecretRegistrationPage() {
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs text-text-secondary font-medium font-outfit">Confirme a Senha</label>
+            <label className="text-xs text-text-secondary font-medium font-outfit uppercase tracking-wider">Confirme a Senha</label>
             <input 
               type="password" 
-              className="w-full px-4 py-3 bg-white/2 border border-primary-lemon/15 rounded-lg text-white placeholder-text-muted focus:outline-none focus:border-primary-lemon focus:ring-1 focus:ring-primary-lemon transition duration-200 text-sm"
+              className="w-full px-4 py-3 bg-[#111115] border border-white/10 border-l-2 border-l-[#C1FF07]/50 rounded-none text-white placeholder-text-muted focus:outline-none focus:border-[#C1FF07] transition duration-200 text-sm font-outfit"
               placeholder="Confirme sua senha"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
@@ -139,7 +139,7 @@ export default function SecretRegistrationPage() {
 
           <button 
             type="submit" 
-            className="w-full py-3.5 mt-2 bg-gradient-to-r from-primary-lemon to-primary-lemon-hover text-bg-deep font-bold rounded-lg hover:shadow-[0_0_15px_rgba(193,255,7,0.25)] transition duration-200 cursor-pointer text-sm font-outfit"
+            className="btn-primary w-full py-3.5 mt-2 text-sm font-outfit font-bold tracking-wider"
             disabled={isSubmitting}
           >
             {isSubmitting ? 'Processando...' : 'Concluir Cadastro & Entrar'}

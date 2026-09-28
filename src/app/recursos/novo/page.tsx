@@ -245,8 +245,8 @@ export default function NovoRecursoPage() {
   if (isLoading) {
     return (
       <div className="flex flex-col gap-4 max-w-xl mx-auto mt-10">
-        <div className="h-8 w-48 bg-white/5 rounded animate-pulse" />
-        <div className="h-96 bg-white/5 rounded-lg animate-pulse" />
+        <div className="h-8 w-48 bg-white/5 rounded-none border border-white/5 animate-pulse" />
+        <div className="h-96 bg-white/5 rounded-none border border-white/5 animate-pulse" />
       </div>
     );
   }
@@ -256,11 +256,11 @@ export default function NovoRecursoPage() {
       <div className="flex items-center gap-3 mb-6">
         <Link 
           href="/recursos"
-          className="p-2 rounded-full border border-white/10 hover:bg-white/5 transition-colors text-text-secondary hover:text-white"
+          className="p-2 rounded-none border border-white/10 hover:border-[#C1FF07]/40 hover:bg-white/5 transition-colors text-text-secondary hover:text-white"
         >
           <ArrowLeft size={16} />
         </Link>
-        <h1 className="text-2xl font-bold font-outfit m-0">Adicionar Recurso</h1>
+        <h1 className="text-2xl font-bold font-outfit m-0 uppercase tracking-tight">Adicionar Recurso</h1>
       </div>
 
       <div className="glass-panel p-8">
@@ -292,7 +292,7 @@ export default function NovoRecursoPage() {
           <div className="form-group">
             <label className="form-label">Anexo (Arquivo/Imagem) *</label>
             <div className="flex flex-col gap-3">
-              <label className="border border-[var(--color-input-border)] border-dashed rounded-lg p-6 flex flex-col items-center justify-center bg-[#0a0a0f] hover:bg-white/[0.02] cursor-pointer transition-colors text-center">
+              <label className="border border-[var(--color-input-border)] border-dashed rounded-none p-6 flex flex-col items-center justify-center bg-[#0a0a0f] hover:bg-white/[0.02] cursor-pointer transition-colors text-center">
                 <Upload size={24} className="text-text-muted mb-2" />
                 <span className="text-xs font-semibold text-text-base">
                   {selectedFile ? selectedFile.name : 'Clique para selecionar um arquivo'}
@@ -310,7 +310,7 @@ export default function NovoRecursoPage() {
 
               {/* File Info and Compression Report */}
               {selectedFile && (
-                <div className="p-3 bg-white/5 rounded-lg border border-white/5 flex flex-col gap-1.5 text-xs">
+                <div className="p-3 bg-white/5 rounded-none border border-white/10 flex flex-col gap-1.5 text-xs">
                   <div className="flex justify-between items-center text-text-secondary">
                     <span>Tamanho Original:</span>
                     <span className="font-semibold text-white">{originalSize}</span>

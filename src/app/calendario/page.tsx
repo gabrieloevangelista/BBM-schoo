@@ -361,7 +361,7 @@ export default function CalendarioPage() {
             border: '1px solid var(--accent-green)',
             background: 'rgba(52, 211, 153, 0.1)',
             color: '#34D399',
-            borderRadius: '8px',
+            borderRadius: '0px',
             zIndex: 9999,
             fontSize: '0.85rem',
             boxShadow: '0 10px 30px rgba(0,0,0,0.5)'
@@ -374,7 +374,7 @@ export default function CalendarioPage() {
       {/* Page Title */}
       <div className="flex justify-between items-center flex-wrap gap-4 mb-2">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight font-outfit m-0">Calendário de Mentorias</h1>
+          <h1 className="text-3xl font-extrabold tracking-tight font-outfit m-0 uppercase">Calendário de Mentorias</h1>
           <p className="text-text-secondary text-sm m-0 mt-1">Fuso Horário: Brasília (GMT-3). Agende suas mentorias e adicione-as ao seu dia a dia.</p>
         </div>
         
@@ -416,10 +416,10 @@ export default function CalendarioPage() {
         <div className="flex flex-wrap gap-2">
           <button 
             onClick={() => setFilterType('all')} 
-            className={`px-3 py-1.5 rounded text-[10px] font-extrabold uppercase tracking-wider cursor-pointer border transition-all duration-200 ${
+            className={`px-3 py-1.5 rounded-none text-[10px] font-extrabold uppercase tracking-wider cursor-pointer border transition-all duration-200 ${
               filterType === 'all' 
-                ? 'bg-primary-lemon/10 text-primary-lemon border-primary-lemon/30' 
-                : 'border-transparent text-text-secondary hover:text-text-base'
+                ? 'bg-primary-lemon/10 text-primary-lemon border-primary-lemon/40' 
+                : 'border-white/10 text-text-secondary hover:text-text-base hover:border-white/20'
             }`}
             style={{ background: filterType === 'all' ? undefined : 'transparent' }}
           >
@@ -427,10 +427,10 @@ export default function CalendarioPage() {
           </button>
           <button 
             onClick={() => setFilterType('online')} 
-            className={`px-3 py-1.5 rounded text-[10px] font-extrabold uppercase tracking-wider cursor-pointer border transition-all duration-200 ${
+            className={`px-3 py-1.5 rounded-none text-[10px] font-extrabold uppercase tracking-wider cursor-pointer border transition-all duration-200 ${
               filterType === 'online' 
-                ? 'bg-primary-lemon/10 text-primary-lemon border-primary-lemon/30' 
-                : 'border-transparent text-text-secondary hover:text-text-base'
+                ? 'bg-primary-lemon/10 text-primary-lemon border-primary-lemon/40' 
+                : 'border-white/10 text-text-secondary hover:text-text-base hover:border-white/20'
             }`}
             style={{ background: filterType === 'online' ? undefined : 'transparent' }}
           >
@@ -438,10 +438,10 @@ export default function CalendarioPage() {
           </button>
           <button 
             onClick={() => setFilterType('presencial')} 
-            className={`px-3 py-1.5 rounded text-[10px] font-extrabold uppercase tracking-wider cursor-pointer border transition-all duration-200 ${
+            className={`px-3 py-1.5 rounded-none text-[10px] font-extrabold uppercase tracking-wider cursor-pointer border transition-all duration-200 ${
               filterType === 'presencial' 
-                ? 'bg-primary-lemon/10 text-primary-lemon border-primary-lemon/30' 
-                : 'border-transparent text-text-secondary hover:text-text-base'
+                ? 'bg-primary-lemon/10 text-primary-lemon border-primary-lemon/40' 
+                : 'border-white/10 text-text-secondary hover:text-text-base hover:border-white/20'
             }`}
             style={{ background: filterType === 'presencial' ? undefined : 'transparent' }}
           >
@@ -449,10 +449,10 @@ export default function CalendarioPage() {
           </button>
           <button 
             onClick={() => setFilterType('experiencia')} 
-            className={`px-3 py-1.5 rounded text-[10px] font-extrabold uppercase tracking-wider cursor-pointer border transition-all duration-200 ${
+            className={`px-3 py-1.5 rounded-none text-[10px] font-extrabold uppercase tracking-wider cursor-pointer border transition-all duration-200 ${
               filterType === 'experiencia' 
-                ? 'bg-primary-lemon/10 text-primary-lemon border-primary-lemon/30' 
-                : 'border-transparent text-text-secondary hover:text-text-base'
+                ? 'bg-primary-lemon/10 text-primary-lemon border-primary-lemon/40' 
+                : 'border-white/10 text-text-secondary hover:text-text-base hover:border-white/20'
             }`}
             style={{ background: filterType === 'experiencia' ? undefined : 'transparent' }}
           >
@@ -461,12 +461,12 @@ export default function CalendarioPage() {
         </div>
 
         {/* View Mode Toggle */}
-        <div className="flex gap-1 border border-white/10 rounded-[4px] p-1 bg-white/2">
+        <div className="flex gap-1 border border-white/10 rounded-none p-1 bg-white/2">
           {(['mensal', 'semanal', 'anual', 'list'] as const).map((mode) => (
             <button 
               key={mode}
               onClick={() => setViewMode(mode)}
-              className="px-2.5 py-1 rounded-[2px] cursor-pointer transition-all duration-200 text-[10px] font-bold uppercase tracking-wider"
+              className="px-2.5 py-1 rounded-none cursor-pointer transition-all duration-200 text-[10px] font-bold uppercase tracking-wider font-outfit"
               style={{ 
                 border: 'none', 
                 backgroundColor: viewMode === mode ? 'var(--color-primary-lemon)' : 'transparent',
@@ -680,7 +680,7 @@ export default function CalendarioPage() {
                   return (
                     <div 
                       key={`${targetYear}-${monthIndex}`} 
-                      className="p-3 bg-white/[0.01] border border-white/5 rounded-lg flex flex-col"
+                      className="p-3 bg-white/[0.01] border border-white/10 rounded-none flex flex-col"
                     >
                       <button 
                         onClick={() => {
@@ -764,7 +764,7 @@ export default function CalendarioPage() {
                       style={{ border: isTodayEvent ? '1px solid rgba(59, 130, 246, 0.4)' : undefined }}
                     >
                       <div className="flex gap-4 items-start flex-grow">
-                        <div className={`w-14 h-14 rounded-xl flex flex-col items-center justify-center flex-shrink-0 ${
+                        <div className={`w-14 h-14 rounded-none flex flex-col items-center justify-center flex-shrink-0 ${
                           isTodayEvent 
                             ? 'bg-blue-500/10 border border-blue-500/35 text-blue-400' 
                             : 'bg-primary-lemon/10 border border-primary-lemon/25 text-primary-lemon'
@@ -840,7 +840,7 @@ export default function CalendarioPage() {
             <h3 className="text-xs font-bold text-text-secondary font-outfit m-0 uppercase tracking-wider flex items-center gap-1.5">
               <span>{getSelectedDateFriendlyLabel()}</span>
               {selectedDateStr === todayStr && (
-                <span className="badge bg-blue-500/20 text-blue-400 border border-blue-500/30 text-[8px] px-1 py-0.5 rounded uppercase font-bold">Hoje</span>
+                <span className="badge bg-blue-500/20 text-blue-400 border border-blue-500/30 text-[8px] px-1 py-0.5 rounded-none uppercase font-bold">Hoje</span>
               )}
             </h3>
 
@@ -851,7 +851,7 @@ export default function CalendarioPage() {
             ) : (
               <div className="flex flex-col gap-3">
                 {selectedDayEvents.map(event => (
-                  <div key={event.id} className="p-4 bg-white/2 border border-white/5 rounded-xl flex flex-col gap-2">
+                  <div key={event.id} className="p-4 bg-white/2 border border-white/10 rounded-none flex flex-col gap-2">
                     <div className="flex justify-between items-start gap-1">
                       <span className={`badge text-[9px] uppercase font-bold ${getEventTypeColorClass(event.event_type)}`}>
                         {getEventTypeName(event.event_type)}
@@ -951,7 +951,7 @@ export default function CalendarioPage() {
               style={{
                 width: '50px',
                 height: '50px',
-                borderRadius: '50%',
+                borderRadius: '0px',
                 background: 'rgba(255, 74, 74, 0.1)',
                 color: '#FF4A4A',
                 border: '1px solid #FF4A4A',
@@ -962,7 +962,7 @@ export default function CalendarioPage() {
               <Trash2 size={24} />
             </div>
 
-            <h3 style={{ fontSize: '1.2rem', color: 'var(--color-text-base)', marginBottom: '8px' }}>Excluir Evento?</h3>
+            <h3 style={{ fontSize: '1.2rem', color: 'var(--color-text-base)', marginBottom: '8px' }} className="font-outfit uppercase">Excluir Evento?</h3>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '24px', lineHeight: 1.5 }}>
               Tem certeza que deseja remover este compromisso do calendário? Mentorados receberão um aviso.
             </p>
@@ -971,7 +971,7 @@ export default function CalendarioPage() {
               <button onClick={() => setDeletingEventId(null)} className="outline-btn text-xs" style={{ padding: '8px 16px' }}>
                 Cancelar
               </button>
-              <button onClick={handleDeleteEvent} className="gold-glow-btn text-xs" style={{ padding: '8px 16px', background: '#FF4A4A', boxShadow: 'none' }}>
+              <button onClick={handleDeleteEvent} className="btn-danger text-xs" style={{ padding: '8px 16px' }}>
                 Excluir
               </button>
             </div>
@@ -1104,7 +1104,7 @@ export default function CalendarioPage() {
 
               <button 
                 type="submit" 
-                className="gold-glow-btn w-full" 
+                className="btn-primary w-full" 
                 style={{ padding: '12px', marginTop: '10px', width: '100%' }}
               >
                 {editingEventId ? 'Salvar Alterações' : 'Criar Evento no Calendário'}

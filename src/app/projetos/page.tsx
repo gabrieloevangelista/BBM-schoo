@@ -213,7 +213,7 @@ export default function ProjetosPage() {
                 </div>
               </div>
 
-              <div className="p-3.5 bg-accent-green/5 border border-accent-green/15 rounded-lg flex flex-col gap-0.5">
+              <div className="p-3.5 bg-accent-green/5 border border-accent-green/15 rounded-none flex flex-col gap-0.5">
                 <span className="text-[10px] text-accent-green font-semibold uppercase tracking-wider">
                   Lucro Adicional Gerado
                 </span>
@@ -225,7 +225,7 @@ export default function ProjetosPage() {
             </div>
 
             {consultantSuccess ? (
-              <div className="p-3 bg-accent-green/10 border border-accent-green/30 text-accent-green rounded-lg text-xs font-semibold text-center mt-5 flex items-center justify-center gap-2">
+              <div className="p-3 bg-accent-green/10 border border-accent-green/30 text-accent-green rounded-none text-xs font-semibold text-center mt-5 flex items-center justify-center gap-2">
                 <CheckCircle size={16} />
                 <span>Simulação enviada! Um consultor de escala entrará em contato.</span>
               </div>

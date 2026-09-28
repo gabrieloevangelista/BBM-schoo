@@ -201,17 +201,16 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-3.5 bg-[#C1FF07] text-[#12131a] font-bold text-sm font-outfit tracking-wide cursor-pointer transition-all duration-200 flex items-center justify-center gap-2 hover:bg-[#aee600] disabled:opacity-50 disabled:cursor-not-allowed mt-1"
-              style={{ borderRadius: '2px' }}
+              className="btn-primary w-full py-3.5 text-sm font-bold flex items-center justify-center gap-2 mt-1"
             >
               {isSubmitting ? (
                 <span className="flex items-center gap-2">
-                  <span className="w-4 h-4 border-2 border-[#12131a]/30 border-t-[#12131a] rounded-full animate-spin inline-block" />
+                  <span className="w-4 h-4 border-2 border-[#12131a]/30 border-t-[#12131a] rounded-none animate-spin inline-block" />
                   Verificando...
                 </span>
               ) : (
                 <>
-                  Entrar no Portal
+                  <span>Entrar no Portal</span>
                   <ArrowRight size={16} />
                 </>
               )}
@@ -233,11 +232,10 @@ export default function LoginPage() {
                 <button
                   key={item.email}
                   onClick={() => handleQuickLogin(item.email)}
-                  style={{ borderRadius: '2px' }}
-                  className={`py-2 px-3 bg-transparent text-xs font-semibold font-outfit cursor-pointer transition-all duration-200 text-left ${
+                  className={`py-2 px-3 bg-transparent text-xs font-bold font-outfit uppercase tracking-wider cursor-pointer transition-all duration-200 text-left border-l-2 ${
                     item.color === 'red'
-                      ? 'border border-red-500/20 text-red-400 hover:border-red-500/50 hover:bg-red-500/5'
-                      : 'border border-white/[0.08] text-white/50 hover:border-white/20 hover:text-white/80 hover:bg-white/[0.03]'
+                      ? 'border border-red-500/20 border-l-red-500 text-red-400 hover:border-red-500/50 hover:bg-red-500/5'
+                      : 'border border-white/[0.08] border-l-[#C1FF07]/60 text-white/70 hover:border-white/20 hover:border-l-[#C1FF07] hover:text-white hover:bg-white/[0.03]'
                   }`}
                 >
                   {item.label}

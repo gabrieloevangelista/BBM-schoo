@@ -592,7 +592,7 @@ export default function MemberProfilePage() {
             <button 
               onClick={() => setIsEditing(!isEditing)} 
               className="outline-btn text-xs"
-              style={{ padding: '8px 16px', borderRadius: '2px' }}
+              style={{ padding: '8px 16px' }}
             >
               <Edit size={14} />
               <span>{isEditing ? 'Cancelar' : 'Editar Perfil'}</span>
@@ -603,7 +603,7 @@ export default function MemberProfilePage() {
                 <button 
                   onClick={() => handleConnect(profile.id)} 
                   className="btn-primary text-xs"
-                  style={{ padding: '8px 16px', borderRadius: '2px' }}
+                  style={{ padding: '8px 18px' }}
                 >
                   <UserPlus size={14} />
                   <span>Conectar</span>
@@ -613,7 +613,7 @@ export default function MemberProfilePage() {
                 <button 
                   onClick={() => handleRejectConnect(profile.id)} 
                   className="outline-btn text-xs"
-                  style={{ padding: '8px 16px', borderRadius: '2px' }}
+                  style={{ padding: '8px 16px' }}
                 >
                   <UserMinus size={14} />
                   <span>Cancelar Solicitação</span>
@@ -624,15 +624,15 @@ export default function MemberProfilePage() {
                   <button 
                     onClick={() => handleAcceptConnect(profile.id)} 
                     className="btn-primary text-xs"
-                    style={{ padding: '8px 16px', borderRadius: '2px' }}
+                    style={{ padding: '8px 18px' }}
                   >
                     <UserCheck size={14} />
                     <span>Aceitar</span>
                   </button>
                   <button 
                     onClick={() => handleRejectConnect(profile.id)} 
-                    className="outline-btn text-xs text-accent-red hover:text-white"
-                    style={{ padding: '8px 16px', borderRadius: '2px', borderColor: 'rgba(255,82,82,0.2)' }}
+                    className="btn-danger text-xs"
+                    style={{ padding: '8px 16px' }}
                   >
                     <UserX size={14} />
                     <span>Recusar</span>
@@ -642,8 +642,8 @@ export default function MemberProfilePage() {
               {connectionState === 'connected' && (
                 <button 
                   onClick={() => handleRemoveConnect(profile.id)} 
-                  className="outline-btn text-xs text-accent-red hover:text-white"
-                  style={{ padding: '8px 16px', borderRadius: '2px', borderColor: 'rgba(255,82,82,0.2)' }}
+                  className="btn-danger text-xs"
+                  style={{ padding: '8px 16px' }}
                 >
                   <UserMinus size={14} />
                   <span>Desfazer Conexão</span>
@@ -824,14 +824,14 @@ export default function MemberProfilePage() {
                 type="button" 
                 onClick={() => setIsEditing(false)} 
                 className="outline-btn text-xs font-semibold"
-                style={{ padding: '9px 20px', borderRadius: '2px' }}
+                style={{ padding: '9px 20px' }}
               >
                 Cancelar
               </button>
               <button 
                 type="submit" 
                 className="btn-primary text-xs"
-                style={{ padding: '9px 20px', borderRadius: '2px' }}
+                style={{ padding: '9px 20px' }}
               >
                 <Save size={14} />
                 <span>Salvar Perfil</span>

@@ -188,7 +188,7 @@ export default function RecursosPage() {
         {isAdmin && (
           <Link 
             href="/recursos/novo" 
-            className="px-4 py-2 bg-gradient-to-r from-primary-lemon to-primary-lemon-hover text-bg-deep rounded-lg text-xs font-bold hover:shadow-[0_0_12px_rgba(193,255,7,0.2)] cursor-pointer transition-all duration-200 flex items-center gap-1.5 font-outfit no-underline"
+            className="btn-primary no-underline text-xs flex items-center gap-1.5"
           >
             <Plus size={16} />
             <span>Adicionar Recurso</span>
@@ -222,11 +222,11 @@ export default function RecursosPage() {
                 : 'hover:bg-white/5'
             }`}
           >
-            <div className="p-2.5 rounded-lg bg-white/5 text-[#C1FF07]">
+            <div className="p-2.5 rounded-none border border-white/10 bg-white/5 text-[#C1FF07]">
               <FileQuestion size={20} />
             </div>
             <div>
-              <h4 className="text-xs font-bold mb-1 font-outfit">Todos</h4>
+              <h4 className="text-xs font-bold mb-1 font-outfit uppercase tracking-wider">Todos</h4>
               <p className="text-[10px] text-text-secondary m-0 leading-normal">Visão geral.</p>
             </div>
           </div>
@@ -240,11 +240,11 @@ export default function RecursosPage() {
                 : 'hover:bg-white/5'
             }`}
           >
-            <div className="p-2.5 rounded-lg bg-white/5 text-[#C1FF07]">
+            <div className="p-2.5 rounded-none border border-white/10 bg-white/5 text-[#C1FF07]">
               <FileText size={20} />
             </div>
             <div>
-              <h4 className="text-xs font-bold mb-1 font-outfit">Documentos</h4>
+              <h4 className="text-xs font-bold mb-1 font-outfit uppercase tracking-wider">Documentos</h4>
               <p className="text-[10px] text-text-secondary m-0 leading-normal">PDFs e textos.</p>
             </div>
           </div>
@@ -258,11 +258,11 @@ export default function RecursosPage() {
                 : 'hover:bg-white/5'
             }`}
           >
-            <div className="p-2.5 rounded-lg bg-white/5 text-[#C1FF07]">
+            <div className="p-2.5 rounded-none border border-white/10 bg-white/5 text-[#C1FF07]">
               <FileSpreadsheet size={20} />
             </div>
             <div>
-              <h4 className="text-xs font-bold mb-1 font-outfit">Planilhas</h4>
+              <h4 className="text-xs font-bold mb-1 font-outfit uppercase tracking-wider">Planilhas</h4>
               <p className="text-[10px] text-text-secondary m-0 leading-normal">Excel e CSV.</p>
             </div>
           </div>
@@ -276,11 +276,11 @@ export default function RecursosPage() {
                 : 'hover:bg-white/5'
             }`}
           >
-            <div className="p-2.5 rounded-lg bg-white/5 text-[#C1FF07]">
+            <div className="p-2.5 rounded-none border border-white/10 bg-white/5 text-[#C1FF07]">
               <FileText size={20} />
             </div>
             <div>
-              <h4 className="text-xs font-bold mb-1 font-outfit">Apresentações</h4>
+              <h4 className="text-xs font-bold mb-1 font-outfit uppercase tracking-wider">Apresentações</h4>
               <p className="text-[10px] text-text-secondary m-0 leading-normal">Slides e PPTs.</p>
             </div>
           </div>
@@ -353,7 +353,7 @@ export default function RecursosPage() {
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-3">
-                        <div className="p-2 bg-white/5 rounded-lg">
+                        <div className="p-2 bg-white/5 rounded-none border border-white/10 text-[#C1FF07]">
                           {getResourceIcon(res.category)}
                         </div>
                         <div>

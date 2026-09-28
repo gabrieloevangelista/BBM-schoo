@@ -185,10 +185,10 @@ export function LessonVideoUploader({
 
       {/* Uploading or Processing State */}
       {(status === 'uploading' || status === 'processing') && (
-        <div className="border border-[var(--color-input-border)] bg-[var(--color-input-bg)] rounded-xl p-5 flex flex-col gap-3">
+        <div className="border border-[var(--color-input-border)] bg-[var(--color-input-bg)] rounded-none p-5 flex flex-col gap-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-[#C1FF07]/10 flex items-center justify-center text-[#C1FF07]">
+              <div className="w-10 h-10 rounded-none border border-[#C1FF07]/30 bg-[#C1FF07]/10 flex items-center justify-center text-[#C1FF07]">
                 {status === 'processing' ? (
                   <Loader2 size={20} className="animate-spin text-[#C1FF07]" />
                 ) : (
@@ -196,7 +196,7 @@ export function LessonVideoUploader({
                 )}
               </div>
               <div className="flex flex-col">
-                <span className="text-sm font-bold text-text-base truncate max-w-[280px] sm:max-w-md">
+                <span className="text-sm font-bold text-text-base truncate max-w-[280px] sm:max-w-md font-outfit uppercase tracking-tight">
                   {fileName}
                 </span>
                 <span className="text-xs text-text-muted">
@@ -209,10 +209,10 @@ export function LessonVideoUploader({
             </span>
           </div>
 
-          {/* Progress Bar */}
-          <div className="w-full h-2 rounded-full bg-white/5 overflow-hidden">
+          {/* Progress Bar — Sci-Fi Sharp */}
+          <div className="w-full h-2 rounded-none bg-white/5 overflow-hidden border border-white/5">
             <div
-              className="h-full bg-[#C1FF07] transition-all duration-300 rounded-full"
+              className="h-full bg-[#C1FF07] transition-all duration-300 rounded-none"
               style={{
                 width: status === 'processing' ? '100%' : `${progress}%`,
                 opacity: status === 'processing' ? 0.7 : 1,
@@ -224,18 +224,18 @@ export function LessonVideoUploader({
 
       {/* Error State */}
       {status === 'error' && (
-        <div className="border border-red-500/30 bg-red-500/10 rounded-xl p-4 flex items-center justify-between gap-4">
+        <div className="border border-red-500/30 bg-red-500/10 rounded-none p-4 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <AlertCircle size={20} className="text-red-400 shrink-0" />
             <div className="flex flex-col">
-              <span className="text-sm font-bold text-red-200">Falha no envio do vídeo</span>
+              <span className="text-sm font-bold text-red-200 font-outfit uppercase tracking-tight">Falha no envio do vídeo</span>
               <span className="text-xs text-red-300/80">{errorMessage}</span>
             </div>
           </div>
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="outline-btn text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 shrink-0"
+            className="btn-danger text-xs px-3 py-1.5 shrink-0"
           >
             Tentar Novamente
           </button>
@@ -244,15 +244,15 @@ export function LessonVideoUploader({
 
       {/* Idle / Success State with Existing Video */}
       {(status === 'idle' || status === 'success') && hasActiveVideo && (
-        <div className="border border-white/10 bg-[var(--color-input-bg)] rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="border border-white/10 bg-[var(--color-input-bg)] rounded-none p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3.5">
-            <div className="w-11 h-11 rounded-lg bg-[#C1FF07]/15 flex items-center justify-center text-[#C1FF07] shrink-0 border border-[#C1FF07]/30">
+            <div className="w-11 h-11 rounded-none bg-[#C1FF07]/15 flex items-center justify-center text-[#C1FF07] shrink-0 border border-[#C1FF07]/30">
               <CheckCircle2 size={22} />
             </div>
             <div className="flex flex-col">
               <div className="flex items-center gap-2">
-                <span className="text-sm font-bold text-text-base">Vídeo da Aula Ativo</span>
-                <span className="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                <span className="text-sm font-bold text-text-base font-outfit uppercase tracking-tight">Vídeo da Aula Ativo</span>
+                <span className="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded-none bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-outfit">
                   Pronto para Streaming
                 </span>
               </div>
@@ -274,7 +274,7 @@ export function LessonVideoUploader({
               <button
                 type="button"
                 onClick={onRemoveVideo}
-                className="p-2 text-text-muted hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
+                className="p-2 text-text-muted hover:text-red-400 hover:bg-red-500/10 rounded-none border border-transparent hover:border-red-500/30 transition-colors cursor-pointer"
                 title="Remover vídeo"
               >
                 <Trash2 size={16} />
@@ -294,18 +294,18 @@ export function LessonVideoUploader({
           onDragLeave={() => setIsDragOver(false)}
           onDrop={handleDrop}
           onClick={() => fileInputRef.current?.click()}
-          className={`border-2 border-dashed rounded-xl p-8 flex flex-col items-center justify-center gap-3 cursor-pointer transition-all duration-200 text-center ${
+          className={`border-2 border-dashed rounded-none p-8 flex flex-col items-center justify-center gap-3 cursor-pointer transition-all duration-200 text-center ${
             isDragOver
               ? 'border-[#C1FF07] bg-[#C1FF07]/10'
               : 'border-white/15 bg-white/[0.02] hover:border-[#C1FF07]/40 hover:bg-white/[0.04]'
           }`}
         >
-          <div className="w-12 h-12 rounded-xl bg-[#C1FF07]/10 flex items-center justify-center text-[#C1FF07] transition-transform group-hover:scale-105">
+          <div className="w-12 h-12 rounded-none bg-[#C1FF07]/10 border border-[#C1FF07]/30 flex items-center justify-center text-[#C1FF07] transition-transform group-hover:scale-105">
             <Video size={24} />
           </div>
 
           <div className="flex flex-col gap-1">
-            <span className="text-sm font-bold text-text-base">
+            <span className="text-sm font-bold text-text-base font-outfit uppercase tracking-tight">
               Clique para selecionar ou arraste o vídeo da aula aqui
             </span>
             <span className="text-xs text-text-secondary">

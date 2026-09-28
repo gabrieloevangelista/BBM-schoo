@@ -518,7 +518,7 @@ export default function LessonDetailPage() {
           {/* Lesson Metadata Banner */}
           <div className="flex flex-col gap-3">
             <div className="flex items-center gap-3">
-              <span className="text-[10px] font-extrabold px-2.5 py-1 rounded bg-primary-lemon/10 text-primary-lemon border border-primary-lemon/10 uppercase tracking-widest font-outfit">
+              <span className="text-[10px] font-extrabold px-2.5 py-1 rounded-none bg-primary-lemon/10 text-primary-lemon border border-primary-lemon/30 uppercase tracking-widest font-outfit">
                 Aula {lessonNumber} • {lesson.duration || '1h 00m'}
               </span>
             </div>
@@ -593,7 +593,7 @@ export default function LessonDetailPage() {
                     <button 
                       onClick={handleDownloadResources} 
                       disabled={zipLoading}
-                      className="w-full py-2 bg-[var(--color-bg-card)] border border-[var(--color-glass-border)] hover:bg-[var(--color-bg-card-hover)] text-text-base text-xs font-semibold rounded cursor-pointer transition duration-150 flex items-center justify-center gap-2"
+                      className="outline-btn w-full py-2 flex items-center justify-center gap-2 text-xs font-semibold cursor-pointer"
                     >
                       <Download size={12} />
                       <span>{zipLoading ? 'Compactando...' : 'Baixar todos (.ZIP)'}</span>
@@ -765,7 +765,6 @@ export default function LessonDetailPage() {
                   ? 'border-[#C1FF07]/30 text-[#C1FF07] bg-[#C1FF07]/5' 
                   : 'border-white/[0.08] text-white/60 hover:text-white hover:border-white/20'
               }`}
-              style={{ borderRadius: '2px' }}
             >
               <span className={`w-4 h-4 rounded-full border flex items-center justify-center ${isWatched ? 'border-[#C1FF07]' : 'border-white/30'}`}>
                 {isWatched && <Check size={10} />}
@@ -801,7 +800,6 @@ export default function LessonDetailPage() {
                   ? 'border-[#C1FF07]/30 text-[#C1FF07] bg-[#C1FF07]/5'
                   : 'border-white/[0.08] text-white/60 hover:text-white hover:border-white/20'
               }`}
-              style={{ borderRadius: '2px' }}
             >
               <ThumbsUp size={14} />
               <span>Marcar como Útil ({usefulCount})</span>
@@ -815,7 +813,6 @@ export default function LessonDetailPage() {
                   ? 'border-[#C1FF07]/30 text-[#C1FF07] bg-[#C1FF07]/5'
                   : 'border-white/[0.08] text-white/60 hover:text-white hover:border-white/20'
               }`}
-              style={{ borderRadius: '2px' }}
             >
               <Bookmark size={14} />
               <span>{isSaved ? 'Aula Salva' : 'Salvar Aula'}</span>
@@ -841,7 +838,6 @@ export default function LessonDetailPage() {
                         ? 'border-[#C1FF07]/30 bg-[#C1FF07]/5 text-white' 
                         : 'border-white/[0.04] bg-white/[0.01] text-white/50 hover:text-white hover:border-white/10'
                     }`}
-                    style={{ borderRadius: '2px' }}
                   >
                     <div className={`w-6 h-6 rounded-full flex items-center justify-center mt-0.5 flex-shrink-0 ${
                       isCurrent ? 'bg-[#C1FF07]/10 text-[#C1FF07]' : 'bg-white/5 text-white/40'

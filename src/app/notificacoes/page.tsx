@@ -129,11 +129,11 @@ export default function NotificacoesPage() {
   if (isLoading) {
     return (
       <div className="flex flex-col gap-4">
-        <div className="h-8 w-48 bg-white/5 rounded animate-pulse" />
-        <div className="h-4 w-72 bg-white/5 rounded animate-pulse" />
+        <div className="h-8 w-48 bg-white/5 rounded-none border border-white/5 animate-pulse" />
+        <div className="h-4 w-72 bg-white/5 rounded-none border border-white/5 animate-pulse" />
         <div className="flex flex-col gap-3 mt-6">
           {[1, 2, 3].map(i => (
-            <div key={i} className="h-20 bg-white/5 rounded-lg animate-pulse" />
+            <div key={i} className="h-20 bg-white/5 rounded-none border border-white/5 animate-pulse" />
           ))}
         </div>
       </div>
@@ -153,7 +153,7 @@ export default function NotificacoesPage() {
         {unreadNotifications.length > 0 && (
           <button 
             onClick={handleMarkAllAsRead}
-            className="px-4 py-2 border border-white/10 text-xs font-bold rounded-lg cursor-pointer hover:bg-white/5 transition-all duration-200"
+            className="outline-btn text-xs font-bold"
           >
             Marcar todas como lidas
           </button>
@@ -177,16 +177,16 @@ export default function NotificacoesPage() {
                     theme === 'light' ? 'border-l-[#5a9200] bg-white hover:bg-black/5' : 'border-l-primary-lemon bg-[#12131a] hover:bg-white/5'
                   }`}
                 >
-                  <div className="p-2 rounded-lg bg-white/5 mt-0.5">
+                  <div className="p-2 rounded-none border border-white/10 bg-white/5 mt-0.5 text-[#C1FF07]">
                     {getNotificationIcon(n.type)}
                   </div>
                   <div className="flex-grow min-w-0">
                     <div className="flex justify-between items-start gap-4">
-                      <h4 className="text-sm font-bold text-text-base m-0 font-outfit">{n.title}</h4>
+                      <h4 className="text-sm font-bold text-text-base m-0 font-outfit uppercase tracking-tight">{n.title}</h4>
                       <div className="flex gap-2">
                         <button 
                           onClick={(e) => { e.stopPropagation(); handleMarkAsRead(n.id); }}
-                          className="outline-btn border-0 p-1.5 text-text-secondary hover:text-emerald-400 cursor-pointer"
+                          className="btn-icon p-1.5 text-text-secondary hover:text-emerald-400 cursor-pointer rounded-none border border-transparent hover:border-emerald-500/40"
                           style={{ minWidth: 'auto' }}
                           title="Marcar como lida"
                         >
@@ -194,7 +194,7 @@ export default function NotificacoesPage() {
                         </button>
                         <button 
                           onClick={(e) => { e.stopPropagation(); handleDeleteNotification(n.id); }}
-                          className="outline-btn border-0 p-1.5 text-text-secondary hover:text-red-400 cursor-pointer"
+                          className="btn-icon p-1.5 text-text-secondary hover:text-red-400 cursor-pointer rounded-none border border-transparent hover:border-red-500/40"
                           style={{ minWidth: 'auto' }}
                           title="Excluir"
                         >
@@ -233,7 +233,7 @@ export default function NotificacoesPage() {
                     theme === 'light' ? 'bg-white hover:bg-black/5' : 'bg-[#12131a] hover:bg-white/5'
                   }`}
                 >
-                  <div className="p-2 rounded-lg bg-white/5 mt-0.5">
+                  <div className="p-2 rounded-none border border-white/10 bg-white/5 mt-0.5">
                     {getNotificationIcon(n.type)}
                   </div>
                   <div className="flex-grow min-w-0">

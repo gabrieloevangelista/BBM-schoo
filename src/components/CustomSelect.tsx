@@ -45,7 +45,7 @@ export function CustomSelect({
       style={{ minWidth: '140px' }}
     >
       <div
-        className="flex items-center justify-between w-full h-full bg-[#111111] border border-white/10 rounded-md px-3 py-2 text-sm text-text-primary hover:border-white/20 transition-colors"
+        className="flex items-center justify-between w-full h-full bg-[#111111] border border-white/10 border-l-2 border-l-[#C1FF07]/50 rounded-none px-3 py-2 text-sm text-text-primary hover:border-white/20 hover:border-l-[#C1FF07] transition-colors"
         onClick={() => !disabled && setIsOpen(!isOpen)}
       >
         <span className={!selectedOption ? 'text-text-secondary' : ''}>
@@ -55,7 +55,7 @@ export function CustomSelect({
       </div>
 
       {isOpen && !disabled && (
-        <div className="absolute z-50 w-full mt-1 bg-[#1A1A1A] border border-white/10 rounded-md shadow-lg overflow-hidden py-1 max-h-60 overflow-y-auto">
+        <div className="absolute z-50 w-full mt-1 bg-[#14151e] border border-[#C1FF07]/40 rounded-none shadow-2xl overflow-hidden py-1 max-h-60 overflow-y-auto">
           {options.map((option) => (
             <div
               key={option.value}

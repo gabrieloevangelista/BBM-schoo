@@ -12,7 +12,7 @@ export default function RegrasPage() {
           <ArrowLeft size={16} /> Voltar para a Comunidade
         </Link>
         <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 rounded bg-[#C1FF07]/10 text-[#C1FF07] flex items-center justify-center">
+          <div className="w-10 h-10 rounded-none border border-[#C1FF07]/30 bg-[#C1FF07]/10 text-[#C1FF07] flex items-center justify-center">
             <ShieldAlert size={24} />
           </div>
           <h1 className="page-title m-0">Regras da Comunidade</h1>
@@ -80,11 +80,11 @@ export default function RegrasPage() {
           Conteúdo Encorajado
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-white/5 p-4 rounded-md">
+          <div className="bg-white/5 p-4 rounded-none border border-white/10">
             <h3 className="text-sm font-bold text-white mb-2">Networking e Negócios</h3>
             <p className="text-xs text-text-muted leading-relaxed">Compartilhe suas vitórias, novos contratos, estratégias que deram certo e aprendizados que podem ajudar outros membros a crescerem seus negócios.</p>
           </div>
-          <div className="bg-white/5 p-4 rounded-md">
+          <div className="bg-white/5 p-4 rounded-none border border-white/10">
             <h3 className="text-sm font-bold text-white mb-2">Dúvidas Técnicas</h3>
             <p className="text-xs text-text-muted leading-relaxed">Não tenha medo de perguntar. Poste dúvidas sobre ferramentas, marketing, vendas e gestão. A comunidade está aqui para elevar o nível de todos.</p>
           </div>
